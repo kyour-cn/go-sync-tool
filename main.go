@@ -16,7 +16,7 @@ func main() {
 
     go func() {
         var w app.Window
-        w.Option(app.Title(global.Name+" ("+global.Version+")"), app.Size(unit.Dp(1200), unit.Dp(800)))
+        w.Option(app.Title(global.AppName+" ("+global.Version+")"), app.Size(unit.Dp(1200), unit.Dp(800)))
 
         mainUI, err := mainApp.New(&w, global.Version)
         if err != nil {
