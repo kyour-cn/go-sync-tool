@@ -9,9 +9,9 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/oligo/gioview v0.8.2
 	github.com/oligo/gvcode v0.2.1
+	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/tidwall/pretty v1.2.1
 	golang.org/x/exp/shiny v0.0.0-20250408133849-7e4ce0ab07d0
-	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
