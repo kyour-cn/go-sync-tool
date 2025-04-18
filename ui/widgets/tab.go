@@ -13,7 +13,7 @@ import (
     "gioui.org/widget"
     "gioui.org/widget/material"
 
-    "app/internal/safemap"
+    "app/internal/tools/safemap"
     "app/ui/chapartheme"
 )
 

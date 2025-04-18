@@ -18,7 +18,7 @@ import (
     "gioui.org/widget/material"
     "gioui.org/x/component"
 
-    "app/internal/safemap"
+    "app/internal/tools/safemap"
     "app/ui/chapartheme"
 )
 

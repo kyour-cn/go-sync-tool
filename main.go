@@ -1,9 +1,9 @@
 package main
 
 import (
+    "app/internal/global"
     "flag"
     "log"
-    _ "net/http/pprof"
     "os"
 
     mainApp "app/ui/app"
@@ -11,16 +11,14 @@ import (
     "gioui.org/unit"
 )
 
-var version = "v1.0.0"
-
 func main() {
     flag.Parse()
 
     go func() {
         var w app.Window
-        w.Option(app.Title("巨蟹ERP同步工具(B2B) "+version), app.Size(unit.Dp(1200), unit.Dp(800)))
+        w.Option(app.Title(global.Name+" ("+global.Version+")"), app.Size(unit.Dp(1200), unit.Dp(800)))
 
-        mainUI, err := mainApp.New(&w, version)
+        mainUI, err := mainApp.New(&w, global.Version)
         if err != nil {
             log.Fatal(err)
         }
