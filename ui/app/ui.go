@@ -72,7 +72,7 @@ func New(w *app.Window, appVersion string) (*UI, error) {
     }
 
     u.homeView = home.New()
-    u.syncView = sync.New()
+    u.syncView = sync.New(u.Theme)
 
     u.header.OnThemeSwitched = u.onThemeChange
 
