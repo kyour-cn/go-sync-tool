@@ -1,6 +1,7 @@
 package sync
 
 import (
+    "app/internal/config"
     "app/internal/task"
     "app/ui/chapartheme"
     "app/ui/widgets"
@@ -12,6 +13,7 @@ import (
     "gioui.org/widget/material"
     giox "gioui.org/x/component"
     "image/color"
+    "log/slog"
 )
 
 type View struct {
@@ -20,7 +22,8 @@ type View struct {
     treeView    *widgets.TreeView
     codeEdit    *codeeditor.CodeEditor
     // 当前选中的名称
-    selectedNode string
+    selectedNode *task.Task
+    prompt       *widgets.Prompt
 }
 
 func New(theme *chapartheme.Theme) *View {
@@ -62,9 +65,9 @@ func New(theme *chapartheme.Theme) *View {
             },
             BarWidth: unit.Dp(2),
         },
-        treeView:     leftTree,
-        codeEdit:     codeEditor,
-        selectedNode: "请选择",
+        treeView: leftTree,
+        codeEdit: codeEditor,
+        prompt:   widgets.NewPrompt("", "", ""),
     }
 
     // 设置点击事件
@@ -73,7 +76,7 @@ func New(theme *chapartheme.Theme) *View {
 
             if t.Name == node.Identifier {
                 SetCodeEdit(c, theme, node.Text)
-                c.selectedNode = t.Label
+                c.selectedNode = &t
                 break
             }
         }
@@ -89,6 +92,19 @@ func New(theme *chapartheme.Theme) *View {
     return c
 }
 
+func (v *View) ShowPrompt(title, content, modalType string, onSubmit func(selectedOption string, remember bool), options ...widgets.Option) {
+    v.prompt.Type = modalType
+    v.prompt.Title = title
+    v.prompt.Content = content
+    v.prompt.SetOptions(options...)
+    v.prompt.WithoutRememberBool()
+    v.prompt.SetOnSubmit(onSubmit)
+    v.prompt.Show()
+}
+func (v *View) HidePrompt() {
+    v.prompt.Hide()
+}
+
 func SetCodeEdit(c *View, theme *chapartheme.Theme, code string) {
     c.codeEdit = codeeditor.NewCodeEditor(code, codeeditor.CodeLanguageShell, theme)
     c.codeEdit.SetReadOnly(false)
@@ -98,6 +114,31 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
 
     if v.startButton.Clicked(gtx) {
         fmt.Println("Save button clicked")
+        _conf, err := config.GetSqlConfig(v.selectedNode.Name)
+        if err != nil {
+            slog.Info("Get sql not found: " + err.Error())
+            _conf = &config.SqlConfig{
+                Name: v.selectedNode.Name,
+            }
+        }
+        _conf.Sql = v.codeEdit.Code()
+        err = config.SetSqlConfig(v.selectedNode.Name, _conf)
+        if err != nil {
+            slog.Warn("Set sql error: " + err.Error())
+        }
+
+        v.ShowPrompt("保存成功", "", widgets.MessageModalTypeInfo, func(selectedOption string, remember bool) {
+            slog.Info("保存成功")
+        })
+
+        // 延迟1秒关闭
+        //go func() {
+        //    // 延迟
+        //    timer := time.NewTimer(1 * time.Second) // 创建一个定时器
+        //    <-timer.C
+        //    v.HidePrompt()
+        //}()
+
     }
 
     return v.split.Layout(gtx, theme,
@@ -117,9 +158,19 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
                 return layout.Flex{Axis: layout.Vertical, Alignment: layout.Middle}.Layout(gtx,
 
                     layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                        return layout.Inset{Top: unit.Dp(10)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+                            return v.prompt.Layout(gtx, theme)
+                        })
+                    }),
+
+                    layout.Rigid(func(gtx layout.Context) layout.Dimensions {
                         return layout.Flex{Axis: layout.Horizontal, Alignment: layout.Middle}.Layout(gtx,
                             layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                                return material.H5(theme.Material(), v.selectedNode).Layout(gtx)
+                                if v.selectedNode == nil {
+                                    return material.H5(theme.Material(), "请选择").Layout(gtx)
+                                } else {
+                                    return material.H5(theme.Material(), v.selectedNode.Label).Layout(gtx)
+                                }
                             }),
                             // 填充中间空间
                             layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
