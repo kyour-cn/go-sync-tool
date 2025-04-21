@@ -22,4 +22,16 @@ func TestReadConfig(t *testing.T) {
 
     t.Log(dbConfig)
 
+    // 读取指定数据库配置
+    mysqlDb, err := config.GetDBConfig("mysql")
+    if err != nil {
+        return
+    }
+
+    // 设置指定数据库配置
+    err = config.SetDBConfig("mysql", mysqlDb)
+    if err != nil {
+        return
+    }
+
 }

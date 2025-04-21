@@ -1,4 +1,4 @@
-package global
+package domain
 
 const (
     Version     = "V0.0.1"

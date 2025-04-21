@@ -1,6 +1,7 @@
 package app
 
 import (
+    "app/internal/config"
     "app/ui/pages/home"
     "app/ui/pages/sync"
     "image"
@@ -48,9 +49,14 @@ func New(w *app.Window, appVersion string) (*UI, error) {
         return nil, err
     }
 
+    appConf, err := config.GetAppConfig()
+    if err != nil {
+        return nil, err
+    }
+
     theme := material.NewTheme()
     theme.Shaper = text.NewShaper(text.WithCollection(fontCollection))
-    u.Theme = chapartheme.New(theme, true)
+    u.Theme = chapartheme.New(theme, appConf.IsDark)
     // console need to be initialized before other pages as its listening for logs
     u.consolePage = console.New()
 
@@ -83,21 +89,28 @@ func (u *UI) showError(err error) {
 func (u *UI) onThemeChange(isDark bool) error {
     u.Theme.Switch(isDark)
 
-    //preferences, err := u.repo.ReadPreferences()
-    //if err != nil {
-    //    return fmt.Errorf("failed to read preferences, %w", err)
-    //}
-    //
-    //preferences.Spec.DarkMode = isDark
-    //if err := u.repo.UpdatePreferences(preferences); err != nil {
-    //    return fmt.Errorf("failed to update preferences, %w", err)
-    //}
+    appConf, err := config.GetAppConfig()
+    if err != nil {
+        return err
+    }
+
+    appConf.IsDark = isDark
+    if err := config.SetAppConfig(appConf); err != nil {
+        return err
+    }
+
     return nil
 }
 
 func (u *UI) load() error {
-    u.header.SetTheme(true)
-    u.Theme.Switch(true)
+
+    appConf, err := config.GetAppConfig()
+    if err != nil {
+        return err
+    }
+
+    u.header.SetTheme(appConf.IsDark)
+    u.Theme.Switch(appConf.IsDark)
 
     return nil
 }

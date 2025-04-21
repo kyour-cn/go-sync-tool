@@ -12,6 +12,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/tidwall/pretty v1.2.1
 	golang.org/x/exp/shiny v0.0.0-20250408133849-7e4ce0ab07d0
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (
