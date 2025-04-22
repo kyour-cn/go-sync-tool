@@ -6,13 +6,14 @@ import (
     "app/ui/chapartheme"
     "app/ui/widgets"
     "app/ui/widgets/codeeditor"
+    "context"
     "fmt"
-    "gioui.org/app"
     "gioui.org/layout"
     "gioui.org/unit"
     "gioui.org/widget"
     "gioui.org/widget/material"
     giox "gioui.org/x/component"
+    "github.com/go-gourd/gourd/event"
     "image/color"
     "log/slog"
 )
@@ -24,10 +25,9 @@ type View struct {
     codeEdit     *codeeditor.CodeEditor
     selectedNode *task.Task // 当前选中
     editing      bool
-    win          *app.Window
 }
 
-func New(theme *chapartheme.Theme, w *app.Window) *View {
+func New(theme *chapartheme.Theme) *View {
     // 初始化编辑器
     codeEditor := codeeditor.NewCodeEditor("test", codeeditor.CodeLanguageShell, theme)
 
@@ -68,7 +68,6 @@ func New(theme *chapartheme.Theme, w *app.Window) *View {
         },
         treeView: leftTree,
         codeEdit: codeEditor,
-        win:      w,
     }
 
     // 设置点击事件
@@ -102,7 +101,9 @@ func SetCodeEdit(c *View, theme *chapartheme.Theme, code string) {
         c.editing = true
     })
     // 刷新窗口
-    c.win.Invalidate()
+    //c.win.Invalidate()
+
+    event.Trigger("window.invalidate", context.Background())
 }
 
 func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimensions {

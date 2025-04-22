@@ -4,8 +4,7 @@ import (
     "app/internal/config"
     "app/ui/pages/home"
     "app/ui/pages/sync"
-    "image"
-
+    "context"
     "gioui.org/app"
     "gioui.org/layout"
     "gioui.org/op"
@@ -13,6 +12,8 @@ import (
     "gioui.org/op/paint"
     "gioui.org/text"
     "gioui.org/widget/material"
+    "github.com/go-gourd/gourd/event"
+    "image"
 
     "app/ui/chapartheme"
     "app/ui/fonts"
@@ -44,6 +45,11 @@ func New(w *app.Window, appVersion string) (*UI, error) {
         window: w,
     }
 
+    // Boot事件(应用) -初始化应用时执行
+    event.Listen("window.invalidate", func(context.Context) {
+        w.Invalidate()
+    })
+
     fontCollection, err := fonts.Prepare()
     if err != nil {
         return nil, err
@@ -72,7 +78,7 @@ func New(w *app.Window, appVersion string) (*UI, error) {
     }
 
     u.homeView = home.New()
-    u.syncView = sync.New(u.Theme, w)
+    u.syncView = sync.New(u.Theme)
 
     u.header.OnThemeSwitched = u.onThemeChange
 

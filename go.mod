@@ -5,7 +5,8 @@ go 1.23.4
 require (
 	gioui.org v0.8.0
 	gioui.org/x v0.8.1
-	github.com/alecthomas/chroma/v2 v2.16.0
+	github.com/alecthomas/chroma/v2 v2.17.0
+	github.com/go-gourd/gourd v1.3.0
 	github.com/google/uuid v1.6.0
 	github.com/oligo/gioview v0.8.2
 	github.com/oligo/gvcode v0.2.1
