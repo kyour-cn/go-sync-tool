@@ -31,6 +31,14 @@ func New() *Console {
         clearButton: &widget.Clickable{},
     }
 
+    c.logs = make([]domain.Log, 0)
+
+    c.logs = append(c.logs, domain.Log{
+        Message: "Welcome to the console!",
+        Time:    time.Now(),
+        Level:   "info",
+    })
+
     // bus.Subscribe(state.LogSubmitted, c.handleIncomingLog)
     return c
 }
