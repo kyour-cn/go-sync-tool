@@ -17,7 +17,6 @@ import (
     "github.com/alecthomas/chroma/v2/styles"
 
     "app/ui/chapartheme"
-    "app/ui/fonts"
     "app/ui/widgets"
 
     "github.com/oligo/gvcode"
@@ -72,13 +71,11 @@ type CodeEditor struct {
 }
 
 func NewCodeEditor(code string, lang string, theme *chapartheme.Theme) *CodeEditor {
-    fff := fonts.MustGetCodeEditorFont()
 
     c := &CodeEditor{
         theme:  theme,
         editor: &gvcode.Editor{},
         code:   code,
-        font:   fff,
         lang:   lang,
     }
 
