@@ -1,6 +1,9 @@
 package initialize
 
-import "log/slog"
+import (
+    "app/internal/task"
+    "log/slog"
+)
 
 func AppInit() {
 
@@ -10,5 +13,10 @@ func AppInit() {
         panic(err)
     }
 
-    slog.Info("初始化完成")
+    slog.Info("应用启动，初始化中...")
+
+    // 初始化任务进程
+    task.Init()
+
+    slog.Info("应用启动，初始化完成。")
 }

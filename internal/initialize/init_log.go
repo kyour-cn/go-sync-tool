@@ -2,7 +2,7 @@ package initialize
 
 import (
     "app/internal/config"
-    "app/internal/domain"
+    "app/internal/global"
     "context"
     "gopkg.in/natefinch/lumberjack.v2"
     "io"
@@ -85,7 +85,7 @@ func (h DefaultHandler) Handle(_ context.Context, r slog.Record) error {
     })
 
     // 处理日志显示到控制台
-    _, _ = domain.WriteConsoleLog([]byte(msg + "\n"))
+    global.WriteConsoleLog(r.Level.String(), msg)
 
     _, err := h.Writer.Write([]byte(dt + " " + msg + "\n"))
     return err

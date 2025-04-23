@@ -4,12 +4,13 @@ import (
     "app/assets"
     "app/ui/chapartheme"
     "app/ui/widgets"
-    "fmt"
+    "context"
     "gioui.org/layout"
     "gioui.org/op/paint"
     "gioui.org/unit"
     "gioui.org/widget"
     "gioui.org/widget/material"
+    "github.com/go-gourd/gourd/event"
     "log/slog"
 )
 
@@ -36,8 +37,8 @@ func New() *View {
 func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimensions {
 
     if c.startButton.Clicked(gtx) {
-        fmt.Println("Start button clicked")
         slog.Info("首页保存按钮被点击")
+        event.Trigger("task.start", context.Background())
     }
 
     return layout.Inset{

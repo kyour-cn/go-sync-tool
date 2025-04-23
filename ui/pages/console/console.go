@@ -1,6 +1,7 @@
 package console
 
 import (
+    "app/internal/global"
     "fmt"
     "time"
 
@@ -9,7 +10,6 @@ import (
     "gioui.org/widget"
     "gioui.org/widget/material"
 
-    "app/internal/domain"
     "app/ui/chapartheme"
 )
 
@@ -43,14 +43,14 @@ func New() *Console {
     return c
 }
 
-func (c *Console) logLayout(gtx layout.Context, theme *chapartheme.Theme, log *domain.Log) layout.Dimensions {
+func (c *Console) logLayout(gtx layout.Context, theme *chapartheme.Theme, log *global.Log) layout.Dimensions {
     textColor := theme.Palette.Fg
     switch log.Level {
-    case "info":
+    case "INFO":
         textColor = chapartheme.LightGreen
-    case "error":
+    case "ERROR":
         textColor = chapartheme.LightRed
-    case "warn":
+    case "WARN":
         textColor = chapartheme.LightYellow
     }
 
@@ -79,7 +79,7 @@ func (c *Console) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Di
                     layout.Rigid(func(gtx layout.Context) layout.Dimensions {
                         if c.clearButton.Clicked(gtx) {
                             //c.logs = make([]domain.Log, 0)
-                            domain.Logs = make([]domain.Log, 0)
+                            global.Logs = make([]global.Log, 0)
                         }
                         return layout.Inset{Bottom: unit.Dp(5)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
                             return material.Button(theme.Material(), c.clearButton, "Clear").Layout(gtx)
@@ -94,8 +94,8 @@ func (c *Console) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Di
                     CornerRadius: unit.Dp(4),
                 }.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
                     return layout.UniformInset(unit.Dp(5)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return material.List(theme.Material(), c.list).Layout(gtx, len(domain.Logs), func(gtx layout.Context, i int) layout.Dimensions {
-                            return c.logLayout(gtx, theme, &domain.Logs[i])
+                        return material.List(theme.Material(), c.list).Layout(gtx, len(global.Logs), func(gtx layout.Context, i int) layout.Dimensions {
+                            return c.logLayout(gtx, theme, &global.Logs[i])
                         })
                     })
                 })

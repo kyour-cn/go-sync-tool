@@ -1,4 +1,4 @@
-package domain
+package global
 
 import (
     "time"
@@ -13,7 +13,7 @@ type Log struct {
 var Logs []Log
 
 // WriteConsoleLog 写入日志到控制台
-func WriteConsoleLog(p []byte) (n int, err error) {
+func WriteConsoleLog(l string, msg string) {
 
     //判断日志仅保留最后100条
     if len(Logs) > 100 {
@@ -28,9 +28,7 @@ func WriteConsoleLog(p []byte) (n int, err error) {
     // 往头部插入数据
     Logs = append([]Log{{
         Time:    time.Now(),
-        Level:   "info",
-        Message: string(p),
+        Level:   l,
+        Message: msg,
     }}, Logs...)
-
-    return len(p), nil
 }
