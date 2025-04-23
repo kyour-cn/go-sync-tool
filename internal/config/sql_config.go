@@ -4,28 +4,28 @@ import (
     "errors"
 )
 
-// SqlConfig 适用于单个连接的配置
-type SqlConfig struct {
+// TaskConfig 适用于单个连接的配置
+type TaskConfig struct {
     Name string `toml:"name" json:"name" comment:"任务名称" `
     Sql  string `toml:"sql" json:"sql" comment:"SQL语句"`
 }
 
-// SqlConfigMap 适用于多个连接的配置
-type SqlConfigMap map[string]SqlConfig
+// TaskConfigMap 适用于多个连接的配置
+type TaskConfigMap map[string]TaskConfig
 
-var sqlConfig *SqlConfigMap
+var sqlConfig *TaskConfigMap
 
 // GetSqlConfigAll 获取所有数据库配置
-func GetSqlConfigAll() (*SqlConfigMap, error) {
-    key := "sql"
+func GetSqlConfigAll() (*TaskConfigMap, error) {
+    key := "task"
 
     if sqlConfig == nil {
-        sqlConfig = &SqlConfigMap{}
+        sqlConfig = &TaskConfigMap{}
     }
 
     // 如果配置不存在，则创建默认配置
     if !Exists(key) {
-        err := SetSqlConfigAll(sqlConfig)
+        err := SetTaskConfigAll(sqlConfig)
         if err != nil {
             return nil, err
         }
@@ -38,15 +38,15 @@ func GetSqlConfigAll() (*SqlConfigMap, error) {
     return sqlConfig, nil
 }
 
-// SetSqlConfigAll 设置所有数据库配置
-func SetSqlConfigAll(conf *SqlConfigMap) error {
-    key := "sql"
+// SetTaskConfigAll 设置所有数据库配置
+func SetTaskConfigAll(conf *TaskConfigMap) error {
+    key := "task"
     sqlConfig = conf
     return Marshal(key, conf)
 }
 
-// GetSqlConfig 获取指定数据库配置
-func GetSqlConfig(name string) (*SqlConfig, error) {
+// GetTaskConfig 获取指定数据库配置
+func GetTaskConfig(name string) (*TaskConfig, error) {
 
     all, err := GetSqlConfigAll()
     if err != nil {
@@ -63,8 +63,8 @@ func GetSqlConfig(name string) (*SqlConfig, error) {
     return nil, errors.New("sql config not found")
 }
 
-// SetSqlConfig 设置指定数据库配置
-func SetSqlConfig(name string, conf *SqlConfig) error {
+// SetTaskConfig 设置指定数据库配置
+func SetTaskConfig(name string, conf *TaskConfig) error {
 
     all, err := GetSqlConfigAll()
     if err != nil {
@@ -80,5 +80,5 @@ func SetSqlConfig(name string, conf *SqlConfig) error {
         allDb[name] = *conf
     }
 
-    return SetSqlConfigAll(&allDb)
+    return SetTaskConfigAll(&allDb)
 }

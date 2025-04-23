@@ -14,7 +14,7 @@ import (
 )
 
 type Console struct {
-    logs []domain.Log
+    //logs []domain.Log
 
     list *widget.List
 
@@ -31,13 +31,13 @@ func New() *Console {
         clearButton: &widget.Clickable{},
     }
 
-    c.logs = make([]domain.Log, 0)
-
-    c.logs = append(c.logs, domain.Log{
-        Message: "Welcome to the console!",
-        Time:    time.Now(),
-        Level:   "info",
-    })
+    //c.logs = make([]domain.Log, 0)
+    //
+    //c.logs = append(c.logs, domain.Log{
+    //    Message: "Welcome to the console!",
+    //    Time:    time.Now(),
+    //    Level:   "info",
+    //})
 
     // bus.Subscribe(state.LogSubmitted, c.handleIncomingLog)
     return c
@@ -78,7 +78,8 @@ func (c *Console) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Di
                 return layout.Flex{Axis: layout.Horizontal, Alignment: layout.Middle, Spacing: layout.SpaceStart}.Layout(gtx,
                     layout.Rigid(func(gtx layout.Context) layout.Dimensions {
                         if c.clearButton.Clicked(gtx) {
-                            c.logs = make([]domain.Log, 0)
+                            //c.logs = make([]domain.Log, 0)
+                            domain.Logs = make([]domain.Log, 0)
                         }
                         return layout.Inset{Bottom: unit.Dp(5)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
                             return material.Button(theme.Material(), c.clearButton, "Clear").Layout(gtx)
@@ -93,8 +94,8 @@ func (c *Console) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Di
                     CornerRadius: unit.Dp(4),
                 }.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
                     return layout.UniformInset(unit.Dp(5)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return material.List(theme.Material(), c.list).Layout(gtx, len(c.logs), func(gtx layout.Context, i int) layout.Dimensions {
-                            return c.logLayout(gtx, theme, &c.logs[i])
+                        return material.List(theme.Material(), c.list).Layout(gtx, len(domain.Logs), func(gtx layout.Context, i int) layout.Dimensions {
+                            return c.logLayout(gtx, theme, &domain.Logs[i])
                         })
                     })
                 })

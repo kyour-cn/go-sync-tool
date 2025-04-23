@@ -16,6 +16,7 @@ import (
     "github.com/go-gourd/gourd/event"
     "image/color"
     "log/slog"
+    "time"
 )
 
 type View struct {
@@ -76,9 +77,9 @@ func New(theme *chapartheme.Theme) *View {
 
             if t.Name == node.Identifier {
                 // 获取配置
-                _conf, err := config.GetSqlConfig(t.Name)
+                _conf, err := config.GetTaskConfig(t.Name)
                 if err != nil {
-                    _conf = &config.SqlConfig{}
+                    _conf = &config.TaskConfig{}
                 }
                 SetCodeEdit(c, theme, _conf.Sql)
                 c.selectedNode = &t
@@ -100,10 +101,17 @@ func SetCodeEdit(c *View, theme *chapartheme.Theme, code string) {
     c.codeEdit.SetOnChanged(func(text string) {
         c.editing = true
     })
-    // 刷新窗口
-    //c.win.Invalidate()
 
+    c.editing = false
+
+    // 刷新窗口
     event.Trigger("window.invalidate", context.Background())
+
+    // 这里主要是解决代码编辑器的行号显示有延迟
+    go func() {
+        time.Sleep(time.Millisecond * 100)
+        event.Trigger("window.invalidate", context.Background())
+    }()
 }
 
 func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimensions {
@@ -111,15 +119,15 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
     // 保存按钮
     if v.startButton.Clicked(gtx) && v.selectedNode != nil {
         fmt.Println("Save button clicked")
-        _conf, err := config.GetSqlConfig(v.selectedNode.Name)
+        _conf, err := config.GetTaskConfig(v.selectedNode.Name)
         if err != nil {
             slog.Info("Get sql not found: " + err.Error())
-            _conf = &config.SqlConfig{
+            _conf = &config.TaskConfig{
                 Name: v.selectedNode.Name,
             }
         }
         _conf.Sql = v.codeEdit.Code()
-        err = config.SetSqlConfig(v.selectedNode.Name, _conf)
+        err = config.SetTaskConfig(v.selectedNode.Name, _conf)
         if err != nil {
             slog.Warn("Set sql error: " + err.Error())
         }

@@ -2,6 +2,7 @@ package initialize
 
 import (
     "app/internal/config"
+    "app/internal/domain"
     "context"
     "gopkg.in/natefinch/lumberjack.v2"
     "io"
@@ -75,13 +76,17 @@ func (h DefaultHandler) Enabled(_ context.Context, l slog.Level) bool {
 
 func (h DefaultHandler) Handle(_ context.Context, r slog.Record) error {
     dt := time.Now().Format("2006-01-02 15:04:05")
-    msg := dt + " " + r.Level.String() + " " + r.Message
+    msg := r.Level.String() + " " + r.Message
 
     // 输出日志属性
     r.Attrs(func(a slog.Attr) bool {
         msg += " " + a.Key + "=" + a.Value.String()
         return true
     })
-    _, err := h.Writer.Write([]byte(msg + "\n"))
+
+    // 处理日志显示到控制台
+    _, _ = domain.WriteConsoleLog([]byte(msg + "\n"))
+
+    _, err := h.Writer.Write([]byte(dt + " " + msg + "\n"))
     return err
 }

@@ -45,7 +45,7 @@ func New(w *app.Window, appVersion string) (*UI, error) {
         window: w,
     }
 
-    // Boot事件(应用) -初始化应用时执行
+    // 监听 window.invalidate 事件刷新UI
     event.Listen("window.invalidate", func(context.Context) {
         w.Invalidate()
     })

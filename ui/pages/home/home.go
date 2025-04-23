@@ -10,6 +10,7 @@ import (
     "gioui.org/unit"
     "gioui.org/widget"
     "gioui.org/widget/material"
+    "log/slog"
 )
 
 type View struct {
@@ -36,6 +37,7 @@ func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
 
     if c.startButton.Clicked(gtx) {
         fmt.Println("Start button clicked")
+        slog.Info("首页保存按钮被点击")
     }
 
     return layout.Inset{
