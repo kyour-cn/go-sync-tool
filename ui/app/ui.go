@@ -2,8 +2,12 @@ package app
 
 import (
     "app/internal/config"
+    "app/ui/chapartheme"
+    "app/ui/fonts"
+    "app/ui/pages/console"
     "app/ui/pages/home"
     "app/ui/pages/sync"
+    "app/ui/widgets"
     "context"
     "gioui.org/app"
     "gioui.org/layout"
@@ -11,14 +15,10 @@ import (
     "gioui.org/op/clip"
     "gioui.org/op/paint"
     "gioui.org/text"
+    "gioui.org/unit"
     "gioui.org/widget/material"
     "github.com/go-gourd/gourd/event"
     "image"
-
-    "app/ui/chapartheme"
-    "app/ui/fonts"
-    "app/ui/pages/console"
-    "app/ui/widgets"
 )
 
 type UI struct {
@@ -34,9 +34,12 @@ type UI struct {
 
     consolePage *console.Console
 
-    // 待处理，示例代码
+    // 子页面
     homeView *home.View
     syncView *sync.View
+
+    // 提示
+    tip *widgets.Tip
 }
 
 // New creates a new UI using the Go Fonts.
@@ -81,6 +84,19 @@ func New(w *app.Window, appVersion string) (*UI, error) {
     u.syncView = sync.New(u.Theme)
 
     u.header.OnThemeSwitched = u.onThemeChange
+
+    u.tip = widgets.NewTip(nil)
+
+    // 监听tips显示
+    event.Listen("tips.show", func(ctx context.Context) {
+
+        // 从ctx中获取tips信息
+        tips := ctx.Value("tipMsg")
+        if tips == nil {
+            tips = ""
+        }
+        u.tip.Show(tips.(string), 2)
+    })
 
     return u, u.load()
 }
@@ -167,24 +183,49 @@ func (u *UI) Layout(gtx layout.Context) layout.Dimensions {
 
         // 主体
         layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
-            return layout.Flex{Axis: layout.Horizontal, Spacing: 0}.Layout(gtx,
+            return layout.Stack{}.Layout(gtx,
 
-                // 侧边栏
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return u.sideBar.Layout(gtx, u.Theme)
+                // 固定元素
+                layout.Expanded(func(gtx layout.Context) layout.Dimensions {
+                    return layout.Flex{Axis: layout.Horizontal, Spacing: 0}.Layout(gtx,
+
+                        // 侧边栏
+                        layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                            return u.sideBar.Layout(gtx, u.Theme)
+                        }),
+
+                        // 内容页
+                        layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
+                            switch u.currentPage {
+                            case 0:
+                                return u.homeView.Layout(gtx, u.Theme)
+                            case 1:
+                                return u.syncView.Layout(gtx, u.Theme)
+                            case 3:
+                                return u.consolePage.Layout(gtx, u.Theme)
+                            }
+                            return layout.Dimensions{}
+                        }),
+                    )
                 }),
+                // 悬浮元素
+                layout.Stacked(func(gtx layout.Context) layout.Dimensions {
 
-                // 内容页
-                layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
-                    switch u.currentPage {
-                    case 0:
-                        return u.homeView.Layout(gtx, u.Theme)
-                    case 1:
-                        return u.syncView.Layout(gtx, u.Theme)
-                    case 3:
-                        return u.consolePage.Layout(gtx, u.Theme)
+                    if !u.tip.IsShow {
+                        return layout.Dimensions{}
                     }
-                    return layout.Dimensions{}
+
+                    // 获取转换比例 (物理像素/DP)
+                    pxPerDp := gtx.Metric.PxPerDp
+
+                    // 使用 Inset 定位悬浮元素
+                    inset := layout.Inset{
+                        Top:  unit.Dp((float32(gtx.Constraints.Max.Y) / pxPerDp) / 2),
+                        Left: unit.Dp((float32(gtx.Constraints.Max.X) / pxPerDp) / 2),
+                    }
+                    return inset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+                        return u.tip.Layout(gtx)
+                    })
                 }),
             )
         }),

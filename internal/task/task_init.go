@@ -20,6 +20,9 @@ func Init() {
     event.Listen("task.start", func(context.Context) {
         slog.Info("触发事件：任务启动")
         start()
+
+        params := context.WithValue(context.Background(), "tipMsg", "启动成功")
+        event.Trigger("tips.show", params)
     })
 
     event.Listen("task.stop", func(context.Context) {
