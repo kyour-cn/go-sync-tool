@@ -7,11 +7,14 @@ import (
     "log/slog"
 )
 
-// Init 初始化任务
+// Init 初始化任务 协程启动
 func Init() {
-
-    slog.Warn("测试警告")
-    slog.Error("测试错误")
+    // 捕获异常
+    defer func() {
+        if err := recover(); err != nil {
+            slog.Error("任务启动异常", "err", err)
+        }
+    }()
 
     // 监听事件
     event.Listen("task.start", func(context.Context) {
