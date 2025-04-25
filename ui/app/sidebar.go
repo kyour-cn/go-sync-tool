@@ -125,8 +125,8 @@ func (s *Sidebar) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Di
                 return layout.Flex{Axis: layout.Horizontal}.Layout(gtx,
                     layout.Rigid(func(gtx layout.Context) layout.Dimensions {
                         return layout.Flex{
-                            Axis: layout.Vertical,
-                            //Spacing: layout.SpaceBetween,
+                            Axis:    layout.Vertical,
+                            Spacing: layout.SpaceBetween,
                         }.Layout(gtx,
                             layout.Rigid(func(gtx layout.Context) layout.Dimensions {
                                 return s.list.Layout(gtx, len(s.Buttons), func(gtx layout.Context, i int) layout.Dimensions {

@@ -174,19 +174,20 @@ func (u *UI) Layout(gtx layout.Context) layout.Dimensions {
 
     u.modal.Layout(gtx, u.Theme)
 
-    return layout.Flex{Axis: layout.Vertical, Spacing: 0}.Layout(gtx,
+    return layout.Stack{}.Layout(gtx,
 
-        // 头部
-        layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-            return u.header.Layout(gtx, u.Theme)
-        }),
+        // 固定元素
+        layout.Expanded(func(gtx layout.Context) layout.Dimensions {
+            gtx.Constraints.Min.X = gtx.Constraints.Max.X
+            return layout.Flex{Axis: layout.Vertical, Spacing: 0}.Layout(gtx,
 
-        // 主体
-        layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
-            return layout.Stack{}.Layout(gtx,
+                // 头部
+                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                    return u.header.Layout(gtx, u.Theme)
+                }),
 
-                // 固定元素
-                layout.Expanded(func(gtx layout.Context) layout.Dimensions {
+                // 主体
+                layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
                     return layout.Flex{Axis: layout.Horizontal, Spacing: 0}.Layout(gtx,
 
                         // 侧边栏
@@ -208,26 +209,27 @@ func (u *UI) Layout(gtx layout.Context) layout.Dimensions {
                         }),
                     )
                 }),
-                // 悬浮元素
-                layout.Stacked(func(gtx layout.Context) layout.Dimensions {
-
-                    if !u.tip.IsShow {
-                        return layout.Dimensions{}
-                    }
-
-                    // 获取转换比例 (物理像素/DP)
-                    pxPerDp := gtx.Metric.PxPerDp
-
-                    // 使用 Inset 定位悬浮元素
-                    inset := layout.Inset{
-                        Top:  unit.Dp((float32(gtx.Constraints.Max.Y) / pxPerDp) / 2),
-                        Left: unit.Dp((float32(gtx.Constraints.Max.X) / pxPerDp) / 2),
-                    }
-                    return inset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return u.tip.Layout(gtx)
-                    })
-                }),
             )
         }),
+        // 悬浮元素
+        layout.Stacked(func(gtx layout.Context) layout.Dimensions {
+
+            if !u.tip.IsShow {
+                return layout.Dimensions{}
+            }
+
+            // 获取转换比例 (物理像素/DP)
+            pxPerDp := gtx.Metric.PxPerDp
+
+            // 使用 Inset 定位悬浮元素
+            inset := layout.Inset{
+                Top:  unit.Dp((float32(gtx.Constraints.Max.Y) / pxPerDp) / 2),
+                Left: unit.Dp((float32(gtx.Constraints.Max.X) / pxPerDp) / 2),
+            }
+            return inset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+                return u.tip.Layout(gtx)
+            })
+        }),
+
     )
 }
