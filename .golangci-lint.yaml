@@ -24,5 +24,4 @@ linters:
        - fmt:.*
 
 run:
-  modules-download-mode: vendor
   tests: false
