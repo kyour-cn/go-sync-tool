@@ -63,7 +63,7 @@ func (modal *MessageModal) layout(gtx layout.Context, theme *chapartheme.Theme) 
     case MessageModalTypeErr:
         borderColor = color.NRGBA{R: 0xD1, G: 0x1E, B: 0x35, A: 0xFF}
     case MessageModalTypeInfo:
-        borderColor = color.NRGBA{R: 0x1D, G: 0xBF, B: 0xEC, A: 0xFF}
+        borderColor = color.NRGBA{R: 0xFA, G: 0xFA, B: 0xFA, A: 0xFF}
     case MessageModalTypeWarn:
         borderColor = color.NRGBA{R: 0xFD, G: 0xB5, B: 0x0E, A: 0xFF}
     }
@@ -78,7 +78,7 @@ func (modal *MessageModal) layout(gtx layout.Context, theme *chapartheme.Theme) 
         return layout.Inset{Top: unit.Dp(80)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
             return border.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
                 gtx.Constraints.Max.X = gtx.Dp(500)
-                gtx.Constraints.Max.Y = gtx.Dp(180)
+                gtx.Constraints.Max.Y = gtx.Dp(200)
 
                 return component.NewModalSheet(component.NewModal()).Layout(gtx, theme.Material(), &component.VisibilityAnimation{}, func(gtx layout.Context) layout.Dimensions {
                     return layout.UniformInset(unit.Dp(15)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
@@ -86,11 +86,14 @@ func (modal *MessageModal) layout(gtx layout.Context, theme *chapartheme.Theme) 
                             layout.Rigid(func(gtx layout.Context) layout.Dimensions {
                                 return material.Label(theme.Material(), unit.Sp(14), modal.Title).Layout(gtx)
                             }),
-                            layout.Rigid(layout.Spacer{Height: unit.Dp(20)}.Layout),
+                            layout.Rigid(layout.Spacer{Height: unit.Dp(15)}.Layout),
                             layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                                gtx.Constraints.Max.Y = gtx.Dp(90)
+                                gtx.Constraints.Min.Y = gtx.Dp(90)
+
                                 return material.Body1(theme.Material(), modal.Body).Layout(gtx)
                             }),
-                            layout.Rigid(layout.Spacer{Height: unit.Dp(20)}.Layout),
+                            layout.Rigid(layout.Spacer{Height: unit.Dp(10)}.Layout),
                             layout.Rigid(func(gtx layout.Context) layout.Dimensions {
                                 count := len(modal.options)
                                 items := make([]layout.FlexChild, 0, count)
@@ -107,8 +110,8 @@ func (modal *MessageModal) layout(gtx layout.Context, theme *chapartheme.Theme) 
                                         items,
                                         layout.Rigid(func(gtx layout.Context) layout.Dimensions {
                                             btn := Button(theme.Material(), &modal.options[i].Button, nil, IconPositionStart, modal.options[i].Text)
-                                            btn.Background = chapartheme.White
-                                            btn.Color = chapartheme.Black
+                                            btn.Background = chapartheme.LightBlue
+                                            //btn.Color = chapartheme.Black
                                             return btn.Layout(gtx, theme)
                                         }),
                                         layout.Rigid(layout.Spacer{Width: unit.Dp(4)}.Layout),

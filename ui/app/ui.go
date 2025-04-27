@@ -89,20 +89,21 @@ func New(w *app.Window, appVersion string) (*UI, error) {
 
     // 监听tips显示
     event.Listen("tips.show", func(ctx context.Context) {
-
-        // 从ctx中获取tips信息
         tips := ctx.Value("tipMsg")
-        if tips == nil {
-            tips = ""
-        }
         u.tip.Show(tips.(string), 2)
+    })
+
+    // 监听modal.message事件
+    event.Listen("modal.message", func(ctx context.Context) {
+        msg := ctx.Value("modelMsg")
+        u.showModal(msg.(string))
     })
 
     return u, u.load()
 }
 
-func (u *UI) showError(err error) {
-    u.modal = widgets.NewMessageModal("Error", err.Error(), widgets.MessageModalTypeErr, func(_ string) {
+func (u *UI) showModal(message string) {
+    u.modal = widgets.NewMessageModal("提示", message, widgets.MessageModalTypeInfo, func(text string) {
         u.modal.Hide()
     }, widgets.ModalOption{Text: "Ok"})
     u.modal.Show()
