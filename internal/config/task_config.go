@@ -14,42 +14,42 @@ type TaskConfig struct {
 // TaskConfigMap 适用于多个连接的配置
 type TaskConfigMap map[string]TaskConfig
 
-var sqlConfig *TaskConfigMap
+var taskConfig *TaskConfigMap
 
-// GetSqlConfigAll 获取所有数据库配置
-func GetSqlConfigAll() (*TaskConfigMap, error) {
+// GetTaskConfigAll 获取所有数据库配置
+func GetTaskConfigAll() (*TaskConfigMap, error) {
     key := "task"
 
-    if sqlConfig == nil {
-        sqlConfig = &TaskConfigMap{}
+    if taskConfig == nil {
+        taskConfig = &TaskConfigMap{}
     }
 
     // 如果配置不存在，则创建默认配置
     if !Exists(key) {
-        err := SetTaskConfigAll(sqlConfig)
+        err := SetTaskConfigAll(taskConfig)
         if err != nil {
             return nil, err
         }
     }
 
-    err := Unmarshal(key, sqlConfig)
+    err := Unmarshal(key, taskConfig)
     if err != nil {
         return nil, err
     }
-    return sqlConfig, nil
+    return taskConfig, nil
 }
 
 // SetTaskConfigAll 设置所有数据库配置
 func SetTaskConfigAll(conf *TaskConfigMap) error {
     key := "task"
-    sqlConfig = conf
+    taskConfig = conf
     return Marshal(key, conf)
 }
 
 // GetTaskConfig 获取指定数据库配置
 func GetTaskConfig(name string) (*TaskConfig, error) {
 
-    all, err := GetSqlConfigAll()
+    all, err := GetTaskConfigAll()
     if err != nil {
         return nil, err
     }
@@ -61,13 +61,13 @@ func GetTaskConfig(name string) (*TaskConfig, error) {
         db := allDb[name]
         return &db, nil
     }
-    return nil, errors.New("sql config not found")
+    return nil, errors.New("task config not found")
 }
 
 // SetTaskConfig 设置指定数据库配置
 func SetTaskConfig(name string, conf *TaskConfig) error {
 
-    all, err := GetSqlConfigAll()
+    all, err := GetTaskConfigAll()
     if err != nil {
         return err
     }

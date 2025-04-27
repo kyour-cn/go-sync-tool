@@ -2,6 +2,7 @@ package home
 
 import (
     "app/assets"
+    "app/internal/global"
     "app/ui/chapartheme"
     "app/ui/widgets"
     "context"
@@ -11,7 +12,6 @@ import (
     "gioui.org/widget"
     "gioui.org/widget/material"
     "github.com/go-gourd/gourd/event"
-    "log/slog"
 )
 
 type View struct {
@@ -37,8 +37,11 @@ func New() *View {
 func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimensions {
 
     if c.startButton.Clicked(gtx) {
-        slog.Info("首页保存按钮被点击")
-        event.Trigger("task.start", context.Background())
+        if global.State.Status == 1 {
+            event.Trigger("task.start", context.Background())
+        } else {
+            event.Trigger("task.stop", context.Background())
+        }
     }
 
     return layout.Inset{
@@ -87,9 +90,16 @@ func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
                 return layout.Inset{
                     Top: unit.Dp(30),
                 }.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                    newBtn := widgets.Button(theme.Material(), &c.startButton, nil, widgets.IconPositionStart, "启动同步")
+
+                    btnText := "启动同步"
+                    if global.State.Status != 1 {
+                        btnText = "停止同步"
+                    }
+
+                    newBtn := widgets.Button(theme.Material(), &c.startButton, nil, widgets.IconPositionStart, btnText)
                     newBtn.Color = theme.ButtonTextColor
                     newBtn.Background = theme.SendButtonBgColor
+
                     return newBtn.Layout(gtx, theme)
                 })
             }),

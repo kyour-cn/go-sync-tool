@@ -2,6 +2,7 @@ package task
 
 import (
     "app/internal/config"
+    "app/internal/global"
     "context"
     "github.com/go-gourd/gourd/event"
     "log/slog"
@@ -9,22 +10,14 @@ import (
 
 // Init 初始化任务 协程启动
 func Init() {
-    // 捕获异常
-    defer func() {
-        if err := recover(); err != nil {
-            slog.Error("任务启动异常", "err", err)
-        }
-    }()
 
-    // 监听事件
+    // 监听事件 -启动
     event.Listen("task.start", func(context.Context) {
         slog.Info("触发事件：任务启动")
         start()
-
-        params := context.WithValue(context.Background(), "tipMsg", "启动成功")
-        event.Trigger("tips.show", params)
     })
 
+    // 监听事件 -停止
     event.Listen("task.stop", func(context.Context) {
         slog.Info("触发事件：任务停止")
         stop()
@@ -32,38 +25,84 @@ func Init() {
 
 }
 
+func startErr(msg string) {
+    slog.Error("获取配置失败", "err", err)
+    global.State.Status = 1
+}
+
 func start() {
 
+    if global.State.Status != 1 {
+        slog.Warn("任务未在待启动状态，稍后再试")
+        return
+    }
+
+    global.State.Status = 2
+
     // 获取配置
-    taskConf, err := config.GetSqlConfigAll()
+    taskConf, err := config.GetTaskConfigAll()
     if err != nil {
+        startErr()
         slog.Error("获取配置失败", "err", err)
+        global.State.Status = 1
         return
     }
     if taskConf == nil {
         slog.Warn("暂无", "err", err)
+        global.State.Status = 1
         return
     }
 
-    for _, tc := range *taskConf {
-        if tc.Status == true {
+    err = global.ConnDb()
+    if err != nil {
+        slog.Error("连接数据库失败", "err", err)
+        global.State.Status = 1
+        return
+    }
 
+    // 遍历配置的任务
+    for _, tc := range *taskConf {
+        if tc.Status {
             // 匹配任务
             for _, v := range List {
                 if v.Name == tc.Name {
-                    startTask(tc, v)
+                    v.Config = tc
+                    startTask(v)
                 }
             }
-
         }
     }
 
+    // 运行中
+    global.State.Status = 3
+
+    // 提示
+    params := context.WithValue(context.Background(), "tipMsg", "启动成功")
+    event.Trigger("tips.show", params)
 }
 
 func stop() {
 
+    if global.State.Status == 1 {
+        slog.Warn("任务还未启动")
+        return
+    }
+    if global.State.Status == 4 {
+        slog.Warn("任务正在停止中")
+        return
+    }
+
+    global.State.Status = 4
+
+    // 停止操作
+
+    global.State.Status = 1
+
+    // 提示
+    params := context.WithValue(context.Background(), "tipMsg", "停止成功")
+    event.Trigger("tips.show", params)
 }
 
-func startTask(conf config.TaskConfig, task Task) {
+func startTask(task Task) {
 
 }

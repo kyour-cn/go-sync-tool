@@ -1,11 +1,14 @@
 package task
 
+import "app/internal/config"
+
 type Task struct {
     Name        string
     Label       string
     Description string
     Status      bool
     Type        int8 // 0=读取 1=写入
+    Config      config.TaskConfig
 }
 
 var List = []Task{

@@ -64,6 +64,13 @@ func GetDBConfigAll() (*DbConfigMap, error) {
 
     // 如果配置不存在，则创建默认配置
     if !Exists(key) {
+
+        // 添加默认配置
+        dbConfig = &DbConfigMap{
+            "shop": {},
+            "erp":  {},
+        }
+
         err := SetDBConfigAll(dbConfig)
         if err != nil {
             return nil, err
