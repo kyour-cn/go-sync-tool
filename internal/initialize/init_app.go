@@ -1,11 +1,12 @@
 package initialize
 
 import (
+    "app/internal/global"
     "app/internal/task"
     "log/slog"
 )
 
-func AppInit() {
+func InitApp() {
 
     // 初始化日志
     err := InitLog()
@@ -17,6 +18,8 @@ func AppInit() {
 
     // 初始化任务进程
     task.Init()
+
+    global.State.Status = 1
 
     slog.Info("应用启动，初始化完成。")
 }

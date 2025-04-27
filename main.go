@@ -15,7 +15,7 @@ func main() {
     flag.Parse()
 
     // 初始化
-    initialize.AppInit()
+    initialize.InitApp()
 
     go func() {
         var w app.Window

@@ -131,6 +131,11 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
         if err != nil {
             slog.Warn("Set sql error: " + err.Error())
         }
+
+        // 提示保存成功
+        params := context.WithValue(context.Background(), "modalMsg", "保存成功")
+        event.Trigger("modal.message", params)
+
         v.editing = false
     }
 

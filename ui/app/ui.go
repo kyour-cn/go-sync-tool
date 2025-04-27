@@ -73,7 +73,7 @@ func New(w *app.Window, appVersion string) (*UI, error) {
     u.header = NewHeader(w, u.Theme)
 
     // 侧边栏
-    u.sideBar = NewSidebar(u.Theme, appVersion)
+    u.sideBar = NewSidebar(u.Theme)
 
     // 切换页面
     u.sideBar.OnSelectedChanged = func(index int) {
@@ -95,7 +95,7 @@ func New(w *app.Window, appVersion string) (*UI, error) {
 
     // 监听modal.message事件
     event.Listen("modal.message", func(ctx context.Context) {
-        msg := ctx.Value("modelMsg")
+        msg := ctx.Value("modalMsg")
         u.showModal(msg.(string))
     })
 
@@ -105,7 +105,7 @@ func New(w *app.Window, appVersion string) (*UI, error) {
 func (u *UI) showModal(message string) {
     u.modal = widgets.NewMessageModal("提示", message, widgets.MessageModalTypeInfo, func(text string) {
         u.modal.Hide()
-    }, widgets.ModalOption{Text: "Ok"})
+    }, widgets.ModalOption{Text: "确定"})
     u.modal.Show()
 }
 

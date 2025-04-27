@@ -1,19 +1,20 @@
 package app
 
 import (
+    "app/internal/domain"
+    "app/internal/global"
+    "gioui.org/text"
+    "gioui.org/widget/material"
     "image"
 
+    "app/ui/chapartheme"
+    "app/ui/widgets"
     "gioui.org/layout"
     "gioui.org/op"
     "gioui.org/op/clip"
     "gioui.org/op/paint"
-    "gioui.org/text"
     "gioui.org/unit"
     "gioui.org/widget"
-    "gioui.org/widget/material"
-
-    "app/ui/chapartheme"
-    "app/ui/widgets"
 )
 
 type Sidebar struct {
@@ -30,8 +31,6 @@ type Sidebar struct {
     selectedIndex int
 
     OnSelectedChanged func(index int)
-
-    appVersion string
 }
 
 type SideBarButton struct {
@@ -39,11 +38,10 @@ type SideBarButton struct {
     Text string
 }
 
-func NewSidebar(theme *chapartheme.Theme, appVersion string) *Sidebar {
+func NewSidebar(theme *chapartheme.Theme) *Sidebar {
     s := &Sidebar{
-        appVersion: appVersion,
-        Theme:      theme,
-        cache:      new(op.Ops),
+        Theme: theme,
+        cache: new(op.Ops),
 
         Buttons: []*SideBarButton{
             {Icon: widgets.HomeIcon, Text: "首页"},
@@ -141,15 +139,45 @@ func (s *Sidebar) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Di
                                 })
                             }),
                             layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                                return layout.Inset{
-                                    Bottom: unit.Dp(5),
-                                }.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                                    gtx.Constraints.Min.X = gtx.Dp(70)
-                                    st := material.Subtitle1(theme.Theme, s.appVersion)
-                                    st.Alignment = text.Middle
-                                    return st.Layout(gtx)
-                                })
+                                return layout.Flex{
+                                    Axis:    layout.Vertical,
+                                    Spacing: layout.SpaceBetween,
+                                }.Layout(gtx,
+                                    layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+
+                                        statusName := "初始化中"
+                                        if global.State.Status == 1 {
+                                            statusName = "待启动"
+                                        } else if global.State.Status == 2 {
+                                            statusName = "启动中"
+                                        } else if global.State.Status == 3 {
+                                            statusName = "运行中"
+                                        } else if global.State.Status == 4 {
+                                            statusName = "停止中"
+                                        }
+
+                                        return layout.Inset{
+                                            Bottom: unit.Dp(5),
+                                        }.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+                                            gtx.Constraints.Min.X = gtx.Dp(70)
+                                            st := material.Subtitle1(theme.Theme, statusName)
+                                            st.Alignment = text.Middle
+                                            return st.Layout(gtx)
+                                        })
+                                    }),
+                                    layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                                        return layout.Inset{
+                                            Bottom: unit.Dp(5),
+                                        }.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+                                            gtx.Constraints.Min.X = gtx.Dp(70)
+                                            st := material.Subtitle1(theme.Theme, domain.Version)
+                                            st.Alignment = text.Middle
+                                            return st.Layout(gtx)
+                                        })
+                                    }),
+                                )
                             }),
+
                         )
                     }),
                     layout.Rigid(func(gtx layout.Context) layout.Dimensions {
