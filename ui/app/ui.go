@@ -4,6 +4,7 @@ import (
     "app/internal/config"
     "app/ui/chapartheme"
     "app/ui/fonts"
+    "app/ui/pages/configuration"
     "app/ui/pages/console"
     "app/ui/pages/home"
     "app/ui/pages/sync"
@@ -37,6 +38,7 @@ type UI struct {
     // 子页面
     homeView *home.View
     syncView *sync.View
+    confView *configuration.View
 
     // 提示
     tip *widgets.Tip
@@ -82,6 +84,7 @@ func New(w *app.Window, appVersion string) (*UI, error) {
 
     u.homeView = home.New()
     u.syncView = sync.New(u.Theme)
+    u.confView = configuration.New(u.Theme)
 
     u.header.OnThemeSwitched = u.onThemeChange
 
@@ -203,6 +206,8 @@ func (u *UI) Layout(gtx layout.Context) layout.Dimensions {
                                 return u.homeView.Layout(gtx, u.Theme)
                             case 1:
                                 return u.syncView.Layout(gtx, u.Theme)
+                            case 2:
+                                return u.confView.Layout(gtx, u.Theme)
                             case 3:
                                 return u.consolePage.Layout(gtx, u.Theme)
                             }

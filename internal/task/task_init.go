@@ -26,7 +26,8 @@ func Init() {
 }
 
 func startErr(msg string) {
-    slog.Error("获取配置失败", "err", err)
+    slog.Error(msg)
+    event.Trigger("tips.show", context.WithValue(context.Background(), "tipMsg", msg))
     global.State.Status = 1
 }
 
@@ -42,21 +43,18 @@ func start() {
     // 获取配置
     taskConf, err := config.GetTaskConfigAll()
     if err != nil {
-        startErr()
-        slog.Error("获取配置失败", "err", err)
-        global.State.Status = 1
+        startErr("获取配置失败")
         return
     }
     if taskConf == nil {
-        slog.Warn("暂无", "err", err)
-        global.State.Status = 1
+        startErr("未勾选运行的任务项")
         return
     }
 
     err = global.ConnDb()
     if err != nil {
+        startErr("连接数据库失败")
         slog.Error("连接数据库失败", "err", err)
-        global.State.Status = 1
         return
     }
 
