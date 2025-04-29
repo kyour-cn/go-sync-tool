@@ -17,6 +17,8 @@ import (
 type View struct {
     imageOp     paint.ImageOp
     startButton widget.Clickable
+
+    //testModal *widgets.TestModal
 }
 
 func New() *View {
@@ -29,6 +31,7 @@ func New() *View {
 
     c := &View{
         imageOp: paint.NewImageOp(data),
+        //testModal: widgets.NewTestModal(),
     }
 
     return c
@@ -36,11 +39,15 @@ func New() *View {
 
 func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimensions {
 
+    //c.testModal.Layout(gtx, theme)
+
     if c.startButton.Clicked(gtx) {
         if global.State.Status == 1 {
             event.Trigger("task.start", context.Background())
+            //c.testModal.SetVisible(true)
         } else {
             event.Trigger("task.stop", context.Background())
+            //c.testModal.SetVisible(false)
         }
     }
 
