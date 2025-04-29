@@ -52,7 +52,7 @@ func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
     }
 
     return layout.Inset{
-        Top: unit.Dp(30), Left: unit.Dp(250), Right: unit.Dp(250),
+        Top: unit.Dp(30), Left: unit.Dp(100), Right: unit.Dp(100),
     }.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
         return layout.Flex{Axis: layout.Vertical, Alignment: layout.Middle}.Layout(gtx,
 

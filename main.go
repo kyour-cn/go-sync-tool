@@ -19,7 +19,10 @@ func main() {
 
     go func() {
         var w app.Window
-        w.Option(app.Title(domain.AppName+" ("+domain.Version+")"), app.Size(unit.Dp(1200), unit.Dp(800)))
+        w.Option(
+            app.Title(domain.AppName+" ("+domain.Version+")"),
+            app.Size(unit.Dp(900), unit.Dp(600)),
+        )
 
         mainUI, err := mainApp.New(&w, domain.Version)
         if err != nil {
