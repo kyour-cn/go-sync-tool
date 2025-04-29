@@ -3,16 +3,21 @@ package configuration
 import (
     "app/ui/chapartheme"
     "app/ui/widgets"
+    "context"
     "gioui.org/layout"
     "gioui.org/unit"
     "gioui.org/widget"
     "gioui.org/widget/material"
+    "github.com/go-gourd/gourd/event"
 )
 
 type View struct {
     targetEnvEditor *widget.Editor
 
     confForm *ConfForm
+
+    // 保存按钮
+    saveButton widget.Clickable
 }
 
 var (
@@ -150,6 +155,14 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
         Left:   unit.Dp(10),
     }
 
+    if v.saveButton.Clicked(gtx) {
+
+        // 提示保存成功
+        params := context.WithValue(context.Background(), "modalMsg", "保存成功")
+        event.Trigger("modal.message", params)
+
+    }
+
     return material.List(theme.Material(), virtualList).Layout(gtx, 1, func(gtx layout.Context, _ int) layout.Dimensions {
 
         return layout.Inset{
@@ -262,6 +275,21 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
                 layout.Rigid(func(gtx layout.Context) layout.Dimensions {
                     return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
                         return v.confForm.erpDbPass.Layout(gtx, theme)
+                    })
+                }),
+
+                // 保存按钮
+                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                    return layout.Inset{Top: unit.Dp(8), Bottom: unit.Dp(10)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+                        return layout.Flex{Axis: layout.Vertical, Alignment: layout.Middle}.Layout(gtx,
+                            layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                                gtx.Constraints.Max.X = gtx.Dp(162)
+                                newBtn := widgets.Button(theme.Material(), &v.saveButton, nil, widgets.IconPositionStart, "保存")
+                                newBtn.Color = theme.ButtonTextColor
+                                newBtn.Background = theme.SendButtonBgColor
+                                return newBtn.Layout(gtx, theme)
+                            }),
+                        )
                     })
                 }),
             )
