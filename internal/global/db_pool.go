@@ -3,11 +3,16 @@ package global
 import (
     "app/internal/config"
     "app/internal/tools/safemap"
+    "database/sql"
+    "errors"
     "fmt"
+    _ "github.com/alexbrainman/odbc"
     "golang.org/x/exp/slog"
     "gorm.io/driver/mysql"
+    "gorm.io/driver/sqlserver"
     "gorm.io/gorm"
     "gorm.io/gorm/logger"
+    "net/url"
     "time"
 )
 
@@ -74,7 +79,31 @@ func ConnDb() error {
             },
         ),
     }
-    erpDb, err := gorm.Open(mysql.Open(erpConf.GenerateDsn()), erpConfig)
+
+    // 首先建立ODBC连接
+    var erpOdbc *sql.DB
+    if erpConf.Type == "sqlserver" {
+        dsn := fmt.Sprintf("DRIVER={SQL Server};SERVER=%s,%d;DATABASE=%s;UID=%s;PWD=%s",
+            erpConf.Host,
+            erpConf.Port,
+            erpConf.Database,
+            erpConf.User,
+            url.QueryEscape(erpConf.Pass),
+        )
+        // 创建数据库连接
+        erpOdbc, err = sql.Open("odbc", dsn)
+        if err != nil {
+            return err
+        }
+    } else {
+        // TODO: 其它数据库类型待实现
+        return errors.New("ODBC暂不支持的数据库类型：" + erpConf.Type)
+    }
+
+    // 然后将连接传递给GORM
+    erpDb, err := gorm.Open(sqlserver.New(sqlserver.Config{
+        Conn: erpOdbc,
+    }), erpConfig)
     if err != nil {
         return err
     }
