@@ -1,6 +1,7 @@
 package configuration
 
 import (
+    "app/internal/config"
     "app/ui/chapartheme"
     "app/ui/widgets"
     "context"
@@ -9,6 +10,8 @@ import (
     "gioui.org/widget"
     "gioui.org/widget/material"
     "github.com/go-gourd/gourd/event"
+    "golang.org/x/exp/slog"
+    "strconv"
 )
 
 type (
@@ -147,10 +150,85 @@ func New(theme *chapartheme.Theme) *View {
         },
     }
 
+    // 初始化获取配置
+    shopDbConf, err := config.GetDBConfig("shop")
+    if err != nil {
+        shopDbConf = &config.DbConfig{}
+    }
+
+    c.confForm.erpDbType.SetSelectedByValue(shopDbConf.Type)
+    c.confForm.shopDbHost.SetText(shopDbConf.Host)
+    c.confForm.shopDbPort.SetText(strconv.Itoa(shopDbConf.Port))
+    c.confForm.shopDbName.SetText(shopDbConf.Database)
+    c.confForm.shopDbUser.SetText(shopDbConf.User)
+    c.confForm.shopDbPass.SetText(shopDbConf.Pass)
+
+    erpDbConf, err := config.GetDBConfig("erp")
+    if err != nil {
+        erpDbConf = &config.DbConfig{}
+    }
+    c.confForm.erpDbType.SetSelectedByValue(erpDbConf.Type)
+    c.confForm.erpDbHost.SetText(erpDbConf.Host)
+    c.confForm.erpDbPort.SetText(strconv.Itoa(erpDbConf.Port))
+    c.confForm.erpDbName.SetText(erpDbConf.Database)
+    c.confForm.erpDbUser.SetText(erpDbConf.User)
+    c.confForm.erpDbPass.SetText(erpDbConf.Pass)
+
+    appconf, err := config.GetAppConfig()
+    if err != nil {
+        appconf = &config.AppConfig{}
+        slog.Error("Get app config error: " + err.Error())
+    }
+
+    c.confForm.projectName.SetText(appconf.ProjectName)
+
     return c
 }
 
-// TODO 待实现
+func (v *View) Save() {
+
+    // 保存配置
+    shopDbPort, _ := strconv.Atoi(v.confForm.shopDbPort.Text())
+    shopDbConf := &config.DbConfig{
+        Type:     v.confForm.shopDbType.GetSelected().Value,
+        Host:     v.confForm.shopDbHost.Text(),
+        Port:     shopDbPort,
+        Database: v.confForm.shopDbName.Text(),
+        User:     v.confForm.shopDbUser.Text(),
+        Pass:     v.confForm.shopDbPass.Text(),
+    }
+    err := config.SetDBConfig("shop", shopDbConf)
+    if err != nil {
+        slog.Error("Set shop db config error: " + err.Error())
+    }
+
+    erpDbPort, _ := strconv.Atoi(v.confForm.erpDbPort.Text())
+    erpDbConf := &config.DbConfig{
+        Type:     v.confForm.erpDbType.GetSelected().Value,
+        Host:     v.confForm.erpDbHost.Text(),
+        Port:     erpDbPort,
+        Database: v.confForm.erpDbName.Text(),
+        User:     v.confForm.erpDbUser.Text(),
+        Pass:     v.confForm.erpDbPass.Text(),
+    }
+    err = config.SetDBConfig("erp", erpDbConf)
+    if err != nil {
+        slog.Error("Set erp db config error: " + err.Error())
+    }
+
+    appconf, err := config.GetAppConfig()
+    if err != nil {
+        appconf = &config.AppConfig{}
+        slog.Error("Get app config error: " + err.Error())
+    }
+
+    appconf.ProjectName = v.confForm.projectName.Text()
+    err = config.SetAppConfig(appconf)
+    if err != nil {
+        slog.Error("Set app config error: " + err.Error())
+    }
+}
+
 func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimensions {
     topButtonInset := layout.Inset{Top: unit.Dp(8), Bottom: unit.Dp(4)}
 
@@ -165,6 +243,8 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
         // 提示保存成功
         params := context.WithValue(context.Background(), "modalMsg", "保存成功")
         event.Trigger("modal.message", params)
+
+        v.Save()
 
     }
 

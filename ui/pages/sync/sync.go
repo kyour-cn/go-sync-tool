@@ -179,6 +179,14 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
                             }),
                         )
                     }),
+                    // 描述
+                    layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                        text := " "
+                        if v.selectedNode != nil {
+                            text = v.selectedNode.Description
+                        }
+                        return material.Body1(theme.Material(), text).Layout(gtx)
+                    }),
 
                     // 代码编辑器
                     layout.Rigid(func(gtx layout.Context) layout.Dimensions {

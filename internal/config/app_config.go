@@ -2,8 +2,9 @@ package config
 
 // AppConfig 应用配置
 type AppConfig struct {
-    IsDark    bool `toml:"is_dark" json:"is_dark" comment:"是否为深色模式"`
-    AutoStart bool `toml:"auto_start" json:"auto_start" comment:"是否自动启动"`
+    IsDark      bool   `toml:"is_dark" json:"is_dark" comment:"是否为深色模式"`
+    AutoStart   bool   `toml:"auto_start" json:"auto_start" comment:"是否自动启动"`
+    ProjectName string `toml:"project_name" json:"project_name" comment:"项目名"`
 }
 
 var appConf *AppConfig
