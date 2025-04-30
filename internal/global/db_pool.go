@@ -115,3 +115,20 @@ func ConnDb() error {
 
     return nil
 }
+
+func CloseDb() error {
+
+    // 遍历数据库连接池，关闭每个连接
+    for _, v := range DbPool.Values() {
+        db, err := v.Db.DB()
+        if err != nil {
+            return err
+        }
+        err = db.Close()
+        if err != nil {
+            return err
+        }
+    }
+
+    return nil
+}

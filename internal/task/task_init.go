@@ -94,6 +94,13 @@ func stop() {
 
     // 停止操作
 
+    err := global.CloseDb()
+    if err != nil {
+        startErr("关闭数据库失败")
+        slog.Error("关闭数据库失败", "err", err)
+        return
+    }
+
     global.State.Status = 1
 
     // 提示
