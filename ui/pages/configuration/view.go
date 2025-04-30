@@ -11,6 +11,11 @@ import (
     "github.com/go-gourd/gourd/event"
 )
 
+type (
+    C = layout.Context
+    D = layout.Dimensions
+)
+
 type View struct {
     targetEnvEditor *widget.Editor
 
@@ -55,7 +60,7 @@ func New(theme *chapartheme.Theme) *View {
                 MinEditorWidth: unit.Dp(150),
                 MinLabelWidth:  unit.Dp(80),
                 Editor:         widgets.NewPatternEditor(),
-                Hint:           "公司简称",
+                Hint:           "请输入平台名称或公司简称",
             },
             shopDbType: widgets.NewDropDown(
                 theme,
@@ -168,121 +173,233 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
         return layout.Inset{
             Left:  unit.Dp(10),
             Right: unit.Dp(10),
-        }.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+        }.Layout(gtx, func(gtx C) D {
 
             return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return topButtonInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+                layout.Rigid(func(gtx C) D {
+                    return topButtonInset.Layout(gtx, func(gtx C) D {
                         return v.confForm.projectName.Layout(gtx, theme)
                     })
                 }),
 
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return topButtonInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+                layout.Rigid(func(gtx C) D {
+                    return topButtonInset.Layout(gtx, func(gtx C) D {
                         return material.Label(theme.Material(), theme.TextSize, "商城配置:").Layout(gtx)
                     })
                 }),
 
-                // 商城数据库
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return layout.Flex{
-                            Axis:      layout.Horizontal,
-                            Alignment: layout.Middle,
-                        }.Layout(gtx,
-                            layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                                gtx.Constraints.Min.X = gtx.Dp(85)
-                                return material.Label(theme.Material(), theme.TextSize, "数据库类型").Layout(gtx)
-                            }),
-                            layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                                v.confForm.shopDbType.MaxWidth = unit.Dp(162)
-                                return v.confForm.shopDbType.Layout(gtx, theme)
+                layout.Rigid(func(gtx C) D {
+                    return layout.Flex{}.Layout(gtx,
+                        layout.Flexed(.5, func(gtx C) D {
+                            return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+                                layout.Rigid(func(gtx C) D {
 
-                            }),
-                        )
-                    })
+                                    return subFormInset.Layout(gtx, func(gtx C) D {
+                                        return layout.Flex{
+                                            Axis:      layout.Horizontal,
+                                            Alignment: layout.Middle,
+                                        }.Layout(gtx,
+                                            layout.Rigid(func(gtx C) D {
+                                                gtx.Constraints.Min.X = gtx.Dp(85)
+                                                return material.Label(theme.Material(), theme.TextSize, "数据库类型").Layout(gtx)
+                                            }),
+                                            layout.Rigid(func(gtx C) D {
+                                                return v.confForm.shopDbType.Layout(gtx, theme)
+
+                                            }),
+                                        )
+                                    })
+                                }),
+                                layout.Rigid(func(gtx C) D {
+                                    return subFormInset.Layout(gtx, func(gtx C) D {
+                                        return v.confForm.shopDbPort.Layout(gtx, theme)
+                                    })
+                                }),
+                                layout.Rigid(func(gtx C) D {
+                                    return subFormInset.Layout(gtx, func(gtx C) D {
+                                        return v.confForm.shopDbUser.Layout(gtx, theme)
+                                    })
+                                }),
+                            )
+                        }),
+                        layout.Flexed(.5, func(gtx C) D {
+                            return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+                                layout.Rigid(func(gtx C) D {
+                                    return subFormInset.Layout(gtx, func(gtx C) D {
+                                        return v.confForm.shopDbHost.Layout(gtx, theme)
+                                    })
+                                }),
+                                layout.Rigid(func(gtx C) D {
+                                    return subFormInset.Layout(gtx, func(gtx C) D {
+                                        return v.confForm.shopDbName.Layout(gtx, theme)
+                                    })
+                                }),
+                                layout.Rigid(func(gtx C) D {
+                                    return subFormInset.Layout(gtx, func(gtx C) D {
+                                        return v.confForm.shopDbPass.Layout(gtx, theme)
+                                    })
+                                }),
+                            )
+                        }),
+                    )
                 }),
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return v.confForm.shopDbHost.Layout(gtx, theme)
-                    })
-                }),
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return v.confForm.shopDbPort.Layout(gtx, theme)
-                    })
-                }),
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return v.confForm.shopDbName.Layout(gtx, theme)
-                    })
-                }),
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return v.confForm.shopDbUser.Layout(gtx, theme)
-                    })
-                }),
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return v.confForm.shopDbPass.Layout(gtx, theme)
-                    })
-                }),
+
+
+                //layout.Rigid(func(gtx C) D {
+                //    return subFormInset.Layout(gtx, func(gtx C) D {
+                //        return layout.Flex{
+                //            Axis:      layout.Horizontal,
+                //            Alignment: layout.Middle,
+                //        }.Layout(gtx,
+                //            layout.Rigid(func(gtx C) D {
+                //                gtx.Constraints.Min.X = gtx.Dp(85)
+                //                return material.Label(theme.Material(), theme.TextSize, "数据库类型").Layout(gtx)
+                //            }),
+                //            layout.Rigid(func(gtx C) D {
+                //                v.confForm.shopDbType.MaxWidth = unit.Dp(162)
+                //                return v.confForm.shopDbType.Layout(gtx, theme)
+                //
+                //            }),
+                //        )
+                //    })
+                //}),
+                //layout.Rigid(func(gtx C) D {
+                //    return subFormInset.Layout(gtx, func(gtx C) D {
+                //        return v.confForm.shopDbHost.Layout(gtx, theme)
+                //    })
+                //}),
+                //layout.Rigid(func(gtx C) D {
+                //    return subFormInset.Layout(gtx, func(gtx C) D {
+                //        return v.confForm.shopDbPort.Layout(gtx, theme)
+                //    })
+                //}),
+                //layout.Rigid(func(gtx C) D {
+                //    return subFormInset.Layout(gtx, func(gtx C) D {
+                //        return v.confForm.shopDbName.Layout(gtx, theme)
+                //    })
+                //}),
+                //layout.Rigid(func(gtx C) D {
+                //    return subFormInset.Layout(gtx, func(gtx C) D {
+                //        return v.confForm.shopDbUser.Layout(gtx, theme)
+                //    })
+                //}),
+                //layout.Rigid(func(gtx C) D {
+                //    return subFormInset.Layout(gtx, func(gtx C) D {
+                //        return v.confForm.shopDbPass.Layout(gtx, theme)
+                //    })
+                //}),
 
                 // ERP 数据库
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return topButtonInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+                layout.Rigid(func(gtx C) D {
+                    return topButtonInset.Layout(gtx, func(gtx C) D {
                         return material.Label(theme.Material(), theme.TextSize, "ERP配置:").Layout(gtx)
                     })
                 }),
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return layout.Flex{
-                            Axis:      layout.Horizontal,
-                            Alignment: layout.Middle,
-                        }.Layout(gtx,
-                            layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                                gtx.Constraints.Min.X = gtx.Dp(85)
-                                return material.Label(theme.Material(), theme.TextSize, "数据库类型").Layout(gtx)
-                            }),
-                            layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                                v.confForm.erpDbType.MaxWidth = unit.Dp(162)
-                                return v.confForm.erpDbType.Layout(gtx, theme)
 
-                            }),
-                        )
-                    })
+                layout.Rigid(func(gtx C) D {
+                    return layout.Flex{}.Layout(gtx,
+                        layout.Flexed(.5, func(gtx C) D {
+                            return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+                                layout.Rigid(func(gtx C) D {
+
+                                    return subFormInset.Layout(gtx, func(gtx C) D {
+                                        return layout.Flex{
+                                            Axis:      layout.Horizontal,
+                                            Alignment: layout.Middle,
+                                        }.Layout(gtx,
+                                            layout.Rigid(func(gtx C) D {
+                                                gtx.Constraints.Min.X = gtx.Dp(85)
+                                                return material.Label(theme.Material(), theme.TextSize, "数据库类型").Layout(gtx)
+                                            }),
+                                            layout.Rigid(func(gtx C) D {
+                                                return v.confForm.erpDbType.Layout(gtx, theme)
+
+                                            }),
+                                        )
+                                    })
+                                }),
+                                layout.Rigid(func(gtx C) D {
+                                    return subFormInset.Layout(gtx, func(gtx C) D {
+                                        return v.confForm.erpDbPort.Layout(gtx, theme)
+                                    })
+                                }),
+                                layout.Rigid(func(gtx C) D {
+                                    return subFormInset.Layout(gtx, func(gtx C) D {
+                                        return v.confForm.erpDbUser.Layout(gtx, theme)
+                                    })
+                                }),
+                            )
+                        }),
+                        layout.Flexed(.5, func(gtx C) D {
+                            return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+                                layout.Rigid(func(gtx C) D {
+                                    return subFormInset.Layout(gtx, func(gtx C) D {
+                                        return v.confForm.erpDbHost.Layout(gtx, theme)
+                                    })
+                                }),
+                                layout.Rigid(func(gtx C) D {
+                                    return subFormInset.Layout(gtx, func(gtx C) D {
+                                        return v.confForm.erpDbName.Layout(gtx, theme)
+                                    })
+                                }),
+                                layout.Rigid(func(gtx C) D {
+                                    return subFormInset.Layout(gtx, func(gtx C) D {
+                                        return v.confForm.erpDbPass.Layout(gtx, theme)
+                                    })
+                                }),
+                            )
+                        }),
+                    )
                 }),
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return v.confForm.erpDbHost.Layout(gtx, theme)
-                    })
-                }),
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return v.confForm.erpDbPort.Layout(gtx, theme)
-                    })
-                }),
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return v.confForm.erpDbName.Layout(gtx, theme)
-                    })
-                }),
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return v.confForm.erpDbUser.Layout(gtx, theme)
-                    })
-                }),
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return subFormInset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-                        return v.confForm.erpDbPass.Layout(gtx, theme)
-                    })
-                }),
+                //layout.Rigid(func(gtx C) D {
+                //    return subFormInset.Layout(gtx, func(gtx C) D {
+                //        return layout.Flex{
+                //            Axis:      layout.Horizontal,
+                //            Alignment: layout.Middle,
+                //        }.Layout(gtx,
+                //            layout.Rigid(func(gtx C) D {
+                //                gtx.Constraints.Min.X = gtx.Dp(85)
+                //                return material.Label(theme.Material(), theme.TextSize, "数据库类型").Layout(gtx)
+                //            }),
+                //            layout.Rigid(func(gtx C) D {
+                //                v.confForm.erpDbType.MaxWidth = unit.Dp(162)
+                //                return v.confForm.erpDbType.Layout(gtx, theme)
+                //
+                //            }),
+                //        )
+                //    })
+                //}),
+                //layout.Rigid(func(gtx C) D {
+                //    return subFormInset.Layout(gtx, func(gtx C) D {
+                //        return v.confForm.erpDbHost.Layout(gtx, theme)
+                //    })
+                //}),
+                //layout.Rigid(func(gtx C) D {
+                //    return subFormInset.Layout(gtx, func(gtx C) D {
+                //        return v.confForm.erpDbPort.Layout(gtx, theme)
+                //    })
+                //}),
+                //layout.Rigid(func(gtx C) D {
+                //    return subFormInset.Layout(gtx, func(gtx C) D {
+                //        return v.confForm.erpDbName.Layout(gtx, theme)
+                //    })
+                //}),
+                //layout.Rigid(func(gtx C) D {
+                //    return subFormInset.Layout(gtx, func(gtx C) D {
+                //        return v.confForm.erpDbUser.Layout(gtx, theme)
+                //    })
+                //}),
+                //layout.Rigid(func(gtx C) D {
+                //    return subFormInset.Layout(gtx, func(gtx C) D {
+                //        return v.confForm.erpDbPass.Layout(gtx, theme)
+                //    })
+                //}),
 
                 // 保存按钮
-                layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                    return layout.Inset{Top: unit.Dp(8), Bottom: unit.Dp(10)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+                layout.Rigid(func(gtx C) D {
+                    return layout.Inset{Top: unit.Dp(8), Bottom: unit.Dp(10)}.Layout(gtx, func(gtx C) D {
                         return layout.Flex{Axis: layout.Vertical, Alignment: layout.Middle}.Layout(gtx,
-                            layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                            layout.Rigid(func(gtx C) D {
                                 gtx.Constraints.Max.X = gtx.Dp(162)
                                 newBtn := widgets.Button(theme.Material(), &v.saveButton, nil, widgets.IconPositionStart, "保存")
                                 newBtn.Color = theme.ButtonTextColor

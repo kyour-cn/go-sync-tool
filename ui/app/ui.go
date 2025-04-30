@@ -88,7 +88,7 @@ func New(w *app.Window, appVersion string) (*UI, error) {
 
     u.header.OnThemeSwitched = u.onThemeChange
 
-    u.tip = widgets.NewTip(nil)
+    u.tip = widgets.NewTip(theme)
 
     // 监听tips显示
     event.Listen("tips.show", func(ctx context.Context) {

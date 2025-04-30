@@ -29,8 +29,6 @@ type View struct {
 }
 
 func New(theme *chapartheme.Theme) *View {
-    // 初始化编辑器
-    codeEditor := codeeditor.NewCodeEditor("test", codeeditor.CodeLanguageShell, theme)
 
     // 左侧列表
     var leftTreeNode []*widgets.TreeNode
@@ -68,7 +66,6 @@ func New(theme *chapartheme.Theme) *View {
             BarWidth: unit.Dp(2),
         },
         treeView: leftTree,
-        codeEdit: codeEditor,
     }
 
     // 设置点击事件
