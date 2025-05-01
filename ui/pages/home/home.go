@@ -47,7 +47,7 @@ func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
         if global.State.Status == 1 {
             go event.Trigger("task.start", context.Background())
             //c.testModal.SetVisible(true)
-        } else {
+        } else if global.State.Status == 3 {
             go event.Trigger("task.stop", context.Background())
             //c.testModal.SetVisible(false)
         }
@@ -116,6 +116,10 @@ func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
                     btnText := "启动同步"
                     if global.State.Status != 1 {
                         btnText = "停止同步"
+                    }
+                    if global.State.Status == 2 || global.State.Status == 4 {
+                        gtx = gtx.Disabled()
+                        btnText = "请稍后..."
                     }
 
                     newBtn := widgets.Button(theme.Material(), &c.startButton, nil, widgets.IconPositionStart, btnText)
