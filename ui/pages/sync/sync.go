@@ -41,6 +41,7 @@ func New(theme *chapartheme.Theme) *View {
             MenuOptions: []string{
                 "校验SQL",
                 "查看说明",
+                "清除缓存",
             },
         }
         if node.Type == 1 {

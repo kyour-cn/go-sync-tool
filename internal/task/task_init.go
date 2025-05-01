@@ -117,6 +117,8 @@ func start() {
             for _, v := range List {
                 if v.Name == tc.Name {
                     v.Config = tc
+
+                    slog.Info("开始执行任务：" + v.Name)
                     err := v.Handle.Run(v)
                     if err != nil {
                         return

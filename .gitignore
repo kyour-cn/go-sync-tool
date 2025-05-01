@@ -4,3 +4,4 @@
 /configs
 *.exe
 /*.log
+/temp

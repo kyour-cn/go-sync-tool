@@ -13,12 +13,18 @@ type Person struct {
 
 func TestStorage(t *testing.T) {
     // 创建Person类型的存储实例
-    personStorage := NewStorage[Person]()
+    personStorage := NewStorage[[]*Person]()
 
     // 创建要保存的数据
-    person := Person{
-        Name: "张三",
-        Age:  30,
+    person := []*Person{
+        {
+            Name: "张三",
+            Age:  30,
+        },
+        {
+            Name: "李四",
+            Age:  28,
+        },
     }
 
     // 保存数据
@@ -35,5 +41,9 @@ func TestStorage(t *testing.T) {
         return
     }
 
-    fmt.Printf("加载的数据: %+v\n", loadedPerson)
+    for _, p := range loadedPerson {
+        fmt.Printf("Name: %s, Age: %d\n", p.Name, p.Age)
+    }
+
+    //fmt.Printf("加载的数据: %+v\n", loadedPerson)
 }

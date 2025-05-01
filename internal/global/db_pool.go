@@ -21,9 +21,7 @@ type DbPoolType struct {
     Db     *gorm.DB
 }
 
-var DbPool struct {
-    *safemap.Map[*DbPoolType]
-}
+var DbPool *safemap.Map[*DbPoolType]
 
 // 使用自定义logger接管gorm日志
 type dbLogWriter struct{}
@@ -34,6 +32,10 @@ func (w dbLogWriter) Printf(format string, args ...any) {
 
 // ConnDb 开始链接数据库（初始化）
 func ConnDb() error {
+
+    if DbPool == nil {
+        DbPool = safemap.New[*DbPoolType]()
+    }
 
     // 连接商城数据库
     shopConf, err := config.GetDBConfig("shop")
