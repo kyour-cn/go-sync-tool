@@ -3,6 +3,7 @@ package home
 import (
     "app/assets"
     "app/internal/global"
+    "app/internal/task"
     "app/ui/chapartheme"
     "app/ui/widgets"
     "context"
@@ -12,6 +13,7 @@ import (
     "gioui.org/widget"
     "gioui.org/widget/material"
     "github.com/go-gourd/gourd/event"
+    "strings"
 )
 
 type View struct {
@@ -83,11 +85,24 @@ func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
                     Top: unit.Dp(30),
                 }.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
                     return layout.Flex{Axis: layout.Vertical, Alignment: layout.Middle}.Layout(gtx,
+                        //layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                        //    return material.H6(theme.Material(), "运行状态: 空闲中").Layout(gtx)
+                        //}),
                         layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                            return material.H6(theme.Material(), "运行状态: 空闲中").Layout(gtx)
-                        }),
-                        layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                            return material.H6(theme.Material(), "同步任务: 商品资料、商品库存、客户资料、客户地址、订单、发货单、业务员、新客户").Layout(gtx)
+
+                            msg := "暂未开启任何同步项"
+
+                            var taskList []string
+                            for _, v := range task.List {
+                                if v.Status {
+                                    taskList = append(taskList, v.Name)
+                                }
+                            }
+                            if len(taskList) > 0 {
+                                msg = "同步任务: " + strings.Join(taskList, "、")
+                            }
+
+                            return material.Body1(theme.Material(), msg).Layout(gtx)
                         }),
                     )
                 })
