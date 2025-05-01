@@ -8,6 +8,58 @@ import (
     "log/slog"
 )
 
+type Task struct {
+    Name        string
+    Label       string
+    Description string
+    Status      bool // 状态 0=未运行 1=运行中
+    Type        int8 // 0=读取视图 1=写入中间表
+    Config      config.TaskConfig
+    Handle      Handle
+}
+
+type Handle interface {
+    // GetName 获取任务名称
+    GetName() string
+    // Run 执行任务入口
+    Run(Task) error
+}
+
+var List = []Task{
+    {
+        Name:        "goods",
+        Label:       "商品资料",
+        Description: "需同步到电商平台的商品基础资料",
+        Handle:      GoodsSync{},
+    },
+    {
+        Name:        "goods_price",
+        Label:       "商品价格",
+        Description: "需同步到电商平台的商品价格",
+    },
+    {
+        Name:        "goods_stock",
+        Label:       "商品库存",
+        Description: "需同步到电商平台的商品库存",
+    },
+    {
+        Name:        "member",
+        Label:       "客户资料",
+        Description: "需同步到电商平台的客户资料",
+    },
+    {
+        Name:        "member_address",
+        Label:       "客户地址",
+        Description: "需同步到电商平台的客户地址",
+    },
+    {
+        Name:        "order",
+        Label:       "订单",
+        Description: "需同步到电商平台的订单",
+        Type:        1,
+    },
+}
+
 // Init 初始化任务 协程启动
 func Init() {
 
@@ -65,7 +117,10 @@ func start() {
             for _, v := range List {
                 if v.Name == tc.Name {
                     v.Config = tc
-                    startTask(v)
+                    err := v.Handle.Run(v)
+                    if err != nil {
+                        return
+                    }
                 }
             }
         }
@@ -106,8 +161,4 @@ func stop() {
     // 提示
     params := context.WithValue(context.Background(), "tipMsg", "停止成功")
     event.Trigger("tips.show", params)
-}
-
-func startTask(task Task) {
-
 }
