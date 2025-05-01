@@ -2,20 +2,20 @@ package sync
 
 import (
     "app/internal/config"
+    "app/internal/global"
     "app/internal/task"
     "app/ui/chapartheme"
     "app/ui/widgets"
     "app/ui/widgets/codeeditor"
     "context"
-    "fmt"
     "gioui.org/layout"
     "gioui.org/unit"
     "gioui.org/widget"
     "gioui.org/widget/material"
     giox "gioui.org/x/component"
     "github.com/go-gourd/gourd/event"
+    "golang.org/x/exp/slog"
     "image/color"
-    "log/slog"
     "time"
 )
 
@@ -25,6 +25,7 @@ type View struct {
     treeView     *widgets.TreeView
     codeEdit     *codeeditor.CodeEditor
     selectedNode *task.Task // 当前选中
+    nodeStatus   *widget.Bool
     editing      bool
 }
 
@@ -37,6 +38,10 @@ func New(theme *chapartheme.Theme) *View {
         tn := &widgets.TreeNode{
             Text:       node.Label,
             Identifier: node.Name,
+            MenuOptions: []string{
+                "校验SQL",
+                "查看说明",
+            },
         }
         if node.Type == 1 {
             tn.Prefix = "W"
@@ -65,7 +70,8 @@ func New(theme *chapartheme.Theme) *View {
             },
             BarWidth: unit.Dp(2),
         },
-        treeView: leftTree,
+        treeView:   leftTree,
+        nodeStatus: new(widget.Bool),
     }
 
     // 设置点击事件
@@ -79,6 +85,10 @@ func New(theme *chapartheme.Theme) *View {
                     _conf = &config.TaskConfig{}
                 }
                 SetCodeEdit(c, theme, _conf.Sql)
+
+                // 设置状态
+                c.nodeStatus.Value = _conf.Status
+
                 c.selectedNode = &t
                 break
             }
@@ -111,29 +121,51 @@ func SetCodeEdit(c *View, theme *chapartheme.Theme, code string) {
     }()
 }
 
+// 保存
+func (v *View) onSave() {
+
+    if global.State.Status != 1 {
+        msg := "正在运行中，不允许更改配置，请先停止任务"
+        slog.Info(msg)
+        // 提示框
+        params := context.WithValue(context.Background(), "modalMsg", msg)
+        event.Trigger("modal.message", params)
+
+        return
+    }
+
+    _conf, err := config.GetTaskConfig(v.selectedNode.Name)
+    if err != nil {
+        slog.Info("Get sql not found: " + err.Error())
+        _conf = &config.TaskConfig{
+            Name: v.selectedNode.Name,
+        }
+    }
+
+    // 更新数据
+    _conf.Sql = v.codeEdit.Code()
+    _conf.Status = v.nodeStatus.Value
+
+    // 保存到配置
+    err = config.SetTaskConfig(v.selectedNode.Name, _conf)
+    if err != nil {
+        slog.Warn("Set sql error: " + err.Error())
+    }
+
+    // 提示保存成功
+    params := context.WithValue(context.Background(), "tipMsg", "保存成功")
+    event.Trigger("tips.show", params)
+
+    slog.Info("保存 " + v.selectedNode.Name + " 配置成功成功")
+
+    v.editing = false
+}
+
 func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimensions {
 
     // 保存按钮
     if v.startButton.Clicked(gtx) && v.selectedNode != nil {
-        fmt.Println("Save button clicked")
-        _conf, err := config.GetTaskConfig(v.selectedNode.Name)
-        if err != nil {
-            slog.Info("Get sql not found: " + err.Error())
-            _conf = &config.TaskConfig{
-                Name: v.selectedNode.Name,
-            }
-        }
-        _conf.Sql = v.codeEdit.Code()
-        err = config.SetTaskConfig(v.selectedNode.Name, _conf)
-        if err != nil {
-            slog.Warn("Set sql error: " + err.Error())
-        }
-
-        // 提示保存成功
-        params := context.WithValue(context.Background(), "modalMsg", "保存成功")
-        event.Trigger("modal.message", params)
-
-        v.editing = false
+        v.onSave()
     }
 
     return v.split.Layout(gtx, theme,
@@ -170,13 +202,36 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
                                 return layout.Spacer{}.Layout(gtx)
                                 //return layout.Dimensions{} // 不渲染任何内容，仅占用空间
                             }),
-                            // 保存按钮
+
+                            // 右侧
                             layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                                newBtn := widgets.Button(theme.Material(), &v.startButton, nil, widgets.IconPositionStart, "保存")
-                                newBtn.Color = theme.ButtonTextColor
-                                newBtn.Background = theme.SendButtonBgColor
-                                return newBtn.Layout(gtx, theme)
+                                return layout.Flex{Axis: layout.Horizontal, Alignment: layout.Middle}.Layout(gtx,
+                                    layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                                        return material.Body1(theme.Material(), "是否启用：").Layout(gtx)
+                                    }),
+
+                                    // 是否启用
+                                    layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                                        s := material.Switch(theme.Material(), v.nodeStatus, "开关")
+                                        s.Color.Enabled = theme.SwitchBgColor
+                                        s.Color.Disabled = theme.Palette.Fg
+                                        return layout.Inset{Left: unit.Dp(10), Right: unit.Dp(10)}.Layout(gtx,
+                                            s.Layout,
+                                        )
+                                    }),
+                                    // 保存按钮
+                                    layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                                        if v.selectedNode == nil {
+                                            gtx = gtx.Disabled()
+                                        }
+                                        newBtn := widgets.Button(theme.Material(), &v.startButton, nil, widgets.IconPositionStart, "保存")
+                                        newBtn.Color = theme.ButtonTextColor
+                                        newBtn.Background = theme.SendButtonBgColor
+                                        return newBtn.Layout(gtx, theme)
+                                    }),
+                                )
                             }),
+
                         )
                     }),
                     // 描述
