@@ -53,6 +53,7 @@ var List = []Task{
         Name:        "member",
         Label:       "客户资料",
         Description: "需同步到电商平台的客户资料",
+        Handle:      MemberSync{},
     },
     {
         Name:        "member_address",
@@ -144,7 +145,7 @@ func start() {
 
         for i, item := range List {
             // 运行启用的一级任务
-            if item.Config.Status && item.Parent == "" {
+            if !item.Status && item.Config.Status && item.Parent == "" {
                 go startOne(&List[i])
             }
         }
@@ -180,7 +181,7 @@ func startOne(item *Task) {
 
     // 遍历运行子任务 -可实现递归
     for _, v := range List {
-        if v.Parent == item.Name {
+        if v.Parent == item.Name && v.Config.Status {
             go startOne(&v)
         }
     }

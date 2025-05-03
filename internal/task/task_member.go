@@ -10,17 +10,18 @@ import (
     "golang.org/x/exp/slog"
 )
 
-// GoodsSyncPrice 同步ERP商品到商城
-type GoodsSyncPrice struct {
+// MemberSync 同步ERP商品到商城
+type MemberSync struct {
 }
 
-func (g GoodsSyncPrice) GetName() string {
-    return "GoodsSyncPrice"
+func (g MemberSync) GetName() string {
+    return "MemberSync"
 }
 
-func (g GoodsSyncPrice) Run(t *Task) error {
+func (g MemberSync) Run(t *Task) error {
+
     // 取出ERP全量数据
-    var erpData []erp_entity.GoodsPrice
+    var erpData []erp_entity.Member
 
     erpDb, ok := global.DbPool.Get("erp")
     if !ok {
@@ -34,38 +35,38 @@ func (g GoodsSyncPrice) Run(t *Task) error {
     }
 
     // 创建新的Map
-    newMap := safemap.New[*erp_entity.GoodsPrice]()
+    newMap := safemap.New[*erp_entity.Member]()
     for _, item := range erpData {
-        newMap.Set(item.GoodsErpSpid, &item)
+        newMap.Set(item.ErpUID, &item)
     }
     erpData = nil
 
     // 比对数据差异
-    add, update, del := sync_tool.DiffMap[*erp_entity.GoodsPrice](store.GoodsPriceStore, newMap)
+    add, update, del := sync_tool.DiffMap[*erp_entity.Member](store.MemberStore, newMap)
     newMap = nil
 
-    slog.Info("商品价格同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
+    slog.Info("会员同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
 
     // 添加
     for _, v := range add.Values() {
-        addOrUpdateGoodsPrice(v)
-        store.GoodsPriceStore.Set(v.GoodsErpSpid, v)
+        addOrUpdateMember(v)
+        store.MemberStore.Set(v.ErpUID, v)
     }
 
     // 更新
     for _, v := range update.Values() {
-        addOrUpdateGoodsPrice(v)
-        store.GoodsPriceStore.Set(v.GoodsErpSpid, v)
+        addOrUpdateMember(v)
+        store.MemberStore.Set(v.ErpUID, v)
     }
 
     // 删除
     for _, v := range del.Values() {
-        delGoodsPrice(v)
-        store.GoodsPriceStore.Delete(v.GoodsErpSpid)
+        delMember(v)
+        store.MemberStore.Delete(v.ErpUID)
     }
 
     // 缓存数据到文件
-    err := store.SaveGoodsPrice()
+    err := store.SaveMember()
     if err != nil {
         return err
     }
@@ -73,11 +74,11 @@ func (g GoodsSyncPrice) Run(t *Task) error {
     return nil
 }
 
-func addOrUpdateGoodsPrice(goods *erp_entity.GoodsPrice) {
+func addOrUpdateMember(member *erp_entity.Member) {
     // TODO 执行业务操作
 
 }
 
-func delGoodsPrice(goods *erp_entity.GoodsPrice) {
+func delMember(member *erp_entity.Member) {
     // TODO 执行业务操作
 }

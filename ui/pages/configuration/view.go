@@ -273,7 +273,6 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
                         layout.Flexed(.5, func(gtx C) D {
                             return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
                                 layout.Rigid(func(gtx C) D {
-
                                     return subFormInset.Layout(gtx, func(gtx C) D {
                                         return layout.Flex{
                                             Axis:      layout.Horizontal,
@@ -285,7 +284,6 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
                                             }),
                                             layout.Rigid(func(gtx C) D {
                                                 return v.confForm.shopDbType.Layout(gtx, theme)
-
                                             }),
                                         )
                                     })

@@ -1,6 +1,8 @@
 package global
 
 import (
+    "context"
+    "github.com/go-gourd/gourd/event"
     "time"
 )
 
@@ -31,4 +33,8 @@ func WriteConsoleLog(l string, msg string) {
         Level:   l,
         Message: msg,
     }}, Logs...)
+
+    // 刷新日志UI
+    event.Trigger("window.invalidate", context.Background())
+
 }

@@ -7,6 +7,7 @@ import (
     "app/internal/tools/safemap"
     "app/internal/tools/sync_tool"
     "errors"
+    "golang.org/x/exp/slog"
 )
 
 // GoodsSyncStock 同步ERP商品到商城
@@ -43,6 +44,8 @@ func (g GoodsSyncStock) Run(t *Task) error {
     // 比对数据差异
     add, update, del := sync_tool.DiffMap[*erp_entity.GoodsStock](store.GoodsStockStore, newMap)
     newMap = nil
+
+    slog.Info("商品库存同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
 
     // 添加
     for _, v := range add.Values() {

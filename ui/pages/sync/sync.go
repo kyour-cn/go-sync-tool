@@ -16,6 +16,7 @@ import (
     "github.com/go-gourd/gourd/event"
     "golang.org/x/exp/slog"
     "image/color"
+    "strconv"
     "time"
 )
 
@@ -27,6 +28,7 @@ type View struct {
     selectedNode *task.Task // 当前选中
     nodeStatus   *widget.Bool
     editing      bool
+    intervalTime *widgets.LabeledInput
 }
 
 func New(theme *chapartheme.Theme) *View {
@@ -73,6 +75,13 @@ func New(theme *chapartheme.Theme) *View {
         },
         treeView:   leftTree,
         nodeStatus: new(widget.Bool),
+        intervalTime: &widgets.LabeledInput{
+            Label:          "同步间隔（秒）",
+            SpaceBetween:   5,
+            MinEditorWidth: unit.Dp(10),
+            MinLabelWidth:  unit.Dp(10),
+            Editor:         widgets.NewPatternEditor(),
+        },
     }
 
     // 设置点击事件
@@ -89,6 +98,9 @@ func New(theme *chapartheme.Theme) *View {
 
                 // 设置状态
                 c.nodeStatus.Value = _conf.Status
+
+                // 设置间隔
+                c.intervalTime.SetText(strconv.Itoa(_conf.IntervalTime))
 
                 c.selectedNode = &t
                 break
@@ -146,6 +158,7 @@ func (v *View) onSave() {
     // 更新数据
     _conf.Sql = v.codeEdit.Code()
     _conf.Status = v.nodeStatus.Value
+    _conf.IntervalTime, _ = strconv.Atoi(v.intervalTime.Text())
 
     // 保存到配置
     err = config.SetTaskConfig(v.selectedNode.Name, _conf)
@@ -208,7 +221,12 @@ func (v *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
                             layout.Rigid(func(gtx layout.Context) layout.Dimensions {
                                 return layout.Flex{Axis: layout.Horizontal, Alignment: layout.Middle}.Layout(gtx,
                                     layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-                                        return material.Body1(theme.Material(), "是否启用：").Layout(gtx)
+                                        // 最大宽度
+                                        gtx.Constraints.Max.X = gtx.Dp(unit.Dp(200))
+                                        return v.intervalTime.Layout(gtx, theme)
+                                    }),
+                                    layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                                        return material.Body1(theme.Material(), " 是否启用：").Layout(gtx)
                                     }),
 
                                     // 是否启用

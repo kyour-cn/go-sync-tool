@@ -94,8 +94,8 @@ func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
 
                             var taskList []string
                             for _, v := range task.List {
-                                if v.Status {
-                                    taskList = append(taskList, v.Name)
+                                if v.Config.Status {
+                                    taskList = append(taskList, v.Label)
                                 }
                             }
                             if len(taskList) > 0 {

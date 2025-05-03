@@ -18,6 +18,9 @@ var (
 
     GoodsStockStore   *safemap.Map[*erp_entity.GoodsStock]
     goodsStockStorage *persistence.Storage[[]*erp_entity.GoodsStock]
+
+    MemberStore   *safemap.Map[*erp_entity.Member]
+    memberStorage *persistence.Storage[[]*erp_entity.Member]
 )
 
 func init() {
@@ -53,6 +56,10 @@ func init() {
         GoodsStockStore.Set(v.GoodsErpSpid, v)
     }
 
+    // 初始化会员存储
+    MemberStore = safemap.New[*erp_entity.Member]()
+    memberStorage = persistence.NewStorage[[]*erp_entity.Member]()
+
 }
 
 // SaveGoods 持久化商品数据
@@ -68,4 +75,9 @@ func SaveGoodsPrice() error {
 // SaveGoodsStock 持久化商品库存数据
 func SaveGoodsStock() error {
     return goodsStockStorage.Save(GoodsStockStore.Values(), tempPath+"/goods_stock.dat")
+}
+
+// SaveMember 持久化会员数据
+func SaveMember() error {
+    return memberStorage.Save(MemberStore.Values(), tempPath+"/member.dat")
 }
