@@ -17,9 +17,6 @@ func DiffMap[V any](old *safemap.Map[V], new *safemap.Map[V]) (*safemap.Map[V], 
             nv, _ := new.Get(k)
             ov, _ := old.Get(k)
 
-            // 删除无需数据，为了比对删除数据更高效和释放内存
-            old.Delete(k)
-
             // 相同则跳过
             if reflect.DeepEqual(nv, ov) {
                 continue

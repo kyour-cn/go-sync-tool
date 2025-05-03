@@ -41,6 +41,8 @@ func (g GoodsSync) Run(t *Task) error {
     }
     erpData = nil
 
+    slog.Info("ERP商品数据", "oldNum", store.GoodsStore.Len(), "newNum", newMap.Len())
+
     // 比对数据差异
     add, update, del := sync_tool.DiffMap[*erp_entity.Goods](store.GoodsStore, newMap)
     newMap = nil

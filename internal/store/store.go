@@ -4,6 +4,7 @@ import (
     "app/internal/orm/erp_entity"
     "app/internal/tools/persistence"
     "app/internal/tools/safemap"
+    "golang.org/x/exp/slog"
     "os"
 )
 
@@ -23,7 +24,7 @@ var (
     memberStorage *persistence.Storage[[]*erp_entity.Member]
 )
 
-func init() {
+func Init() {
 
     // 创建temp目录，检查目录是否存在
     _, err := os.Stat(tempPath)
@@ -39,6 +40,7 @@ func init() {
     for _, v := range goodsSlice {
         GoodsStore.Set(v.GoodsErpSpid, v)
     }
+    slog.Info("加载缓存商品数据", "num", GoodsStore.Len())
 
     // 初始化商品价格存储
     GoodsPriceStore = safemap.New[*erp_entity.GoodsPrice]()
