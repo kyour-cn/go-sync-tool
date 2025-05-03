@@ -45,10 +45,10 @@ func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
 
     if c.startButton.Clicked(gtx) {
         if global.State.Status == 1 {
-            go event.Trigger("task.start", context.Background())
+            event.Trigger("task.start", context.Background())
             //c.testModal.SetVisible(true)
         } else if global.State.Status == 3 {
-            go event.Trigger("task.stop", context.Background())
+            event.Trigger("task.stop", context.Background())
             //c.testModal.SetVisible(false)
         }
     }

@@ -6,16 +6,19 @@ import (
     "context"
     "github.com/go-gourd/gourd/event"
     "log/slog"
+    "time"
 )
 
 type Task struct {
     Name        string
     Label       string
     Description string
-    Status      bool // 状态 0=未运行 1=运行中
+    Status      bool // 运行状态 是否运行中
+    LastRunTime time.Time
     Type        int8 // 0=读取视图 1=写入中间表
     Config      config.TaskConfig
     Handle      Handle
+    Parent      string // 父级任务，会等待父级任务完成一轮才会触发
 }
 
 type Handle interface {
@@ -23,8 +26,6 @@ type Handle interface {
     GetName() string
     // Run 执行任务入口
     Run(*Task) error
-    // Stop 停止任务
-    Stop() error
 }
 
 var List = []Task{
@@ -39,12 +40,14 @@ var List = []Task{
         Label:       "商品价格",
         Description: "需同步到电商平台的商品价格",
         Handle:      GoodsSyncPrice{},
+        Parent:      "goods",
     },
     {
         Name:        "goods_stock",
         Label:       "商品库存",
         Description: "需同步到电商平台的商品库存",
         Handle:      GoodsSyncStock{},
+        Parent:      "goods",
     },
     {
         Name:        "member",
@@ -55,6 +58,7 @@ var List = []Task{
         Name:        "member_address",
         Label:       "客户地址",
         Description: "需同步到电商平台的客户地址",
+        Parent:      "member",
     },
     {
         Name:        "order",
@@ -70,13 +74,13 @@ func Init() {
     // 监听事件 -启动
     event.Listen("task.start", func(context.Context) {
         slog.Info("触发事件：任务启动")
-        start()
+        go start()
     })
 
     // 监听事件 -停止
     event.Listen("task.stop", func(context.Context) {
         slog.Info("触发事件：任务停止")
-        stop()
+        go stop()
     })
 
 }
@@ -114,22 +118,12 @@ func start() {
         return
     }
 
-    // 遍历配置的任务
+    // 遍历配置的任务进行初始化
     for _, tc := range *taskConf {
-        if tc.Status {
-            // 匹配任务
-            for _, item := range List {
-                if item.Name == tc.Name {
-                    item.Config = tc
-
-                    slog.Info("启动任务：" + item.Name)
-                    go func() {
-                        err := item.Handle.Run(&item)
-                        if err != nil {
-                            slog.Error("任务启动失败", "name", item.Name, "err", err)
-                        }
-                    }()
-                }
+        // 匹配任务名
+        for i := range List {
+            if List[i].Name == tc.Name {
+                List[i].Config = tc
             }
         }
     }
@@ -140,6 +134,56 @@ func start() {
     // 提示
     params := context.WithValue(context.Background(), "tipMsg", "启动成功")
     event.Trigger("tips.show", params)
+
+    for {
+        // 监测停止
+        if global.State.Status == 4 {
+            stoped()
+            break
+        }
+
+        for i, item := range List {
+            // 运行启用的一级任务
+            if item.Config.Status && item.Parent == "" {
+                go startOne(&List[i])
+            }
+        }
+
+        // 延迟一秒
+        time.Sleep(time.Second)
+    }
+}
+
+// 运行单个任务
+func startOne(item *Task) {
+
+    // 判断运行状态和时间差
+    if item.Status || time.Since(item.LastRunTime) < time.Second*time.Duration(item.Config.IntervalTime) {
+        return
+    }
+
+    // 修改状态和同步时间
+    item.Status = true
+    item.LastRunTime = time.Now()
+
+    slog.Info("开始运行任务："+item.Label, "name", item.Name)
+
+    // 运行业务代码
+    err := item.Handle.Run(item)
+    if err != nil {
+        slog.Error("任务运行失败："+item.Label, "name", item.Name, "err", err)
+    }
+
+    slog.Info("任务运行完成："+item.Label, "name", item.Name, "耗时", time.Since(item.LastRunTime).String())
+
+    item.Status = false
+
+    // 遍历运行子任务 -可实现递归
+    for _, v := range List {
+        if v.Parent == item.Name {
+            go startOne(&v)
+        }
+    }
 }
 
 func stop() {
@@ -155,45 +199,18 @@ func stop() {
 
     global.State.Status = 4
 
-    // 获取配置
-    taskConf, err := config.GetTaskConfigAll()
-    if err != nil {
-        startErr("获取配置失败")
-        return
-    }
-    if taskConf == nil {
-        startErr("未勾选运行的任务项")
-        return
-    }
+}
 
-    // 停止操作
-    for _, tc := range *taskConf {
-        if tc.Status {
-            // 匹配任务
-            for _, v := range List {
-                if v.Name == tc.Name {
-                    v.Config = tc
+func stoped() {
 
-                    slog.Info("启动任务：" + v.Name)
-                    go func() {
-                        err := v.Handle.Run(&v)
-                        if err != nil {
-                            slog.Error("任务启动失败", "name", v.Name, "err", err)
-                        }
-                    }()
-                }
-            }
-        }
-    }
+    global.State.Status = 1
 
-    err = global.CloseDb()
+    err := global.CloseDb()
     if err != nil {
         startErr("关闭数据库失败")
         slog.Error("关闭数据库失败", "err", err)
         return
     }
-
-    global.State.Status = 1
 
     // 提示
     params := context.WithValue(context.Background(), "tipMsg", "停止成功")

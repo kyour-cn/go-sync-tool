@@ -6,9 +6,10 @@ import (
 
 // TaskConfig 适用于单个连接的配置
 type TaskConfig struct {
-    Name   string `toml:"name" json:"name" comment:"任务名称" `
-    Sql    string `toml:"sql" json:"sql" comment:"SQL语句"`
-    Status bool   `toml:"status" json:"status" comment:"是否启用"`
+    Name         string `toml:"name" json:"name" comment:"任务名称" `
+    Sql          string `toml:"sql" json:"sql" comment:"SQL语句"`
+    IntervalTime int    `toml:"interval_time" json:"interval_time" comment:"间隔时间-秒"`
+    Status       bool   `toml:"status" json:"status" comment:"是否启用"`
 }
 
 // TaskConfigMap 适用于多个连接的配置

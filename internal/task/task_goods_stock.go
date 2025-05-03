@@ -7,8 +7,6 @@ import (
     "app/internal/tools/safemap"
     "app/internal/tools/sync_tool"
     "errors"
-    "golang.org/x/exp/slog"
-    "time"
 )
 
 // GoodsSyncStock 同步ERP商品到商城
@@ -21,30 +19,6 @@ func (g GoodsSyncStock) GetName() string {
 }
 
 func (g GoodsSyncStock) Run(t *Task) error {
-    g.IsRunning = true
-    for {
-        slog.Info("开始同步商品库存")
-        st := time.Now()
-        err := g.runLoop(t)
-        if err != nil {
-            slog.Error("同步商品库存失败", "err", err)
-        }
-
-        // 计算耗时
-        slog.Info("同步商品库存完成，耗时：" + time.Since(st).String())
-
-        // 间隔1分钟
-        time.Sleep(time.Duration(10) * time.Second)
-    }
-}
-
-func (g GoodsSyncStock) Stop() error {
-    g.IsRunning = false
-
-    return nil
-}
-
-func (g GoodsSyncStock) runLoop(t *Task) error {
     // 取出ERP全量数据
     var erpData []erp_entity.GoodsStock
 
