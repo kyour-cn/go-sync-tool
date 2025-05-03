@@ -11,39 +11,42 @@ import (
     "time"
 )
 
-// GoodsSync 同步ERP商品到商城
-type GoodsSync struct {
+// GoodsSyncStock 同步ERP商品到商城
+type GoodsSyncStock struct {
+    IsRunning bool
 }
 
-func (g GoodsSync) GetName() string {
-    return "GoodsSync"
+func (g GoodsSyncStock) GetName() string {
+    return "GoodsSyncStock"
 }
 
-func (g GoodsSync) Run(t *Task) error {
+func (g GoodsSyncStock) Run(t *Task) error {
+    g.IsRunning = true
     for {
-        slog.Info("开始同步商品")
+        slog.Info("开始同步商品库存")
         st := time.Now()
         err := g.runLoop(t)
         if err != nil {
-            slog.Error("同步商品失败", "err", err)
+            slog.Error("同步商品库存失败", "err", err)
         }
 
         // 计算耗时
-        slog.Info("同步商品完成，耗时：" + time.Since(st).String())
+        slog.Info("同步商品库存完成，耗时：" + time.Since(st).String())
 
         // 间隔1分钟
-        time.Sleep(time.Duration(1) * time.Minute)
+        time.Sleep(time.Duration(10) * time.Second)
     }
 }
 
-func (g GoodsSync) Stop() error {
+func (g GoodsSyncStock) Stop() error {
+    g.IsRunning = false
 
     return nil
 }
 
-func (g GoodsSync) runLoop(t *Task) error {
+func (g GoodsSyncStock) runLoop(t *Task) error {
     // 取出ERP全量数据
-    var erpData []erp_entity.Goods
+    var erpData []erp_entity.GoodsStock
 
     erpDb, ok := global.DbPool.Get("erp")
     if !ok {
@@ -57,36 +60,36 @@ func (g GoodsSync) runLoop(t *Task) error {
     }
 
     // 创建新的Map
-    newMap := safemap.New[*erp_entity.Goods]()
+    newMap := safemap.New[*erp_entity.GoodsStock]()
     for _, item := range erpData {
         newMap.Set(item.GoodsErpSpid, &item)
     }
     erpData = nil
 
     // 比对数据差异
-    add, update, del := sync_tool.DiffMap[*erp_entity.Goods](store.GoodsStore, newMap)
+    add, update, del := sync_tool.DiffMap[*erp_entity.GoodsStock](store.GoodsStockStore, newMap)
     newMap = nil
 
     // 添加
     for _, v := range add.Values() {
-        addOrUpdateGoods(v)
-        store.GoodsStore.Set(v.GoodsErpSpid, v)
+        addOrUpdateGoodsStock(v)
+        store.GoodsStockStore.Set(v.GoodsErpSpid, v)
     }
 
     // 更新
     for _, v := range update.Values() {
-        addOrUpdateGoods(v)
-        store.GoodsStore.Set(v.GoodsErpSpid, v)
+        addOrUpdateGoodsStock(v)
+        store.GoodsStockStore.Set(v.GoodsErpSpid, v)
     }
 
     // 删除
     for _, v := range del.Values() {
-        delGoods(v)
-        store.GoodsStore.Delete(v.GoodsErpSpid)
+        delGoodsStock(v)
+        store.GoodsStockStore.Delete(v.GoodsErpSpid)
     }
 
     // 缓存数据到文件
-    err := store.SaveGoods()
+    err := store.SaveGoodsStock()
     if err != nil {
         return err
     }
@@ -94,11 +97,11 @@ func (g GoodsSync) runLoop(t *Task) error {
     return nil
 }
 
-func addOrUpdateGoods(goods *erp_entity.Goods) {
+func addOrUpdateGoodsStock(goods *erp_entity.GoodsStock) {
     // TODO 执行业务操作
 
 }
 
-func delGoods(goods *erp_entity.Goods) {
+func delGoodsStock(goods *erp_entity.GoodsStock) {
     // TODO 执行业务操作
 }

@@ -22,7 +22,9 @@ type Handle interface {
     // GetName 获取任务名称
     GetName() string
     // Run 执行任务入口
-    Run(Task) error
+    Run(*Task) error
+    // Stop 停止任务
+    Stop() error
 }
 
 var List = []Task{
@@ -36,11 +38,13 @@ var List = []Task{
         Name:        "goods_price",
         Label:       "商品价格",
         Description: "需同步到电商平台的商品价格",
+        Handle:      GoodsSyncPrice{},
     },
     {
         Name:        "goods_stock",
         Label:       "商品库存",
         Description: "需同步到电商平台的商品库存",
+        Handle:      GoodsSyncStock{},
     },
     {
         Name:        "member",
@@ -114,15 +118,17 @@ func start() {
     for _, tc := range *taskConf {
         if tc.Status {
             // 匹配任务
-            for _, v := range List {
-                if v.Name == tc.Name {
-                    v.Config = tc
+            for _, item := range List {
+                if item.Name == tc.Name {
+                    item.Config = tc
 
-                    slog.Info("开始执行任务：" + v.Name)
-                    err := v.Handle.Run(v)
-                    if err != nil {
-                        return
-                    }
+                    slog.Info("启动任务：" + item.Name)
+                    go func() {
+                        err := item.Handle.Run(&item)
+                        if err != nil {
+                            slog.Error("任务启动失败", "name", item.Name, "err", err)
+                        }
+                    }()
                 }
             }
         }
@@ -149,9 +155,38 @@ func stop() {
 
     global.State.Status = 4
 
-    // 停止操作
+    // 获取配置
+    taskConf, err := config.GetTaskConfigAll()
+    if err != nil {
+        startErr("获取配置失败")
+        return
+    }
+    if taskConf == nil {
+        startErr("未勾选运行的任务项")
+        return
+    }
 
-    err := global.CloseDb()
+    // 停止操作
+    for _, tc := range *taskConf {
+        if tc.Status {
+            // 匹配任务
+            for _, v := range List {
+                if v.Name == tc.Name {
+                    v.Config = tc
+
+                    slog.Info("启动任务：" + v.Name)
+                    go func() {
+                        err := v.Handle.Run(&v)
+                        if err != nil {
+                            slog.Error("任务启动失败", "name", v.Name, "err", err)
+                        }
+                    }()
+                }
+            }
+        }
+    }
+
+    err = global.CloseDb()
     if err != nil {
         startErr("关闭数据库失败")
         slog.Error("关闭数据库失败", "err", err)
