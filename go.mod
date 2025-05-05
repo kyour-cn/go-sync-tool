@@ -9,6 +9,7 @@ require (
 	github.com/alexbrainman/odbc v0.0.0-20250425050419-fd97e4030c76
 	github.com/go-gourd/gourd v1.3.0
 	github.com/google/uuid v1.6.0
+	github.com/mozillazg/go-pinyin v0.20.0
 	github.com/oligo/gioview v0.8.2
 	github.com/oligo/gvcode v0.2.1
 	github.com/pelletier/go-toml/v2 v2.2.4
@@ -21,6 +22,8 @@ require (
 	gorm.io/driver/sqlserver v1.5.4
 	gorm.io/gen v0.3.27
 	gorm.io/gorm v1.26.0
+	gorm.io/plugin/dbresolver v1.6.0
+	gorm.io/plugin/soft_delete v1.2.1
 )
 
 require (
@@ -42,5 +45,4 @@ require (
 	golang.org/x/tools v0.32.0 // indirect
 	gorm.io/datatypes v1.2.5 // indirect
 	gorm.io/hints v1.1.2 // indirect
-	gorm.io/plugin/dbresolver v1.6.0 // indirect
 )

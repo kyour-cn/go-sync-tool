@@ -41,8 +41,9 @@ func main() {
     }
 
     g := gen.NewGenerator(gen.Config{
-        OutPath: "./internal/orm/shop_query",
-        Mode:    gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface, // generate mode
+        OutPath:      "./internal/orm/shop_query",
+        ModelPkgPath: "shop_model",
+        Mode:         gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface, // generate mode
     })
 
     g.UseDB(mysqlDb)
