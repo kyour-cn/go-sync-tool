@@ -15,7 +15,7 @@ type Goods struct {
     AttrDosageForm     UTF8String `db:"attr_dosage_form" gorm:"column:attr_dosage_form" json:"attr_dosage_form"`
     AttrCountryCode    UTF8String `db:"attr_country_code" gorm:"column:attr_country_code" json:"attr_country_code"`
     GoodsArea          UTF8String `db:"goods_area" gorm:"column:goods_area" json:"goods_area"`
-    BarCode            string     `db:"bar_code" gorm:"column:bar_code" json:"bar_code"`
+    BarCode            UTF8String `db:"bar_code" gorm:"column:bar_code" json:"bar_code"`
     MediumPackageNum   int        `db:"medium_package_num" gorm:"column:medium_package_num" json:"medium_package_num"`
     BusinessTypeID     UTF8String `db:"business_type_id" gorm:"column:business_type_id" json:"business_type_id"`
     BusinessTypeName   UTF8String `db:"business_type_name" gorm:"column:business_type_name" json:"business_type_name"`
@@ -24,7 +24,7 @@ type Goods struct {
     BuyMinNum          int        `db:"buy_min_num" gorm:"column:buy_min_num" json:"buy_min_num"`
     BuyMaxNum          int        `db:"buy_max_num" gorm:"column:buy_max_num" json:"buy_max_num"`
     IsMedicinal        int        `db:"is_medicinal" gorm:"column:is_medicinal" json:"is_medicinal"`
-    GoodsNo            string     `db:"goods_no" gorm:"column:goods_no" json:"goods_no"`
+    GoodsNo            UTF8String `db:"goods_no" gorm:"column:goods_no" json:"goods_no"`
     IsPrescription     UTF8String `db:"is_prescription" gorm:"column:is_prescription" json:"is_prescription"`
     YiBaoType          UTF8String `db:"yibao_type" gorm:"column:yibao_type" json:"yibao_type"`
     YiBaoNo            UTF8String `db:"yibao_no" gorm:"column:yibao_no" json:"yibao_no"`

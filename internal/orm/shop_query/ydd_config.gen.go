@@ -17,14 +17,14 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"app/internal/orm/model"
+	"app/internal/orm/shop_model"
 )
 
 func newConfig(db *gorm.DB, opts ...gen.DOOption) config {
 	_config := config{}
 
 	_config.configDo.UseDB(db, opts...)
-	_config.configDo.UseModel(&model.Config{})
+	_config.configDo.UseModel(&shop_model.Config{})
 
 	tableName := _config.configDo.TableName()
 	_config.ALL = field.NewAsterisk(tableName)
@@ -151,17 +151,17 @@ type IConfigDo interface {
 	Count() (count int64, err error)
 	Scopes(funcs ...func(gen.Dao) gen.Dao) IConfigDo
 	Unscoped() IConfigDo
-	Create(values ...*model.Config) error
-	CreateInBatches(values []*model.Config, batchSize int) error
-	Save(values ...*model.Config) error
-	First() (*model.Config, error)
-	Take() (*model.Config, error)
-	Last() (*model.Config, error)
-	Find() ([]*model.Config, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Config, err error)
-	FindInBatches(result *[]*model.Config, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Create(values ...*shop_model.Config) error
+	CreateInBatches(values []*shop_model.Config, batchSize int) error
+	Save(values ...*shop_model.Config) error
+	First() (*shop_model.Config, error)
+	Take() (*shop_model.Config, error)
+	Last() (*shop_model.Config, error)
+	Find() ([]*shop_model.Config, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.Config, err error)
+	FindInBatches(result *[]*shop_model.Config, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.Config) (info gen.ResultInfo, err error)
+	Delete(...*shop_model.Config) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -173,9 +173,9 @@ type IConfigDo interface {
 	Assign(attrs ...field.AssignExpr) IConfigDo
 	Joins(fields ...field.RelationField) IConfigDo
 	Preload(fields ...field.RelationField) IConfigDo
-	FirstOrInit() (*model.Config, error)
-	FirstOrCreate() (*model.Config, error)
-	FindByPage(offset int, limit int) (result []*model.Config, count int64, err error)
+	FirstOrInit() (*shop_model.Config, error)
+	FirstOrCreate() (*shop_model.Config, error)
+	FindByPage(offset int, limit int) (result []*shop_model.Config, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
@@ -277,57 +277,57 @@ func (c configDo) Unscoped() IConfigDo {
 	return c.withDO(c.DO.Unscoped())
 }
 
-func (c configDo) Create(values ...*model.Config) error {
+func (c configDo) Create(values ...*shop_model.Config) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return c.DO.Create(values)
 }
 
-func (c configDo) CreateInBatches(values []*model.Config, batchSize int) error {
+func (c configDo) CreateInBatches(values []*shop_model.Config, batchSize int) error {
 	return c.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (c configDo) Save(values ...*model.Config) error {
+func (c configDo) Save(values ...*shop_model.Config) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return c.DO.Save(values)
 }
 
-func (c configDo) First() (*model.Config, error) {
+func (c configDo) First() (*shop_model.Config, error) {
 	if result, err := c.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Config), nil
+		return result.(*shop_model.Config), nil
 	}
 }
 
-func (c configDo) Take() (*model.Config, error) {
+func (c configDo) Take() (*shop_model.Config, error) {
 	if result, err := c.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Config), nil
+		return result.(*shop_model.Config), nil
 	}
 }
 
-func (c configDo) Last() (*model.Config, error) {
+func (c configDo) Last() (*shop_model.Config, error) {
 	if result, err := c.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Config), nil
+		return result.(*shop_model.Config), nil
 	}
 }
 
-func (c configDo) Find() ([]*model.Config, error) {
+func (c configDo) Find() ([]*shop_model.Config, error) {
 	result, err := c.DO.Find()
-	return result.([]*model.Config), err
+	return result.([]*shop_model.Config), err
 }
 
-func (c configDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Config, err error) {
-	buf := make([]*model.Config, 0, batchSize)
+func (c configDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.Config, err error) {
+	buf := make([]*shop_model.Config, 0, batchSize)
 	err = c.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -335,7 +335,7 @@ func (c configDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) erro
 	return results, err
 }
 
-func (c configDo) FindInBatches(result *[]*model.Config, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (c configDo) FindInBatches(result *[]*shop_model.Config, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return c.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -361,23 +361,23 @@ func (c configDo) Preload(fields ...field.RelationField) IConfigDo {
 	return &c
 }
 
-func (c configDo) FirstOrInit() (*model.Config, error) {
+func (c configDo) FirstOrInit() (*shop_model.Config, error) {
 	if result, err := c.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Config), nil
+		return result.(*shop_model.Config), nil
 	}
 }
 
-func (c configDo) FirstOrCreate() (*model.Config, error) {
+func (c configDo) FirstOrCreate() (*shop_model.Config, error) {
 	if result, err := c.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Config), nil
+		return result.(*shop_model.Config), nil
 	}
 }
 
-func (c configDo) FindByPage(offset int, limit int) (result []*model.Config, count int64, err error) {
+func (c configDo) FindByPage(offset int, limit int) (result []*shop_model.Config, count int64, err error) {
 	result, err = c.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -406,7 +406,7 @@ func (c configDo) Scan(result interface{}) (err error) {
 	return c.DO.Scan(result)
 }
 
-func (c configDo) Delete(models ...*model.Config) (result gen.ResultInfo, err error) {
+func (c configDo) Delete(models ...*shop_model.Config) (result gen.ResultInfo, err error) {
 	return c.DO.Delete(models)
 }
 

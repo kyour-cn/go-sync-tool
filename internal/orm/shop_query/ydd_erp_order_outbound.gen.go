@@ -17,14 +17,14 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"app/internal/orm/model"
+	"app/internal/orm/shop_model"
 )
 
 func newErpOrderOutbound(db *gorm.DB, opts ...gen.DOOption) erpOrderOutbound {
 	_erpOrderOutbound := erpOrderOutbound{}
 
 	_erpOrderOutbound.erpOrderOutboundDo.UseDB(db, opts...)
-	_erpOrderOutbound.erpOrderOutboundDo.UseModel(&model.ErpOrderOutbound{})
+	_erpOrderOutbound.erpOrderOutboundDo.UseModel(&shop_model.ErpOrderOutbound{})
 
 	tableName := _erpOrderOutbound.erpOrderOutboundDo.TableName()
 	_erpOrderOutbound.ALL = field.NewAsterisk(tableName)
@@ -158,17 +158,17 @@ type IErpOrderOutboundDo interface {
 	Count() (count int64, err error)
 	Scopes(funcs ...func(gen.Dao) gen.Dao) IErpOrderOutboundDo
 	Unscoped() IErpOrderOutboundDo
-	Create(values ...*model.ErpOrderOutbound) error
-	CreateInBatches(values []*model.ErpOrderOutbound, batchSize int) error
-	Save(values ...*model.ErpOrderOutbound) error
-	First() (*model.ErpOrderOutbound, error)
-	Take() (*model.ErpOrderOutbound, error)
-	Last() (*model.ErpOrderOutbound, error)
-	Find() ([]*model.ErpOrderOutbound, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ErpOrderOutbound, err error)
-	FindInBatches(result *[]*model.ErpOrderOutbound, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Create(values ...*shop_model.ErpOrderOutbound) error
+	CreateInBatches(values []*shop_model.ErpOrderOutbound, batchSize int) error
+	Save(values ...*shop_model.ErpOrderOutbound) error
+	First() (*shop_model.ErpOrderOutbound, error)
+	Take() (*shop_model.ErpOrderOutbound, error)
+	Last() (*shop_model.ErpOrderOutbound, error)
+	Find() ([]*shop_model.ErpOrderOutbound, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.ErpOrderOutbound, err error)
+	FindInBatches(result *[]*shop_model.ErpOrderOutbound, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.ErpOrderOutbound) (info gen.ResultInfo, err error)
+	Delete(...*shop_model.ErpOrderOutbound) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -180,9 +180,9 @@ type IErpOrderOutboundDo interface {
 	Assign(attrs ...field.AssignExpr) IErpOrderOutboundDo
 	Joins(fields ...field.RelationField) IErpOrderOutboundDo
 	Preload(fields ...field.RelationField) IErpOrderOutboundDo
-	FirstOrInit() (*model.ErpOrderOutbound, error)
-	FirstOrCreate() (*model.ErpOrderOutbound, error)
-	FindByPage(offset int, limit int) (result []*model.ErpOrderOutbound, count int64, err error)
+	FirstOrInit() (*shop_model.ErpOrderOutbound, error)
+	FirstOrCreate() (*shop_model.ErpOrderOutbound, error)
+	FindByPage(offset int, limit int) (result []*shop_model.ErpOrderOutbound, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
@@ -284,57 +284,57 @@ func (e erpOrderOutboundDo) Unscoped() IErpOrderOutboundDo {
 	return e.withDO(e.DO.Unscoped())
 }
 
-func (e erpOrderOutboundDo) Create(values ...*model.ErpOrderOutbound) error {
+func (e erpOrderOutboundDo) Create(values ...*shop_model.ErpOrderOutbound) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return e.DO.Create(values)
 }
 
-func (e erpOrderOutboundDo) CreateInBatches(values []*model.ErpOrderOutbound, batchSize int) error {
+func (e erpOrderOutboundDo) CreateInBatches(values []*shop_model.ErpOrderOutbound, batchSize int) error {
 	return e.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (e erpOrderOutboundDo) Save(values ...*model.ErpOrderOutbound) error {
+func (e erpOrderOutboundDo) Save(values ...*shop_model.ErpOrderOutbound) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return e.DO.Save(values)
 }
 
-func (e erpOrderOutboundDo) First() (*model.ErpOrderOutbound, error) {
+func (e erpOrderOutboundDo) First() (*shop_model.ErpOrderOutbound, error) {
 	if result, err := e.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ErpOrderOutbound), nil
+		return result.(*shop_model.ErpOrderOutbound), nil
 	}
 }
 
-func (e erpOrderOutboundDo) Take() (*model.ErpOrderOutbound, error) {
+func (e erpOrderOutboundDo) Take() (*shop_model.ErpOrderOutbound, error) {
 	if result, err := e.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ErpOrderOutbound), nil
+		return result.(*shop_model.ErpOrderOutbound), nil
 	}
 }
 
-func (e erpOrderOutboundDo) Last() (*model.ErpOrderOutbound, error) {
+func (e erpOrderOutboundDo) Last() (*shop_model.ErpOrderOutbound, error) {
 	if result, err := e.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ErpOrderOutbound), nil
+		return result.(*shop_model.ErpOrderOutbound), nil
 	}
 }
 
-func (e erpOrderOutboundDo) Find() ([]*model.ErpOrderOutbound, error) {
+func (e erpOrderOutboundDo) Find() ([]*shop_model.ErpOrderOutbound, error) {
 	result, err := e.DO.Find()
-	return result.([]*model.ErpOrderOutbound), err
+	return result.([]*shop_model.ErpOrderOutbound), err
 }
 
-func (e erpOrderOutboundDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ErpOrderOutbound, err error) {
-	buf := make([]*model.ErpOrderOutbound, 0, batchSize)
+func (e erpOrderOutboundDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.ErpOrderOutbound, err error) {
+	buf := make([]*shop_model.ErpOrderOutbound, 0, batchSize)
 	err = e.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -342,7 +342,7 @@ func (e erpOrderOutboundDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch
 	return results, err
 }
 
-func (e erpOrderOutboundDo) FindInBatches(result *[]*model.ErpOrderOutbound, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (e erpOrderOutboundDo) FindInBatches(result *[]*shop_model.ErpOrderOutbound, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return e.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -368,23 +368,23 @@ func (e erpOrderOutboundDo) Preload(fields ...field.RelationField) IErpOrderOutb
 	return &e
 }
 
-func (e erpOrderOutboundDo) FirstOrInit() (*model.ErpOrderOutbound, error) {
+func (e erpOrderOutboundDo) FirstOrInit() (*shop_model.ErpOrderOutbound, error) {
 	if result, err := e.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ErpOrderOutbound), nil
+		return result.(*shop_model.ErpOrderOutbound), nil
 	}
 }
 
-func (e erpOrderOutboundDo) FirstOrCreate() (*model.ErpOrderOutbound, error) {
+func (e erpOrderOutboundDo) FirstOrCreate() (*shop_model.ErpOrderOutbound, error) {
 	if result, err := e.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ErpOrderOutbound), nil
+		return result.(*shop_model.ErpOrderOutbound), nil
 	}
 }
 
-func (e erpOrderOutboundDo) FindByPage(offset int, limit int) (result []*model.ErpOrderOutbound, count int64, err error) {
+func (e erpOrderOutboundDo) FindByPage(offset int, limit int) (result []*shop_model.ErpOrderOutbound, count int64, err error) {
 	result, err = e.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -413,7 +413,7 @@ func (e erpOrderOutboundDo) Scan(result interface{}) (err error) {
 	return e.DO.Scan(result)
 }
 
-func (e erpOrderOutboundDo) Delete(models ...*model.ErpOrderOutbound) (result gen.ResultInfo, err error) {
+func (e erpOrderOutboundDo) Delete(models ...*shop_model.ErpOrderOutbound) (result gen.ResultInfo, err error) {
 	return e.DO.Delete(models)
 }
 

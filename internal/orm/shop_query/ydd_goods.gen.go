@@ -17,14 +17,14 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"app/internal/orm/model"
+	"app/internal/orm/shop_model"
 )
 
 func newGoods(db *gorm.DB, opts ...gen.DOOption) goods {
 	_goods := goods{}
 
 	_goods.goodsDo.UseDB(db, opts...)
-	_goods.goodsDo.UseModel(&model.Goods{})
+	_goods.goodsDo.UseModel(&shop_model.Goods{})
 
 	tableName := _goods.goodsDo.TableName()
 	_goods.ALL = field.NewAsterisk(tableName)
@@ -535,17 +535,17 @@ type IGoodsDo interface {
 	Count() (count int64, err error)
 	Scopes(funcs ...func(gen.Dao) gen.Dao) IGoodsDo
 	Unscoped() IGoodsDo
-	Create(values ...*model.Goods) error
-	CreateInBatches(values []*model.Goods, batchSize int) error
-	Save(values ...*model.Goods) error
-	First() (*model.Goods, error)
-	Take() (*model.Goods, error)
-	Last() (*model.Goods, error)
-	Find() ([]*model.Goods, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Goods, err error)
-	FindInBatches(result *[]*model.Goods, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Create(values ...*shop_model.Goods) error
+	CreateInBatches(values []*shop_model.Goods, batchSize int) error
+	Save(values ...*shop_model.Goods) error
+	First() (*shop_model.Goods, error)
+	Take() (*shop_model.Goods, error)
+	Last() (*shop_model.Goods, error)
+	Find() ([]*shop_model.Goods, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.Goods, err error)
+	FindInBatches(result *[]*shop_model.Goods, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.Goods) (info gen.ResultInfo, err error)
+	Delete(...*shop_model.Goods) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -557,9 +557,9 @@ type IGoodsDo interface {
 	Assign(attrs ...field.AssignExpr) IGoodsDo
 	Joins(fields ...field.RelationField) IGoodsDo
 	Preload(fields ...field.RelationField) IGoodsDo
-	FirstOrInit() (*model.Goods, error)
-	FirstOrCreate() (*model.Goods, error)
-	FindByPage(offset int, limit int) (result []*model.Goods, count int64, err error)
+	FirstOrInit() (*shop_model.Goods, error)
+	FirstOrCreate() (*shop_model.Goods, error)
+	FindByPage(offset int, limit int) (result []*shop_model.Goods, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
@@ -661,57 +661,57 @@ func (g goodsDo) Unscoped() IGoodsDo {
 	return g.withDO(g.DO.Unscoped())
 }
 
-func (g goodsDo) Create(values ...*model.Goods) error {
+func (g goodsDo) Create(values ...*shop_model.Goods) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return g.DO.Create(values)
 }
 
-func (g goodsDo) CreateInBatches(values []*model.Goods, batchSize int) error {
+func (g goodsDo) CreateInBatches(values []*shop_model.Goods, batchSize int) error {
 	return g.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (g goodsDo) Save(values ...*model.Goods) error {
+func (g goodsDo) Save(values ...*shop_model.Goods) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return g.DO.Save(values)
 }
 
-func (g goodsDo) First() (*model.Goods, error) {
+func (g goodsDo) First() (*shop_model.Goods, error) {
 	if result, err := g.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Goods), nil
+		return result.(*shop_model.Goods), nil
 	}
 }
 
-func (g goodsDo) Take() (*model.Goods, error) {
+func (g goodsDo) Take() (*shop_model.Goods, error) {
 	if result, err := g.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Goods), nil
+		return result.(*shop_model.Goods), nil
 	}
 }
 
-func (g goodsDo) Last() (*model.Goods, error) {
+func (g goodsDo) Last() (*shop_model.Goods, error) {
 	if result, err := g.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Goods), nil
+		return result.(*shop_model.Goods), nil
 	}
 }
 
-func (g goodsDo) Find() ([]*model.Goods, error) {
+func (g goodsDo) Find() ([]*shop_model.Goods, error) {
 	result, err := g.DO.Find()
-	return result.([]*model.Goods), err
+	return result.([]*shop_model.Goods), err
 }
 
-func (g goodsDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Goods, err error) {
-	buf := make([]*model.Goods, 0, batchSize)
+func (g goodsDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.Goods, err error) {
+	buf := make([]*shop_model.Goods, 0, batchSize)
 	err = g.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -719,7 +719,7 @@ func (g goodsDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error
 	return results, err
 }
 
-func (g goodsDo) FindInBatches(result *[]*model.Goods, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (g goodsDo) FindInBatches(result *[]*shop_model.Goods, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return g.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -745,23 +745,23 @@ func (g goodsDo) Preload(fields ...field.RelationField) IGoodsDo {
 	return &g
 }
 
-func (g goodsDo) FirstOrInit() (*model.Goods, error) {
+func (g goodsDo) FirstOrInit() (*shop_model.Goods, error) {
 	if result, err := g.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Goods), nil
+		return result.(*shop_model.Goods), nil
 	}
 }
 
-func (g goodsDo) FirstOrCreate() (*model.Goods, error) {
+func (g goodsDo) FirstOrCreate() (*shop_model.Goods, error) {
 	if result, err := g.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Goods), nil
+		return result.(*shop_model.Goods), nil
 	}
 }
 
-func (g goodsDo) FindByPage(offset int, limit int) (result []*model.Goods, count int64, err error) {
+func (g goodsDo) FindByPage(offset int, limit int) (result []*shop_model.Goods, count int64, err error) {
 	result, err = g.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -790,7 +790,7 @@ func (g goodsDo) Scan(result interface{}) (err error) {
 	return g.DO.Scan(result)
 }
 
-func (g goodsDo) Delete(models ...*model.Goods) (result gen.ResultInfo, err error) {
+func (g goodsDo) Delete(models ...*shop_model.Goods) (result gen.ResultInfo, err error) {
 	return g.DO.Delete(models)
 }
 

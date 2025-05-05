@@ -17,14 +17,14 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"app/internal/orm/model"
+	"app/internal/orm/shop_model"
 )
 
 func newMember(db *gorm.DB, opts ...gen.DOOption) member {
 	_member := member{}
 
 	_member.memberDo.UseDB(db, opts...)
-	_member.memberDo.UseModel(&model.Member{})
+	_member.memberDo.UseModel(&shop_model.Member{})
 
 	tableName := _member.memberDo.TableName()
 	_member.ALL = field.NewAsterisk(tableName)
@@ -119,13 +119,13 @@ func newMember(db *gorm.DB, opts ...gen.DOOption) member {
 	_member.MemberQualification = memberHasManyMemberQualification{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("MemberQualification", "model.MemberQualification"),
+		RelationField: field.NewRelation("MemberQualification", "shop_model.MemberQualification"),
 	}
 
 	_member.MemberAddress = memberHasManyMemberAddress{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("MemberAddress", "model.MemberAddress"),
+		RelationField: field.NewRelation("MemberAddress", "shop_model.MemberAddress"),
 	}
 
 	_member.fillFieldMap()
@@ -486,7 +486,7 @@ func (a memberHasManyMemberQualification) Session(session *gorm.Session) *member
 	return &a
 }
 
-func (a memberHasManyMemberQualification) Model(m *model.Member) *memberHasManyMemberQualificationTx {
+func (a memberHasManyMemberQualification) Model(m *shop_model.Member) *memberHasManyMemberQualificationTx {
 	return &memberHasManyMemberQualificationTx{a.db.Model(m).Association(a.Name())}
 }
 
@@ -497,11 +497,11 @@ func (a memberHasManyMemberQualification) Unscoped() *memberHasManyMemberQualifi
 
 type memberHasManyMemberQualificationTx struct{ tx *gorm.Association }
 
-func (a memberHasManyMemberQualificationTx) Find() (result []*model.MemberQualification, err error) {
+func (a memberHasManyMemberQualificationTx) Find() (result []*shop_model.MemberQualification, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a memberHasManyMemberQualificationTx) Append(values ...*model.MemberQualification) (err error) {
+func (a memberHasManyMemberQualificationTx) Append(values ...*shop_model.MemberQualification) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -509,7 +509,7 @@ func (a memberHasManyMemberQualificationTx) Append(values ...*model.MemberQualif
 	return a.tx.Append(targetValues...)
 }
 
-func (a memberHasManyMemberQualificationTx) Replace(values ...*model.MemberQualification) (err error) {
+func (a memberHasManyMemberQualificationTx) Replace(values ...*shop_model.MemberQualification) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -517,7 +517,7 @@ func (a memberHasManyMemberQualificationTx) Replace(values ...*model.MemberQuali
 	return a.tx.Replace(targetValues...)
 }
 
-func (a memberHasManyMemberQualificationTx) Delete(values ...*model.MemberQualification) (err error) {
+func (a memberHasManyMemberQualificationTx) Delete(values ...*shop_model.MemberQualification) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -567,7 +567,7 @@ func (a memberHasManyMemberAddress) Session(session *gorm.Session) *memberHasMan
 	return &a
 }
 
-func (a memberHasManyMemberAddress) Model(m *model.Member) *memberHasManyMemberAddressTx {
+func (a memberHasManyMemberAddress) Model(m *shop_model.Member) *memberHasManyMemberAddressTx {
 	return &memberHasManyMemberAddressTx{a.db.Model(m).Association(a.Name())}
 }
 
@@ -578,11 +578,11 @@ func (a memberHasManyMemberAddress) Unscoped() *memberHasManyMemberAddress {
 
 type memberHasManyMemberAddressTx struct{ tx *gorm.Association }
 
-func (a memberHasManyMemberAddressTx) Find() (result []*model.MemberAddress, err error) {
+func (a memberHasManyMemberAddressTx) Find() (result []*shop_model.MemberAddress, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a memberHasManyMemberAddressTx) Append(values ...*model.MemberAddress) (err error) {
+func (a memberHasManyMemberAddressTx) Append(values ...*shop_model.MemberAddress) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -590,7 +590,7 @@ func (a memberHasManyMemberAddressTx) Append(values ...*model.MemberAddress) (er
 	return a.tx.Append(targetValues...)
 }
 
-func (a memberHasManyMemberAddressTx) Replace(values ...*model.MemberAddress) (err error) {
+func (a memberHasManyMemberAddressTx) Replace(values ...*shop_model.MemberAddress) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -598,7 +598,7 @@ func (a memberHasManyMemberAddressTx) Replace(values ...*model.MemberAddress) (e
 	return a.tx.Replace(targetValues...)
 }
 
-func (a memberHasManyMemberAddressTx) Delete(values ...*model.MemberAddress) (err error) {
+func (a memberHasManyMemberAddressTx) Delete(values ...*shop_model.MemberAddress) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -650,17 +650,17 @@ type IMemberDo interface {
 	Count() (count int64, err error)
 	Scopes(funcs ...func(gen.Dao) gen.Dao) IMemberDo
 	Unscoped() IMemberDo
-	Create(values ...*model.Member) error
-	CreateInBatches(values []*model.Member, batchSize int) error
-	Save(values ...*model.Member) error
-	First() (*model.Member, error)
-	Take() (*model.Member, error)
-	Last() (*model.Member, error)
-	Find() ([]*model.Member, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Member, err error)
-	FindInBatches(result *[]*model.Member, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Create(values ...*shop_model.Member) error
+	CreateInBatches(values []*shop_model.Member, batchSize int) error
+	Save(values ...*shop_model.Member) error
+	First() (*shop_model.Member, error)
+	Take() (*shop_model.Member, error)
+	Last() (*shop_model.Member, error)
+	Find() ([]*shop_model.Member, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.Member, err error)
+	FindInBatches(result *[]*shop_model.Member, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.Member) (info gen.ResultInfo, err error)
+	Delete(...*shop_model.Member) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -672,9 +672,9 @@ type IMemberDo interface {
 	Assign(attrs ...field.AssignExpr) IMemberDo
 	Joins(fields ...field.RelationField) IMemberDo
 	Preload(fields ...field.RelationField) IMemberDo
-	FirstOrInit() (*model.Member, error)
-	FirstOrCreate() (*model.Member, error)
-	FindByPage(offset int, limit int) (result []*model.Member, count int64, err error)
+	FirstOrInit() (*shop_model.Member, error)
+	FirstOrCreate() (*shop_model.Member, error)
+	FindByPage(offset int, limit int) (result []*shop_model.Member, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
@@ -776,57 +776,57 @@ func (m memberDo) Unscoped() IMemberDo {
 	return m.withDO(m.DO.Unscoped())
 }
 
-func (m memberDo) Create(values ...*model.Member) error {
+func (m memberDo) Create(values ...*shop_model.Member) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return m.DO.Create(values)
 }
 
-func (m memberDo) CreateInBatches(values []*model.Member, batchSize int) error {
+func (m memberDo) CreateInBatches(values []*shop_model.Member, batchSize int) error {
 	return m.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (m memberDo) Save(values ...*model.Member) error {
+func (m memberDo) Save(values ...*shop_model.Member) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return m.DO.Save(values)
 }
 
-func (m memberDo) First() (*model.Member, error) {
+func (m memberDo) First() (*shop_model.Member, error) {
 	if result, err := m.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Member), nil
+		return result.(*shop_model.Member), nil
 	}
 }
 
-func (m memberDo) Take() (*model.Member, error) {
+func (m memberDo) Take() (*shop_model.Member, error) {
 	if result, err := m.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Member), nil
+		return result.(*shop_model.Member), nil
 	}
 }
 
-func (m memberDo) Last() (*model.Member, error) {
+func (m memberDo) Last() (*shop_model.Member, error) {
 	if result, err := m.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Member), nil
+		return result.(*shop_model.Member), nil
 	}
 }
 
-func (m memberDo) Find() ([]*model.Member, error) {
+func (m memberDo) Find() ([]*shop_model.Member, error) {
 	result, err := m.DO.Find()
-	return result.([]*model.Member), err
+	return result.([]*shop_model.Member), err
 }
 
-func (m memberDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Member, err error) {
-	buf := make([]*model.Member, 0, batchSize)
+func (m memberDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.Member, err error) {
+	buf := make([]*shop_model.Member, 0, batchSize)
 	err = m.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -834,7 +834,7 @@ func (m memberDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) erro
 	return results, err
 }
 
-func (m memberDo) FindInBatches(result *[]*model.Member, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (m memberDo) FindInBatches(result *[]*shop_model.Member, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return m.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -860,23 +860,23 @@ func (m memberDo) Preload(fields ...field.RelationField) IMemberDo {
 	return &m
 }
 
-func (m memberDo) FirstOrInit() (*model.Member, error) {
+func (m memberDo) FirstOrInit() (*shop_model.Member, error) {
 	if result, err := m.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Member), nil
+		return result.(*shop_model.Member), nil
 	}
 }
 
-func (m memberDo) FirstOrCreate() (*model.Member, error) {
+func (m memberDo) FirstOrCreate() (*shop_model.Member, error) {
 	if result, err := m.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Member), nil
+		return result.(*shop_model.Member), nil
 	}
 }
 
-func (m memberDo) FindByPage(offset int, limit int) (result []*model.Member, count int64, err error) {
+func (m memberDo) FindByPage(offset int, limit int) (result []*shop_model.Member, count int64, err error) {
 	result, err = m.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -905,7 +905,7 @@ func (m memberDo) Scan(result interface{}) (err error) {
 	return m.DO.Scan(result)
 }
 
-func (m memberDo) Delete(models ...*model.Member) (result gen.ResultInfo, err error) {
+func (m memberDo) Delete(models ...*shop_model.Member) (result gen.ResultInfo, err error) {
 	return m.DO.Delete(models)
 }
 

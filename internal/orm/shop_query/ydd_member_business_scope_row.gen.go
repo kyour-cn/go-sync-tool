@@ -17,14 +17,14 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"app/internal/orm/model"
+	"app/internal/orm/shop_model"
 )
 
 func newMemberBusinessScopeRow(db *gorm.DB, opts ...gen.DOOption) memberBusinessScopeRow {
 	_memberBusinessScopeRow := memberBusinessScopeRow{}
 
 	_memberBusinessScopeRow.memberBusinessScopeRowDo.UseDB(db, opts...)
-	_memberBusinessScopeRow.memberBusinessScopeRowDo.UseModel(&model.MemberBusinessScopeRow{})
+	_memberBusinessScopeRow.memberBusinessScopeRowDo.UseModel(&shop_model.MemberBusinessScopeRow{})
 
 	tableName := _memberBusinessScopeRow.memberBusinessScopeRowDo.TableName()
 	_memberBusinessScopeRow.ALL = field.NewAsterisk(tableName)
@@ -126,17 +126,17 @@ type IMemberBusinessScopeRowDo interface {
 	Count() (count int64, err error)
 	Scopes(funcs ...func(gen.Dao) gen.Dao) IMemberBusinessScopeRowDo
 	Unscoped() IMemberBusinessScopeRowDo
-	Create(values ...*model.MemberBusinessScopeRow) error
-	CreateInBatches(values []*model.MemberBusinessScopeRow, batchSize int) error
-	Save(values ...*model.MemberBusinessScopeRow) error
-	First() (*model.MemberBusinessScopeRow, error)
-	Take() (*model.MemberBusinessScopeRow, error)
-	Last() (*model.MemberBusinessScopeRow, error)
-	Find() ([]*model.MemberBusinessScopeRow, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.MemberBusinessScopeRow, err error)
-	FindInBatches(result *[]*model.MemberBusinessScopeRow, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Create(values ...*shop_model.MemberBusinessScopeRow) error
+	CreateInBatches(values []*shop_model.MemberBusinessScopeRow, batchSize int) error
+	Save(values ...*shop_model.MemberBusinessScopeRow) error
+	First() (*shop_model.MemberBusinessScopeRow, error)
+	Take() (*shop_model.MemberBusinessScopeRow, error)
+	Last() (*shop_model.MemberBusinessScopeRow, error)
+	Find() ([]*shop_model.MemberBusinessScopeRow, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.MemberBusinessScopeRow, err error)
+	FindInBatches(result *[]*shop_model.MemberBusinessScopeRow, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.MemberBusinessScopeRow) (info gen.ResultInfo, err error)
+	Delete(...*shop_model.MemberBusinessScopeRow) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -148,9 +148,9 @@ type IMemberBusinessScopeRowDo interface {
 	Assign(attrs ...field.AssignExpr) IMemberBusinessScopeRowDo
 	Joins(fields ...field.RelationField) IMemberBusinessScopeRowDo
 	Preload(fields ...field.RelationField) IMemberBusinessScopeRowDo
-	FirstOrInit() (*model.MemberBusinessScopeRow, error)
-	FirstOrCreate() (*model.MemberBusinessScopeRow, error)
-	FindByPage(offset int, limit int) (result []*model.MemberBusinessScopeRow, count int64, err error)
+	FirstOrInit() (*shop_model.MemberBusinessScopeRow, error)
+	FirstOrCreate() (*shop_model.MemberBusinessScopeRow, error)
+	FindByPage(offset int, limit int) (result []*shop_model.MemberBusinessScopeRow, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
@@ -252,57 +252,57 @@ func (m memberBusinessScopeRowDo) Unscoped() IMemberBusinessScopeRowDo {
 	return m.withDO(m.DO.Unscoped())
 }
 
-func (m memberBusinessScopeRowDo) Create(values ...*model.MemberBusinessScopeRow) error {
+func (m memberBusinessScopeRowDo) Create(values ...*shop_model.MemberBusinessScopeRow) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return m.DO.Create(values)
 }
 
-func (m memberBusinessScopeRowDo) CreateInBatches(values []*model.MemberBusinessScopeRow, batchSize int) error {
+func (m memberBusinessScopeRowDo) CreateInBatches(values []*shop_model.MemberBusinessScopeRow, batchSize int) error {
 	return m.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (m memberBusinessScopeRowDo) Save(values ...*model.MemberBusinessScopeRow) error {
+func (m memberBusinessScopeRowDo) Save(values ...*shop_model.MemberBusinessScopeRow) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return m.DO.Save(values)
 }
 
-func (m memberBusinessScopeRowDo) First() (*model.MemberBusinessScopeRow, error) {
+func (m memberBusinessScopeRowDo) First() (*shop_model.MemberBusinessScopeRow, error) {
 	if result, err := m.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.MemberBusinessScopeRow), nil
+		return result.(*shop_model.MemberBusinessScopeRow), nil
 	}
 }
 
-func (m memberBusinessScopeRowDo) Take() (*model.MemberBusinessScopeRow, error) {
+func (m memberBusinessScopeRowDo) Take() (*shop_model.MemberBusinessScopeRow, error) {
 	if result, err := m.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.MemberBusinessScopeRow), nil
+		return result.(*shop_model.MemberBusinessScopeRow), nil
 	}
 }
 
-func (m memberBusinessScopeRowDo) Last() (*model.MemberBusinessScopeRow, error) {
+func (m memberBusinessScopeRowDo) Last() (*shop_model.MemberBusinessScopeRow, error) {
 	if result, err := m.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.MemberBusinessScopeRow), nil
+		return result.(*shop_model.MemberBusinessScopeRow), nil
 	}
 }
 
-func (m memberBusinessScopeRowDo) Find() ([]*model.MemberBusinessScopeRow, error) {
+func (m memberBusinessScopeRowDo) Find() ([]*shop_model.MemberBusinessScopeRow, error) {
 	result, err := m.DO.Find()
-	return result.([]*model.MemberBusinessScopeRow), err
+	return result.([]*shop_model.MemberBusinessScopeRow), err
 }
 
-func (m memberBusinessScopeRowDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.MemberBusinessScopeRow, err error) {
-	buf := make([]*model.MemberBusinessScopeRow, 0, batchSize)
+func (m memberBusinessScopeRowDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.MemberBusinessScopeRow, err error) {
+	buf := make([]*shop_model.MemberBusinessScopeRow, 0, batchSize)
 	err = m.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -310,7 +310,7 @@ func (m memberBusinessScopeRowDo) FindInBatch(batchSize int, fc func(tx gen.Dao,
 	return results, err
 }
 
-func (m memberBusinessScopeRowDo) FindInBatches(result *[]*model.MemberBusinessScopeRow, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (m memberBusinessScopeRowDo) FindInBatches(result *[]*shop_model.MemberBusinessScopeRow, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return m.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -336,23 +336,23 @@ func (m memberBusinessScopeRowDo) Preload(fields ...field.RelationField) IMember
 	return &m
 }
 
-func (m memberBusinessScopeRowDo) FirstOrInit() (*model.MemberBusinessScopeRow, error) {
+func (m memberBusinessScopeRowDo) FirstOrInit() (*shop_model.MemberBusinessScopeRow, error) {
 	if result, err := m.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.MemberBusinessScopeRow), nil
+		return result.(*shop_model.MemberBusinessScopeRow), nil
 	}
 }
 
-func (m memberBusinessScopeRowDo) FirstOrCreate() (*model.MemberBusinessScopeRow, error) {
+func (m memberBusinessScopeRowDo) FirstOrCreate() (*shop_model.MemberBusinessScopeRow, error) {
 	if result, err := m.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.MemberBusinessScopeRow), nil
+		return result.(*shop_model.MemberBusinessScopeRow), nil
 	}
 }
 
-func (m memberBusinessScopeRowDo) FindByPage(offset int, limit int) (result []*model.MemberBusinessScopeRow, count int64, err error) {
+func (m memberBusinessScopeRowDo) FindByPage(offset int, limit int) (result []*shop_model.MemberBusinessScopeRow, count int64, err error) {
 	result, err = m.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -381,7 +381,7 @@ func (m memberBusinessScopeRowDo) Scan(result interface{}) (err error) {
 	return m.DO.Scan(result)
 }
 
-func (m memberBusinessScopeRowDo) Delete(models ...*model.MemberBusinessScopeRow) (result gen.ResultInfo, err error) {
+func (m memberBusinessScopeRowDo) Delete(models ...*shop_model.MemberBusinessScopeRow) (result gen.ResultInfo, err error) {
 	return m.DO.Delete(models)
 }
 

@@ -17,14 +17,14 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"app/internal/orm/model"
+	"app/internal/orm/shop_model"
 )
 
 func newArea(db *gorm.DB, opts ...gen.DOOption) area {
 	_area := area{}
 
 	_area.areaDo.UseDB(db, opts...)
-	_area.areaDo.UseModel(&model.Area{})
+	_area.areaDo.UseModel(&shop_model.Area{})
 
 	tableName := _area.areaDo.TableName()
 	_area.ALL = field.NewAsterisk(tableName)
@@ -155,17 +155,17 @@ type IAreaDo interface {
 	Count() (count int64, err error)
 	Scopes(funcs ...func(gen.Dao) gen.Dao) IAreaDo
 	Unscoped() IAreaDo
-	Create(values ...*model.Area) error
-	CreateInBatches(values []*model.Area, batchSize int) error
-	Save(values ...*model.Area) error
-	First() (*model.Area, error)
-	Take() (*model.Area, error)
-	Last() (*model.Area, error)
-	Find() ([]*model.Area, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Area, err error)
-	FindInBatches(result *[]*model.Area, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Create(values ...*shop_model.Area) error
+	CreateInBatches(values []*shop_model.Area, batchSize int) error
+	Save(values ...*shop_model.Area) error
+	First() (*shop_model.Area, error)
+	Take() (*shop_model.Area, error)
+	Last() (*shop_model.Area, error)
+	Find() ([]*shop_model.Area, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.Area, err error)
+	FindInBatches(result *[]*shop_model.Area, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.Area) (info gen.ResultInfo, err error)
+	Delete(...*shop_model.Area) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -177,9 +177,9 @@ type IAreaDo interface {
 	Assign(attrs ...field.AssignExpr) IAreaDo
 	Joins(fields ...field.RelationField) IAreaDo
 	Preload(fields ...field.RelationField) IAreaDo
-	FirstOrInit() (*model.Area, error)
-	FirstOrCreate() (*model.Area, error)
-	FindByPage(offset int, limit int) (result []*model.Area, count int64, err error)
+	FirstOrInit() (*shop_model.Area, error)
+	FirstOrCreate() (*shop_model.Area, error)
+	FindByPage(offset int, limit int) (result []*shop_model.Area, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
@@ -281,57 +281,57 @@ func (a areaDo) Unscoped() IAreaDo {
 	return a.withDO(a.DO.Unscoped())
 }
 
-func (a areaDo) Create(values ...*model.Area) error {
+func (a areaDo) Create(values ...*shop_model.Area) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return a.DO.Create(values)
 }
 
-func (a areaDo) CreateInBatches(values []*model.Area, batchSize int) error {
+func (a areaDo) CreateInBatches(values []*shop_model.Area, batchSize int) error {
 	return a.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (a areaDo) Save(values ...*model.Area) error {
+func (a areaDo) Save(values ...*shop_model.Area) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return a.DO.Save(values)
 }
 
-func (a areaDo) First() (*model.Area, error) {
+func (a areaDo) First() (*shop_model.Area, error) {
 	if result, err := a.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Area), nil
+		return result.(*shop_model.Area), nil
 	}
 }
 
-func (a areaDo) Take() (*model.Area, error) {
+func (a areaDo) Take() (*shop_model.Area, error) {
 	if result, err := a.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Area), nil
+		return result.(*shop_model.Area), nil
 	}
 }
 
-func (a areaDo) Last() (*model.Area, error) {
+func (a areaDo) Last() (*shop_model.Area, error) {
 	if result, err := a.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Area), nil
+		return result.(*shop_model.Area), nil
 	}
 }
 
-func (a areaDo) Find() ([]*model.Area, error) {
+func (a areaDo) Find() ([]*shop_model.Area, error) {
 	result, err := a.DO.Find()
-	return result.([]*model.Area), err
+	return result.([]*shop_model.Area), err
 }
 
-func (a areaDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Area, err error) {
-	buf := make([]*model.Area, 0, batchSize)
+func (a areaDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.Area, err error) {
+	buf := make([]*shop_model.Area, 0, batchSize)
 	err = a.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -339,7 +339,7 @@ func (a areaDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error)
 	return results, err
 }
 
-func (a areaDo) FindInBatches(result *[]*model.Area, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (a areaDo) FindInBatches(result *[]*shop_model.Area, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return a.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -365,23 +365,23 @@ func (a areaDo) Preload(fields ...field.RelationField) IAreaDo {
 	return &a
 }
 
-func (a areaDo) FirstOrInit() (*model.Area, error) {
+func (a areaDo) FirstOrInit() (*shop_model.Area, error) {
 	if result, err := a.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Area), nil
+		return result.(*shop_model.Area), nil
 	}
 }
 
-func (a areaDo) FirstOrCreate() (*model.Area, error) {
+func (a areaDo) FirstOrCreate() (*shop_model.Area, error) {
 	if result, err := a.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Area), nil
+		return result.(*shop_model.Area), nil
 	}
 }
 
-func (a areaDo) FindByPage(offset int, limit int) (result []*model.Area, count int64, err error) {
+func (a areaDo) FindByPage(offset int, limit int) (result []*shop_model.Area, count int64, err error) {
 	result, err = a.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -410,7 +410,7 @@ func (a areaDo) Scan(result interface{}) (err error) {
 	return a.DO.Scan(result)
 }
 
-func (a areaDo) Delete(models ...*model.Area) (result gen.ResultInfo, err error) {
+func (a areaDo) Delete(models ...*shop_model.Area) (result gen.ResultInfo, err error) {
 	return a.DO.Delete(models)
 }
 

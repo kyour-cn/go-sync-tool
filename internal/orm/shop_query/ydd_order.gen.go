@@ -17,14 +17,14 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"app/internal/orm/model"
+	"app/internal/orm/shop_model"
 )
 
 func newOrder(db *gorm.DB, opts ...gen.DOOption) order {
 	_order := order{}
 
 	_order.orderDo.UseDB(db, opts...)
-	_order.orderDo.UseModel(&model.Order{})
+	_order.orderDo.UseModel(&shop_model.Order{})
 
 	tableName := _order.orderDo.TableName()
 	_order.ALL = field.NewAsterisk(tableName)
@@ -145,24 +145,24 @@ func newOrder(db *gorm.DB, opts ...gen.DOOption) order {
 	_order.OrderGoods = orderHasManyOrderGoods{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("OrderGoods", "model.OrderGoods"),
+		RelationField: field.NewRelation("OrderGoods", "shop_model.OrderGoods"),
 		Goods: struct {
 			field.RelationField
 		}{
-			RelationField: field.NewRelation("OrderGoods.Goods", "model.Goods"),
+			RelationField: field.NewRelation("OrderGoods.Goods", "shop_model.Goods"),
 		},
 	}
 
 	_order.StaffSalesman = orderHasOneStaffSalesman{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("StaffSalesman", "model.StaffSalesman"),
+		RelationField: field.NewRelation("StaffSalesman", "shop_model.StaffSalesman"),
 	}
 
 	_order.SettlementType = orderHasOneSettlementType{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("SettlementType", "model.OrderSettlementType"),
+		RelationField: field.NewRelation("SettlementType", "shop_model.OrderSettlementType"),
 	}
 
 	_order.fillFieldMap()
@@ -610,7 +610,7 @@ func (a orderHasManyOrderGoods) Session(session *gorm.Session) *orderHasManyOrde
 	return &a
 }
 
-func (a orderHasManyOrderGoods) Model(m *model.Order) *orderHasManyOrderGoodsTx {
+func (a orderHasManyOrderGoods) Model(m *shop_model.Order) *orderHasManyOrderGoodsTx {
 	return &orderHasManyOrderGoodsTx{a.db.Model(m).Association(a.Name())}
 }
 
@@ -621,11 +621,11 @@ func (a orderHasManyOrderGoods) Unscoped() *orderHasManyOrderGoods {
 
 type orderHasManyOrderGoodsTx struct{ tx *gorm.Association }
 
-func (a orderHasManyOrderGoodsTx) Find() (result []*model.OrderGoods, err error) {
+func (a orderHasManyOrderGoodsTx) Find() (result []*shop_model.OrderGoods, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a orderHasManyOrderGoodsTx) Append(values ...*model.OrderGoods) (err error) {
+func (a orderHasManyOrderGoodsTx) Append(values ...*shop_model.OrderGoods) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -633,7 +633,7 @@ func (a orderHasManyOrderGoodsTx) Append(values ...*model.OrderGoods) (err error
 	return a.tx.Append(targetValues...)
 }
 
-func (a orderHasManyOrderGoodsTx) Replace(values ...*model.OrderGoods) (err error) {
+func (a orderHasManyOrderGoodsTx) Replace(values ...*shop_model.OrderGoods) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -641,7 +641,7 @@ func (a orderHasManyOrderGoodsTx) Replace(values ...*model.OrderGoods) (err erro
 	return a.tx.Replace(targetValues...)
 }
 
-func (a orderHasManyOrderGoodsTx) Delete(values ...*model.OrderGoods) (err error) {
+func (a orderHasManyOrderGoodsTx) Delete(values ...*shop_model.OrderGoods) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -691,7 +691,7 @@ func (a orderHasOneStaffSalesman) Session(session *gorm.Session) *orderHasOneSta
 	return &a
 }
 
-func (a orderHasOneStaffSalesman) Model(m *model.Order) *orderHasOneStaffSalesmanTx {
+func (a orderHasOneStaffSalesman) Model(m *shop_model.Order) *orderHasOneStaffSalesmanTx {
 	return &orderHasOneStaffSalesmanTx{a.db.Model(m).Association(a.Name())}
 }
 
@@ -702,11 +702,11 @@ func (a orderHasOneStaffSalesman) Unscoped() *orderHasOneStaffSalesman {
 
 type orderHasOneStaffSalesmanTx struct{ tx *gorm.Association }
 
-func (a orderHasOneStaffSalesmanTx) Find() (result *model.StaffSalesman, err error) {
+func (a orderHasOneStaffSalesmanTx) Find() (result *shop_model.StaffSalesman, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a orderHasOneStaffSalesmanTx) Append(values ...*model.StaffSalesman) (err error) {
+func (a orderHasOneStaffSalesmanTx) Append(values ...*shop_model.StaffSalesman) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -714,7 +714,7 @@ func (a orderHasOneStaffSalesmanTx) Append(values ...*model.StaffSalesman) (err 
 	return a.tx.Append(targetValues...)
 }
 
-func (a orderHasOneStaffSalesmanTx) Replace(values ...*model.StaffSalesman) (err error) {
+func (a orderHasOneStaffSalesmanTx) Replace(values ...*shop_model.StaffSalesman) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -722,7 +722,7 @@ func (a orderHasOneStaffSalesmanTx) Replace(values ...*model.StaffSalesman) (err
 	return a.tx.Replace(targetValues...)
 }
 
-func (a orderHasOneStaffSalesmanTx) Delete(values ...*model.StaffSalesman) (err error) {
+func (a orderHasOneStaffSalesmanTx) Delete(values ...*shop_model.StaffSalesman) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -772,7 +772,7 @@ func (a orderHasOneSettlementType) Session(session *gorm.Session) *orderHasOneSe
 	return &a
 }
 
-func (a orderHasOneSettlementType) Model(m *model.Order) *orderHasOneSettlementTypeTx {
+func (a orderHasOneSettlementType) Model(m *shop_model.Order) *orderHasOneSettlementTypeTx {
 	return &orderHasOneSettlementTypeTx{a.db.Model(m).Association(a.Name())}
 }
 
@@ -783,11 +783,11 @@ func (a orderHasOneSettlementType) Unscoped() *orderHasOneSettlementType {
 
 type orderHasOneSettlementTypeTx struct{ tx *gorm.Association }
 
-func (a orderHasOneSettlementTypeTx) Find() (result *model.OrderSettlementType, err error) {
+func (a orderHasOneSettlementTypeTx) Find() (result *shop_model.OrderSettlementType, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a orderHasOneSettlementTypeTx) Append(values ...*model.OrderSettlementType) (err error) {
+func (a orderHasOneSettlementTypeTx) Append(values ...*shop_model.OrderSettlementType) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -795,7 +795,7 @@ func (a orderHasOneSettlementTypeTx) Append(values ...*model.OrderSettlementType
 	return a.tx.Append(targetValues...)
 }
 
-func (a orderHasOneSettlementTypeTx) Replace(values ...*model.OrderSettlementType) (err error) {
+func (a orderHasOneSettlementTypeTx) Replace(values ...*shop_model.OrderSettlementType) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -803,7 +803,7 @@ func (a orderHasOneSettlementTypeTx) Replace(values ...*model.OrderSettlementTyp
 	return a.tx.Replace(targetValues...)
 }
 
-func (a orderHasOneSettlementTypeTx) Delete(values ...*model.OrderSettlementType) (err error) {
+func (a orderHasOneSettlementTypeTx) Delete(values ...*shop_model.OrderSettlementType) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -855,17 +855,17 @@ type IOrderDo interface {
 	Count() (count int64, err error)
 	Scopes(funcs ...func(gen.Dao) gen.Dao) IOrderDo
 	Unscoped() IOrderDo
-	Create(values ...*model.Order) error
-	CreateInBatches(values []*model.Order, batchSize int) error
-	Save(values ...*model.Order) error
-	First() (*model.Order, error)
-	Take() (*model.Order, error)
-	Last() (*model.Order, error)
-	Find() ([]*model.Order, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Order, err error)
-	FindInBatches(result *[]*model.Order, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Create(values ...*shop_model.Order) error
+	CreateInBatches(values []*shop_model.Order, batchSize int) error
+	Save(values ...*shop_model.Order) error
+	First() (*shop_model.Order, error)
+	Take() (*shop_model.Order, error)
+	Last() (*shop_model.Order, error)
+	Find() ([]*shop_model.Order, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.Order, err error)
+	FindInBatches(result *[]*shop_model.Order, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.Order) (info gen.ResultInfo, err error)
+	Delete(...*shop_model.Order) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -877,9 +877,9 @@ type IOrderDo interface {
 	Assign(attrs ...field.AssignExpr) IOrderDo
 	Joins(fields ...field.RelationField) IOrderDo
 	Preload(fields ...field.RelationField) IOrderDo
-	FirstOrInit() (*model.Order, error)
-	FirstOrCreate() (*model.Order, error)
-	FindByPage(offset int, limit int) (result []*model.Order, count int64, err error)
+	FirstOrInit() (*shop_model.Order, error)
+	FirstOrCreate() (*shop_model.Order, error)
+	FindByPage(offset int, limit int) (result []*shop_model.Order, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
@@ -981,57 +981,57 @@ func (o orderDo) Unscoped() IOrderDo {
 	return o.withDO(o.DO.Unscoped())
 }
 
-func (o orderDo) Create(values ...*model.Order) error {
+func (o orderDo) Create(values ...*shop_model.Order) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return o.DO.Create(values)
 }
 
-func (o orderDo) CreateInBatches(values []*model.Order, batchSize int) error {
+func (o orderDo) CreateInBatches(values []*shop_model.Order, batchSize int) error {
 	return o.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (o orderDo) Save(values ...*model.Order) error {
+func (o orderDo) Save(values ...*shop_model.Order) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return o.DO.Save(values)
 }
 
-func (o orderDo) First() (*model.Order, error) {
+func (o orderDo) First() (*shop_model.Order, error) {
 	if result, err := o.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Order), nil
+		return result.(*shop_model.Order), nil
 	}
 }
 
-func (o orderDo) Take() (*model.Order, error) {
+func (o orderDo) Take() (*shop_model.Order, error) {
 	if result, err := o.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Order), nil
+		return result.(*shop_model.Order), nil
 	}
 }
 
-func (o orderDo) Last() (*model.Order, error) {
+func (o orderDo) Last() (*shop_model.Order, error) {
 	if result, err := o.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Order), nil
+		return result.(*shop_model.Order), nil
 	}
 }
 
-func (o orderDo) Find() ([]*model.Order, error) {
+func (o orderDo) Find() ([]*shop_model.Order, error) {
 	result, err := o.DO.Find()
-	return result.([]*model.Order), err
+	return result.([]*shop_model.Order), err
 }
 
-func (o orderDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Order, err error) {
-	buf := make([]*model.Order, 0, batchSize)
+func (o orderDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.Order, err error) {
+	buf := make([]*shop_model.Order, 0, batchSize)
 	err = o.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -1039,7 +1039,7 @@ func (o orderDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error
 	return results, err
 }
 
-func (o orderDo) FindInBatches(result *[]*model.Order, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (o orderDo) FindInBatches(result *[]*shop_model.Order, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return o.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -1065,23 +1065,23 @@ func (o orderDo) Preload(fields ...field.RelationField) IOrderDo {
 	return &o
 }
 
-func (o orderDo) FirstOrInit() (*model.Order, error) {
+func (o orderDo) FirstOrInit() (*shop_model.Order, error) {
 	if result, err := o.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Order), nil
+		return result.(*shop_model.Order), nil
 	}
 }
 
-func (o orderDo) FirstOrCreate() (*model.Order, error) {
+func (o orderDo) FirstOrCreate() (*shop_model.Order, error) {
 	if result, err := o.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Order), nil
+		return result.(*shop_model.Order), nil
 	}
 }
 
-func (o orderDo) FindByPage(offset int, limit int) (result []*model.Order, count int64, err error) {
+func (o orderDo) FindByPage(offset int, limit int) (result []*shop_model.Order, count int64, err error) {
 	result, err = o.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -1110,7 +1110,7 @@ func (o orderDo) Scan(result interface{}) (err error) {
 	return o.DO.Scan(result)
 }
 
-func (o orderDo) Delete(models ...*model.Order) (result gen.ResultInfo, err error) {
+func (o orderDo) Delete(models ...*shop_model.Order) (result gen.ResultInfo, err error) {
 	return o.DO.Delete(models)
 }
 

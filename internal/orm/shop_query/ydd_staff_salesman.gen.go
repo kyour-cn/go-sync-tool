@@ -17,14 +17,14 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"app/internal/orm/model"
+	"app/internal/orm/shop_model"
 )
 
 func newStaffSalesman(db *gorm.DB, opts ...gen.DOOption) staffSalesman {
 	_staffSalesman := staffSalesman{}
 
 	_staffSalesman.staffSalesmanDo.UseDB(db, opts...)
-	_staffSalesman.staffSalesmanDo.UseModel(&model.StaffSalesman{})
+	_staffSalesman.staffSalesmanDo.UseModel(&shop_model.StaffSalesman{})
 
 	tableName := _staffSalesman.staffSalesmanDo.TableName()
 	_staffSalesman.ALL = field.NewAsterisk(tableName)
@@ -187,17 +187,17 @@ type IStaffSalesmanDo interface {
 	Count() (count int64, err error)
 	Scopes(funcs ...func(gen.Dao) gen.Dao) IStaffSalesmanDo
 	Unscoped() IStaffSalesmanDo
-	Create(values ...*model.StaffSalesman) error
-	CreateInBatches(values []*model.StaffSalesman, batchSize int) error
-	Save(values ...*model.StaffSalesman) error
-	First() (*model.StaffSalesman, error)
-	Take() (*model.StaffSalesman, error)
-	Last() (*model.StaffSalesman, error)
-	Find() ([]*model.StaffSalesman, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.StaffSalesman, err error)
-	FindInBatches(result *[]*model.StaffSalesman, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Create(values ...*shop_model.StaffSalesman) error
+	CreateInBatches(values []*shop_model.StaffSalesman, batchSize int) error
+	Save(values ...*shop_model.StaffSalesman) error
+	First() (*shop_model.StaffSalesman, error)
+	Take() (*shop_model.StaffSalesman, error)
+	Last() (*shop_model.StaffSalesman, error)
+	Find() ([]*shop_model.StaffSalesman, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.StaffSalesman, err error)
+	FindInBatches(result *[]*shop_model.StaffSalesman, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.StaffSalesman) (info gen.ResultInfo, err error)
+	Delete(...*shop_model.StaffSalesman) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -209,9 +209,9 @@ type IStaffSalesmanDo interface {
 	Assign(attrs ...field.AssignExpr) IStaffSalesmanDo
 	Joins(fields ...field.RelationField) IStaffSalesmanDo
 	Preload(fields ...field.RelationField) IStaffSalesmanDo
-	FirstOrInit() (*model.StaffSalesman, error)
-	FirstOrCreate() (*model.StaffSalesman, error)
-	FindByPage(offset int, limit int) (result []*model.StaffSalesman, count int64, err error)
+	FirstOrInit() (*shop_model.StaffSalesman, error)
+	FirstOrCreate() (*shop_model.StaffSalesman, error)
+	FindByPage(offset int, limit int) (result []*shop_model.StaffSalesman, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
@@ -313,57 +313,57 @@ func (s staffSalesmanDo) Unscoped() IStaffSalesmanDo {
 	return s.withDO(s.DO.Unscoped())
 }
 
-func (s staffSalesmanDo) Create(values ...*model.StaffSalesman) error {
+func (s staffSalesmanDo) Create(values ...*shop_model.StaffSalesman) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return s.DO.Create(values)
 }
 
-func (s staffSalesmanDo) CreateInBatches(values []*model.StaffSalesman, batchSize int) error {
+func (s staffSalesmanDo) CreateInBatches(values []*shop_model.StaffSalesman, batchSize int) error {
 	return s.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (s staffSalesmanDo) Save(values ...*model.StaffSalesman) error {
+func (s staffSalesmanDo) Save(values ...*shop_model.StaffSalesman) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return s.DO.Save(values)
 }
 
-func (s staffSalesmanDo) First() (*model.StaffSalesman, error) {
+func (s staffSalesmanDo) First() (*shop_model.StaffSalesman, error) {
 	if result, err := s.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.StaffSalesman), nil
+		return result.(*shop_model.StaffSalesman), nil
 	}
 }
 
-func (s staffSalesmanDo) Take() (*model.StaffSalesman, error) {
+func (s staffSalesmanDo) Take() (*shop_model.StaffSalesman, error) {
 	if result, err := s.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.StaffSalesman), nil
+		return result.(*shop_model.StaffSalesman), nil
 	}
 }
 
-func (s staffSalesmanDo) Last() (*model.StaffSalesman, error) {
+func (s staffSalesmanDo) Last() (*shop_model.StaffSalesman, error) {
 	if result, err := s.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.StaffSalesman), nil
+		return result.(*shop_model.StaffSalesman), nil
 	}
 }
 
-func (s staffSalesmanDo) Find() ([]*model.StaffSalesman, error) {
+func (s staffSalesmanDo) Find() ([]*shop_model.StaffSalesman, error) {
 	result, err := s.DO.Find()
-	return result.([]*model.StaffSalesman), err
+	return result.([]*shop_model.StaffSalesman), err
 }
 
-func (s staffSalesmanDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.StaffSalesman, err error) {
-	buf := make([]*model.StaffSalesman, 0, batchSize)
+func (s staffSalesmanDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.StaffSalesman, err error) {
+	buf := make([]*shop_model.StaffSalesman, 0, batchSize)
 	err = s.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -371,7 +371,7 @@ func (s staffSalesmanDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch in
 	return results, err
 }
 
-func (s staffSalesmanDo) FindInBatches(result *[]*model.StaffSalesman, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (s staffSalesmanDo) FindInBatches(result *[]*shop_model.StaffSalesman, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return s.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -397,23 +397,23 @@ func (s staffSalesmanDo) Preload(fields ...field.RelationField) IStaffSalesmanDo
 	return &s
 }
 
-func (s staffSalesmanDo) FirstOrInit() (*model.StaffSalesman, error) {
+func (s staffSalesmanDo) FirstOrInit() (*shop_model.StaffSalesman, error) {
 	if result, err := s.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.StaffSalesman), nil
+		return result.(*shop_model.StaffSalesman), nil
 	}
 }
 
-func (s staffSalesmanDo) FirstOrCreate() (*model.StaffSalesman, error) {
+func (s staffSalesmanDo) FirstOrCreate() (*shop_model.StaffSalesman, error) {
 	if result, err := s.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.StaffSalesman), nil
+		return result.(*shop_model.StaffSalesman), nil
 	}
 }
 
-func (s staffSalesmanDo) FindByPage(offset int, limit int) (result []*model.StaffSalesman, count int64, err error) {
+func (s staffSalesmanDo) FindByPage(offset int, limit int) (result []*shop_model.StaffSalesman, count int64, err error) {
 	result, err = s.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -442,7 +442,7 @@ func (s staffSalesmanDo) Scan(result interface{}) (err error) {
 	return s.DO.Scan(result)
 }
 
-func (s staffSalesmanDo) Delete(models ...*model.StaffSalesman) (result gen.ResultInfo, err error) {
+func (s staffSalesmanDo) Delete(models ...*shop_model.StaffSalesman) (result gen.ResultInfo, err error) {
 	return s.DO.Delete(models)
 }
 

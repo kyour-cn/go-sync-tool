@@ -17,14 +17,14 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"app/internal/orm/model"
+	"app/internal/orm/shop_model"
 )
 
 func newErpInvoice(db *gorm.DB, opts ...gen.DOOption) erpInvoice {
 	_erpInvoice := erpInvoice{}
 
 	_erpInvoice.erpInvoiceDo.UseDB(db, opts...)
-	_erpInvoice.erpInvoiceDo.UseModel(&model.ErpInvoice{})
+	_erpInvoice.erpInvoiceDo.UseModel(&shop_model.ErpInvoice{})
 
 	tableName := _erpInvoice.erpInvoiceDo.TableName()
 	_erpInvoice.ALL = field.NewAsterisk(tableName)
@@ -159,17 +159,17 @@ type IErpInvoiceDo interface {
 	Count() (count int64, err error)
 	Scopes(funcs ...func(gen.Dao) gen.Dao) IErpInvoiceDo
 	Unscoped() IErpInvoiceDo
-	Create(values ...*model.ErpInvoice) error
-	CreateInBatches(values []*model.ErpInvoice, batchSize int) error
-	Save(values ...*model.ErpInvoice) error
-	First() (*model.ErpInvoice, error)
-	Take() (*model.ErpInvoice, error)
-	Last() (*model.ErpInvoice, error)
-	Find() ([]*model.ErpInvoice, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ErpInvoice, err error)
-	FindInBatches(result *[]*model.ErpInvoice, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Create(values ...*shop_model.ErpInvoice) error
+	CreateInBatches(values []*shop_model.ErpInvoice, batchSize int) error
+	Save(values ...*shop_model.ErpInvoice) error
+	First() (*shop_model.ErpInvoice, error)
+	Take() (*shop_model.ErpInvoice, error)
+	Last() (*shop_model.ErpInvoice, error)
+	Find() ([]*shop_model.ErpInvoice, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.ErpInvoice, err error)
+	FindInBatches(result *[]*shop_model.ErpInvoice, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.ErpInvoice) (info gen.ResultInfo, err error)
+	Delete(...*shop_model.ErpInvoice) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -181,9 +181,9 @@ type IErpInvoiceDo interface {
 	Assign(attrs ...field.AssignExpr) IErpInvoiceDo
 	Joins(fields ...field.RelationField) IErpInvoiceDo
 	Preload(fields ...field.RelationField) IErpInvoiceDo
-	FirstOrInit() (*model.ErpInvoice, error)
-	FirstOrCreate() (*model.ErpInvoice, error)
-	FindByPage(offset int, limit int) (result []*model.ErpInvoice, count int64, err error)
+	FirstOrInit() (*shop_model.ErpInvoice, error)
+	FirstOrCreate() (*shop_model.ErpInvoice, error)
+	FindByPage(offset int, limit int) (result []*shop_model.ErpInvoice, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
@@ -285,57 +285,57 @@ func (e erpInvoiceDo) Unscoped() IErpInvoiceDo {
 	return e.withDO(e.DO.Unscoped())
 }
 
-func (e erpInvoiceDo) Create(values ...*model.ErpInvoice) error {
+func (e erpInvoiceDo) Create(values ...*shop_model.ErpInvoice) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return e.DO.Create(values)
 }
 
-func (e erpInvoiceDo) CreateInBatches(values []*model.ErpInvoice, batchSize int) error {
+func (e erpInvoiceDo) CreateInBatches(values []*shop_model.ErpInvoice, batchSize int) error {
 	return e.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (e erpInvoiceDo) Save(values ...*model.ErpInvoice) error {
+func (e erpInvoiceDo) Save(values ...*shop_model.ErpInvoice) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return e.DO.Save(values)
 }
 
-func (e erpInvoiceDo) First() (*model.ErpInvoice, error) {
+func (e erpInvoiceDo) First() (*shop_model.ErpInvoice, error) {
 	if result, err := e.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ErpInvoice), nil
+		return result.(*shop_model.ErpInvoice), nil
 	}
 }
 
-func (e erpInvoiceDo) Take() (*model.ErpInvoice, error) {
+func (e erpInvoiceDo) Take() (*shop_model.ErpInvoice, error) {
 	if result, err := e.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ErpInvoice), nil
+		return result.(*shop_model.ErpInvoice), nil
 	}
 }
 
-func (e erpInvoiceDo) Last() (*model.ErpInvoice, error) {
+func (e erpInvoiceDo) Last() (*shop_model.ErpInvoice, error) {
 	if result, err := e.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ErpInvoice), nil
+		return result.(*shop_model.ErpInvoice), nil
 	}
 }
 
-func (e erpInvoiceDo) Find() ([]*model.ErpInvoice, error) {
+func (e erpInvoiceDo) Find() ([]*shop_model.ErpInvoice, error) {
 	result, err := e.DO.Find()
-	return result.([]*model.ErpInvoice), err
+	return result.([]*shop_model.ErpInvoice), err
 }
 
-func (e erpInvoiceDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ErpInvoice, err error) {
-	buf := make([]*model.ErpInvoice, 0, batchSize)
+func (e erpInvoiceDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*shop_model.ErpInvoice, err error) {
+	buf := make([]*shop_model.ErpInvoice, 0, batchSize)
 	err = e.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -343,7 +343,7 @@ func (e erpInvoiceDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) 
 	return results, err
 }
 
-func (e erpInvoiceDo) FindInBatches(result *[]*model.ErpInvoice, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (e erpInvoiceDo) FindInBatches(result *[]*shop_model.ErpInvoice, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return e.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -369,23 +369,23 @@ func (e erpInvoiceDo) Preload(fields ...field.RelationField) IErpInvoiceDo {
 	return &e
 }
 
-func (e erpInvoiceDo) FirstOrInit() (*model.ErpInvoice, error) {
+func (e erpInvoiceDo) FirstOrInit() (*shop_model.ErpInvoice, error) {
 	if result, err := e.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ErpInvoice), nil
+		return result.(*shop_model.ErpInvoice), nil
 	}
 }
 
-func (e erpInvoiceDo) FirstOrCreate() (*model.ErpInvoice, error) {
+func (e erpInvoiceDo) FirstOrCreate() (*shop_model.ErpInvoice, error) {
 	if result, err := e.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ErpInvoice), nil
+		return result.(*shop_model.ErpInvoice), nil
 	}
 }
 
-func (e erpInvoiceDo) FindByPage(offset int, limit int) (result []*model.ErpInvoice, count int64, err error) {
+func (e erpInvoiceDo) FindByPage(offset int, limit int) (result []*shop_model.ErpInvoice, count int64, err error) {
 	result, err = e.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -414,7 +414,7 @@ func (e erpInvoiceDo) Scan(result interface{}) (err error) {
 	return e.DO.Scan(result)
 }
 
-func (e erpInvoiceDo) Delete(models ...*model.ErpInvoice) (result gen.ResultInfo, err error) {
+func (e erpInvoiceDo) Delete(models ...*shop_model.ErpInvoice) (result gen.ResultInfo, err error) {
 	return e.DO.Delete(models)
 }
 

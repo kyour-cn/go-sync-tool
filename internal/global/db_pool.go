@@ -2,6 +2,7 @@ package global
 
 import (
     "app/internal/config"
+    "app/internal/orm/shop_query"
     "app/internal/tools/safemap"
     "database/sql"
     "errors"
@@ -58,6 +59,8 @@ func ConnDb() error {
     if err != nil {
         return err
     }
+
+    shop_query.SetDefault(shopDb)
 
     DbPool.Set("shop", &DbPoolType{
         DbName: "shop",
