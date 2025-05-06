@@ -11,14 +11,16 @@ import (
 var (
     tempPath = "./temp"
 
-    GoodsStore        = safemap.New[*erp_entity.Goods]()
-    goodsStorage      = persistence.NewStorage[[]*erp_entity.Goods]()
-    GoodsPriceStore   = safemap.New[*erp_entity.GoodsPrice]()
-    goodsPriceStorage = persistence.NewStorage[[]*erp_entity.GoodsPrice]()
-    GoodsStockStore   = safemap.New[*erp_entity.GoodsStock]()
-    goodsStockStorage = persistence.NewStorage[[]*erp_entity.GoodsStock]()
-    MemberStore       = safemap.New[*erp_entity.Member]()
-    memberStorage     = persistence.NewStorage[[]*erp_entity.Member]()
+    GoodsStore           = safemap.New[*erp_entity.Goods]()
+    goodsStorage         = persistence.NewStorage[[]*erp_entity.Goods]()
+    GoodsPriceStore      = safemap.New[*erp_entity.GoodsPrice]()
+    goodsPriceStorage    = persistence.NewStorage[[]*erp_entity.GoodsPrice]()
+    GoodsStockStore      = safemap.New[*erp_entity.GoodsStock]()
+    goodsStockStorage    = persistence.NewStorage[[]*erp_entity.GoodsStock]()
+    MemberStore          = safemap.New[*erp_entity.Member]()
+    memberStorage        = persistence.NewStorage[[]*erp_entity.Member]()
+    MemberAddressStore   = safemap.New[*erp_entity.MemberAddress]()
+    memberAddressStorage = persistence.NewStorage[[]*erp_entity.MemberAddress]()
 )
 
 func Init() {
@@ -58,6 +60,13 @@ func Init() {
     }
     slog.Debug("加载缓存会员数据", "num", MemberStore.Len())
 
+    // 初始化会员地址存储
+    memberAddressSlice, err := memberAddressStorage.Load(tempPath + "/member_address.dat")
+    for _, v := range memberAddressSlice {
+        MemberAddressStore.Set(v.ID, v)
+    }
+    slog.Debug("加载缓存会员地址数据", "num", MemberAddressStore.Len())
+
 }
 
 // SaveGoods 持久化商品数据
@@ -78,4 +87,9 @@ func SaveGoodsStock() error {
 // SaveMember 持久化会员数据
 func SaveMember() error {
     return memberStorage.Save(MemberStore.Values(), tempPath+"/member.dat")
+}
+
+// SaveMemberAddress 持久化会员地址数据
+func SaveMemberAddress() error {
+    return memberAddressStorage.Save(MemberAddressStore.Values(), tempPath+"/member_address.dat")
 }

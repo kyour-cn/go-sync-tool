@@ -61,6 +61,18 @@ var List = []Task{
         Label:       "客户地址",
         Description: "需同步到电商平台的客户地址",
         Parent:      "member",
+        Handle:      MemberAddress{},
+    },
+    {
+        Name:        "member_business_scope",
+        Label:       "经营范围",
+        Description: "需同步到电商平台的客户经营范围",
+        Parent:      "member",
+    },
+    {
+        Name:        "salesman",
+        Label:       "业务员",
+        Description: "需同步到电商平台的客户地址",
     },
     {
         Name:        "order",
