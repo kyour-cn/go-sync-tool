@@ -54,8 +54,7 @@ func InitLog() error {
         }
     }
 
-    logger := slog.New(handler)
-    slog.SetDefault(logger)
+    slog.SetDefault(slog.New(handler))
 
     return nil
 }

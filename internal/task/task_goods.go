@@ -12,8 +12,8 @@ import (
     "encoding/json"
     "errors"
     "fmt"
-    "golang.org/x/exp/slog"
     "gorm.io/gorm"
+    "log/slog"
     "strings"
 )
 

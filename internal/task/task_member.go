@@ -7,7 +7,7 @@ import (
     "app/internal/tools/safemap"
     "app/internal/tools/sync_tool"
     "errors"
-    "golang.org/x/exp/slog"
+    "log/slog"
 )
 
 // MemberSync 同步ERP商品到商城

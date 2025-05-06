@@ -4,7 +4,7 @@ import (
     "app/internal/orm/erp_entity"
     "app/internal/tools/persistence"
     "app/internal/tools/safemap"
-    "golang.org/x/exp/slog"
+    "log/slog"
     "os"
 )
 
@@ -40,7 +40,7 @@ func Init() {
     for _, v := range goodsSlice {
         GoodsStore.Set(v.GoodsErpSpid, v)
     }
-    slog.Info("加载缓存商品数据", "num", GoodsStore.Len())
+    slog.Debug("加载缓存商品数据", "num", GoodsStore.Len())
 
     // 初始化商品价格存储
     GoodsPriceStore = safemap.New[*erp_entity.GoodsPrice]()
@@ -49,6 +49,7 @@ func Init() {
     for _, v := range goodsPriceSlice {
         GoodsPriceStore.Set(v.GoodsErpSpid, v)
     }
+    slog.Debug("加载缓存商品价格数据", "num", GoodsPriceStore.Len())
 
     // 初始化商品库存存储
     GoodsStockStore = safemap.New[*erp_entity.GoodsStock]()
@@ -57,10 +58,16 @@ func Init() {
     for _, v := range goodsStockSlice {
         GoodsStockStore.Set(v.GoodsErpSpid, v)
     }
+    slog.Debug("加载缓存商品库存数据", "num", GoodsStockStore.Len())
 
     // 初始化会员存储
     MemberStore = safemap.New[*erp_entity.Member]()
     memberStorage = persistence.NewStorage[[]*erp_entity.Member]()
+    memberSlice, err := memberStorage.Load(tempPath + "/member.dat")
+    for _, v := range memberSlice {
+        MemberStore.Set(v.ErpUID, v)
+    }
+    slog.Debug("加载缓存会员数据", "num", MemberStore.Len())
 
 }
 

@@ -10,7 +10,7 @@ import (
     "gioui.org/widget"
     "gioui.org/widget/material"
     "github.com/go-gourd/gourd/event"
-    "golang.org/x/exp/slog"
+    "log/slog"
     "strconv"
 )
 

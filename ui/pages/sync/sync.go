@@ -14,8 +14,8 @@ import (
     "gioui.org/widget/material"
     giox "gioui.org/x/component"
     "github.com/go-gourd/gourd/event"
-    "golang.org/x/exp/slog"
     "image/color"
+    "log/slog"
     "strconv"
     "time"
 )

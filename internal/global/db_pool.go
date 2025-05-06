@@ -8,11 +8,11 @@ import (
     "errors"
     "fmt"
     _ "github.com/alexbrainman/odbc"
-    "golang.org/x/exp/slog"
     "gorm.io/driver/mysql"
     "gorm.io/driver/sqlserver"
     "gorm.io/gorm"
     "gorm.io/gorm/logger"
+    "log/slog"
     "net/url"
     "time"
 )

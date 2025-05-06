@@ -3,11 +3,13 @@ package task
 import (
     "app/internal/global"
     "app/internal/orm/erp_entity"
+    "app/internal/orm/shop_query"
     "app/internal/store"
     "app/internal/tools/safemap"
     "app/internal/tools/sync_tool"
     "errors"
-    "golang.org/x/exp/slog"
+    "gorm.io/gorm"
+    "log/slog"
 )
 
 // GoodsSyncStock 同步ERP商品到商城
@@ -45,7 +47,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
     add, update, del := sync_tool.DiffMap[*erp_entity.GoodsStock](store.GoodsStockStore, newMap)
     newMap = nil
 
-    slog.Info("商品库存同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
+    slog.Debug("商品库存同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
 
     // 添加
     for _, v := range add.Values() {
@@ -74,8 +76,47 @@ func (g GoodsSyncStock) Run(t *Task) error {
     return nil
 }
 
-func addOrUpdateGoodsStock(goods *erp_entity.GoodsStock) {
-    // TODO 执行业务操作
+func addOrUpdateGoodsStock(item *erp_entity.GoodsStock) {
+
+    shopGoods, err := shop_query.Goods.
+        Where(shop_query.Goods.GoodsErpSpid.Eq(item.GoodsErpSpid)).
+        Select(
+            shop_query.Goods.GoodsID,
+            shop_query.Goods.StockSync,
+            shop_query.Goods.GoodsStock,
+        ).
+        First()
+    if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+        slog.Error("goodsPriceSync Goods First err: " + err.Error())
+        return
+    }
+    if shopGoods == nil {
+        return
+    }
+
+    newStock := int32(item.GoodsStock)
+    if shopGoods.StockSync == 0 || shopGoods.GoodsStock == newStock {
+        return
+    }
+
+    slog.Info("库存更新", "spid", item.GoodsErpSpid, "old", shopGoods.GoodsStock, "new", newStock)
+
+    // 更新Goods表
+    _, e := shop_query.Goods.
+        Where(shop_query.Goods.GoodsID.Eq(shopGoods.GoodsID)).
+        Update(shop_query.Goods.GoodsStock, newStock)
+    if e != nil {
+        slog.Error("goodsPriceSync Goods update err" + e.Error())
+        return
+    }
+    // 更新GoodsSku表
+    _, ers := shop_query.GoodsSku.
+        Where(shop_query.GoodsSku.GoodsID.Eq(shopGoods.GoodsID)).
+        Update(shop_query.GoodsSku.Stock, newStock)
+    if ers != nil {
+        slog.Error("goodsPriceSync GoodsSku update err: " + ers.Error())
+        return
+    }
 
 }
 

@@ -4,7 +4,6 @@ import (
     "app/internal/domain"
     "app/internal/initialize"
     mainApp "app/ui/app"
-    "flag"
     "gioui.org/app"
     "gioui.org/unit"
     "log"
@@ -13,7 +12,6 @@ import (
 
 //go:generate rsrc -ico assets/images/favicon.ico -manifest assets/app.manifest -o main.syso
 func main() {
-    flag.Parse()
 
     // 初始化
     initialize.InitApp()

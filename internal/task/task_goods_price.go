@@ -3,11 +3,14 @@ package task
 import (
     "app/internal/global"
     "app/internal/orm/erp_entity"
+    "app/internal/orm/shop_model"
+    "app/internal/orm/shop_query"
     "app/internal/store"
     "app/internal/tools/safemap"
     "app/internal/tools/sync_tool"
     "errors"
-    "golang.org/x/exp/slog"
+    "gorm.io/gorm"
+    "log/slog"
 )
 
 // GoodsSyncPrice 同步ERP商品到商城
@@ -73,11 +76,66 @@ func (g GoodsSyncPrice) Run(t *Task) error {
     return nil
 }
 
-func addOrUpdateGoodsPrice(goods *erp_entity.GoodsPrice) {
-    // TODO 执行业务操作
+func addOrUpdateGoodsPrice(item *erp_entity.GoodsPrice) {
+    shopGoods, err := shop_query.Goods.
+        Where(shop_query.Goods.GoodsErpSpid.Eq(item.GoodsErpSpid)).
+        Select(
+            shop_query.Goods.GoodsID,
+            shop_query.Goods.PriceSync,
+        ).
+        First()
+    if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+        slog.Error("goodsPriceSync Goods First err: " + err.Error())
+        return
+    }
+    if shopGoods == nil || shopGoods.PriceSync == 0 {
+        return
+    }
+
+    // 更新Goods表
+    goodsData := shop_model.Goods{
+        Price:       item.Price,
+        CostPrice:   item.CostPrice,
+        MarketPrice: item.MarketPrice,
+    }
+    _, e := shop_query.Goods.
+        Select(
+            shop_query.Goods.Price,
+            shop_query.Goods.CostPrice,
+            shop_query.Goods.MarketPrice,
+        ).
+        Where(shop_query.Goods.GoodsID.Eq(shopGoods.GoodsID)).
+        Updates(goodsData)
+    if e != nil {
+        slog.Error("goodsPriceSync Goods update err" + e.Error())
+        return
+    }
+    // 更新GoodsSku表
+    skuData := shop_model.GoodsSku{
+        Price:       item.Price,
+        CostPrice:   item.CostPrice,
+        MarketPrice: item.MarketPrice,
+    }
+    _, ers := shop_query.GoodsSku.
+        Select(
+            shop_query.GoodsSku.Price,
+            shop_query.GoodsSku.CostPrice,
+            shop_query.GoodsSku.MarketPrice,
+        ).
+        Where(shop_query.GoodsSku.GoodsID.Eq(shopGoods.GoodsID)).
+        Updates(skuData)
+    if ers != nil {
+        slog.Error("goodsPriceSync GoodsSku update err: " + ers.Error())
+        return
+    }
 
 }
 
 func delGoodsPrice(goods *erp_entity.GoodsPrice) {
-    // TODO 执行业务操作
+
+    // 更新价格为0
+    goods.Price = 0
+    goods.CostPrice = 0
+    goods.MarketPrice = 0
+    addOrUpdateGoodsPrice(goods)
 }
