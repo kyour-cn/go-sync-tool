@@ -6,7 +6,7 @@ import (
     "app/internal/orm/shop_model"
     "app/internal/orm/shop_query"
     "app/internal/store"
-    tools "app/internal/tools/cache"
+    "app/internal/tools/cache"
     "app/internal/tools/safemap"
     "app/internal/tools/sync_tool"
     "errors"
@@ -297,7 +297,7 @@ type AreaInfo struct {
 func getAreaFormCache(province string, city string, district string) AreaInfo {
     key := "area:" + province + "_" + city + "_" + district
     // 从缓存中获取
-    area, _ := tools.Remember(key, 300, func() (*AreaInfo, error) {
+    area, _ := cache.Remember(key, 300, func() (*AreaInfo, error) {
         area := getArea(province, city, district)
         return &area, nil
     })
@@ -472,7 +472,7 @@ func getMemberLabel(labelName string) *shop_model.MemberLabel {
     }
     key := "member_label:" + labelName
     // 从缓存中获取
-    label, _ := tools.Remember(key, 300, func() (label *shop_model.MemberLabel, err error) {
+    label, _ := cache.Remember(key, 300, func() (label *shop_model.MemberLabel, err error) {
         label, _ = shop_query.MemberLabel.
             Where(shop_query.MemberLabel.LabelName.Eq(labelName)).
             First()
