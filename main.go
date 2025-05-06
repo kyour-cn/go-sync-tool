@@ -11,6 +11,7 @@ import (
     "os"
 )
 
+//go:generate rsrc -ico assets/images/favicon.ico -manifest assets/app.manifest -o main.syso
 func main() {
     flag.Parse()
 
@@ -34,6 +35,9 @@ func main() {
         }
         os.Exit(0)
     }()
+
+    // 启动托盘图标
+    go mainApp.RunNotifyIcon()
 
     app.Main()
 }

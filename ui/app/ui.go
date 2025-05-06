@@ -2,6 +2,7 @@ package app
 
 import (
     "app/internal/config"
+    "app/internal/global"
     "app/ui/chapartheme"
     "app/ui/fonts"
     "app/ui/pages/configuration"
@@ -146,6 +147,10 @@ func (u *UI) Run() error {
     var ops op.Ops
 
     for {
+        if global.State.HideWindow {
+            continue
+        }
+
         switch e := u.window.Event().(type) {
         // this is sent when the application should re-render.
         case app.FrameEvent:
@@ -156,7 +161,17 @@ func (u *UI) Run() error {
             e.Frame(gtx.Ops)
         // this is sent when the application is closed.
         case app.DestroyEvent:
-            return e.Err
+            // 未运行中，直接关闭
+            if global.State.Status != 3 {
+                return e.Err
+            }
+            // 运行中，隐藏窗口
+            global.State.HideWindow = true
+
+            // 显示通知
+            ctx := context.WithValue(context.Background(), "notify_title", "同步工具已退至后台运行")
+            ctx = context.WithValue(ctx, "notify_info", "点击托盘图标重新打开窗口")
+            event.Trigger("notify_show", ctx)
         }
     }
 }
