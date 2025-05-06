@@ -99,7 +99,7 @@ func addOrUpdateGoodsStock(item *erp_entity.GoodsStock) {
         return
     }
 
-    slog.Info("库存更新", "spid", item.GoodsErpSpid, "old", shopGoods.GoodsStock, "new", newStock)
+    slog.Debug("库存更新", "spid", item.GoodsErpSpid, "old", shopGoods.GoodsStock, "new", newStock)
 
     // 更新Goods表
     _, e := shop_query.Goods.

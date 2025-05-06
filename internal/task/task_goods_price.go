@@ -92,6 +92,8 @@ func addOrUpdateGoodsPrice(item *erp_entity.GoodsPrice) {
         return
     }
 
+    slog.Debug("价格更新", "spid", item.GoodsErpSpid, "old", shopGoods.Price, "new", item.Price)
+
     // 更新Goods表
     goodsData := shop_model.Goods{
         Price:       item.Price,
