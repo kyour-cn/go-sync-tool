@@ -298,10 +298,171 @@ func getAreaFormCache(province string, city string, district string) AreaInfo {
     key := "area:" + province + "_" + city + "_" + district
     // 从缓存中获取
     area, _ := tools.Remember(key, 300, func() (*AreaInfo, error) {
-        area := getAreaFormCache(province, city, district)
+        area := getArea(province, city, district)
         return &area, nil
     })
     return *area
+}
+
+// 获取用户区域id
+func getArea(province string, city string, district string) AreaInfo {
+    areaInfo := AreaInfo{
+        ProvinceID:   0,
+        CityID:       0,
+        DistrictID:   0,
+        ProvinceName: "暂无",
+        CityName:     "暂无",
+        DistrictName: "暂无",
+    }
+
+    qa := shop_query.Area
+
+    // 省
+    provinceInfo, _ := qa.Where(
+        qa.Where(
+            qa.Where(
+                qa.Name.Like("%"+province+"%"),
+            ).Or(
+                qa.Shortname.Like("%"+province+"%"),
+            ),
+        ),
+        qa.Level.Eq(1),
+        qa.Pid.Eq(0),
+    ).First()
+    if provinceInfo != nil {
+        areaInfo.ProvinceID = provinceInfo.ID
+        areaInfo.ProvinceName = provinceInfo.Name
+    } else {
+        return areaInfo
+    }
+
+    if city != "" {
+        // 市
+        cityInfo, _ := qa.Where(
+            qa.Where(
+                qa.Where(
+                    qa.Name.Like("%"+city+"%"),
+                ).Or(
+                    qa.Shortname.Like("%"+city+"%"),
+                ),
+            ),
+            qa.Level.Eq(2),
+            qa.Pid.Eq(areaInfo.ProvinceID),
+        ).First()
+        if cityInfo != nil {
+            areaInfo.CityID = cityInfo.ID
+            areaInfo.CityName = cityInfo.Name
+        } else {
+            //fmt.Println("城市不存在：" + district)
+
+            // 再试试县能否匹配上
+            // 获取省下面的所有市
+            cityList, _ := qa.Where(
+                qa.Level.Eq(2),
+                qa.Pid.Eq(areaInfo.ProvinceID),
+            ).
+                Select(qa.ID).
+                Find()
+            var cityIds []int32
+            for _, city := range cityList {
+                cityIds = append(cityIds, city.ID)
+            }
+
+            // 区/县
+            districtInfo, _ := qa.Where(
+                qa.Where(
+                    qa.Where(
+                        qa.Name.Like("%"+district+"%"),
+                    ).Or(
+                        qa.Shortname.Like("%"+district+"%"),
+                    ),
+                ),
+                qa.Level.Eq(3),
+                qa.Pid.In(cityIds...),
+            ).First()
+            if districtInfo != nil {
+                areaInfo.DistrictID = districtInfo.ID
+                areaInfo.DistrictName = districtInfo.Name
+            } else {
+                //fmt.Println("区县不存在：" + district)
+                return areaInfo
+            }
+
+            // 反查市
+            cityInfo, _ := qa.Where(
+                qa.ID.Eq(districtInfo.Pid),
+            ).First()
+            if cityInfo != nil {
+                areaInfo.CityID = cityInfo.ID
+                areaInfo.CityName = cityInfo.Name
+            }
+
+            return areaInfo
+        }
+        // 区/县
+        districtInfo, _ := qa.Where(
+            qa.Where(
+                qa.Where(
+                    qa.Name.Like("%"+district+"%"),
+                ).Or(
+                    qa.Shortname.Like("%"+district+"%"),
+                ),
+            ),
+            qa.Level.Eq(3),
+            qa.Pid.Eq(areaInfo.CityID),
+        ).First()
+        if districtInfo != nil {
+            areaInfo.DistrictID = districtInfo.ID
+            areaInfo.DistrictName = districtInfo.Name
+        } else {
+            //fmt.Println("区县不存在：" + district)
+            return areaInfo
+        }
+    } else if district != "" { // 没有维护市，只维护区/县的情况
+
+        // 获取省下面的所有市
+        cityList, _ := qa.Where(
+            qa.Level.Eq(2),
+            qa.Pid.Eq(areaInfo.ProvinceID),
+        ).
+            Select(qa.ID).
+            Find()
+        var cityIds []int32
+        for _, city := range cityList {
+            cityIds = append(cityIds, city.ID)
+        }
+
+        // 区/县
+        districtInfo, _ := qa.Where(
+            qa.Where(
+                qa.Where(
+                    qa.Name.Like("%"+district+"%"),
+                ).Or(
+                    qa.Shortname.Like("%"+district+"%"),
+                ),
+            ),
+            qa.Level.Eq(3),
+            qa.Pid.In(cityIds...),
+        ).First()
+        if districtInfo != nil {
+            areaInfo.DistrictID = districtInfo.ID
+            areaInfo.DistrictName = districtInfo.Name
+        } else {
+            //fmt.Println("区县不存在：" + district)
+            return areaInfo
+        }
+
+        // 反查市
+        cityInfo, _ := qa.Where(
+            qa.ID.Eq(districtInfo.Pid),
+        ).First()
+        if cityInfo != nil {
+            areaInfo.CityID = cityInfo.ID
+            areaInfo.CityName = cityInfo.Name
+        }
+    }
+
+    return areaInfo
 }
 
 // 获取用户标签id
