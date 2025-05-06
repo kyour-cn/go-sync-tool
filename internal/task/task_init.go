@@ -19,6 +19,7 @@ type Task struct {
     Config      config.TaskConfig
     Handle      Handle
     Parent      string // 父级任务，会等待父级任务完成一轮才会触发
+    Ctx         context.Context
 }
 
 type Handle interface {
@@ -72,16 +73,29 @@ var List = []Task{
 // Init 初始化任务 协程启动
 func Init() {
 
+    var cancelCtx context.Context
+    var cancelFunc context.CancelFunc
+
     // 监听事件 -启动
-    event.Listen("task.start", func(context.Context) {
+    event.Listen("task.start", func(ctx context.Context) {
         slog.Info("触发事件：任务启动")
-        go start()
+
+        cancelCtx, cancelFunc = context.WithCancel(context.Background())
+        go start(cancelCtx)
     })
 
     // 监听事件 -停止
     event.Listen("task.stop", func(context.Context) {
         slog.Info("触发事件：任务停止")
-        go stop()
+        if global.State.Status == 1 {
+            slog.Warn("任务还未启动")
+            return
+        }
+        if global.State.Status == 4 {
+            slog.Warn("任务正在停止中")
+            return
+        }
+        cancelFunc()
     })
 
 }
@@ -92,7 +106,7 @@ func startErr(msg string) {
     global.State.Status = 1
 }
 
-func start() {
+func start(ctx context.Context) {
 
     if global.State.Status != 1 {
         slog.Warn("任务未在待启动状态，稍后再试")
@@ -125,6 +139,7 @@ func start() {
         for i := range List {
             if List[i].Name == tc.Name {
                 List[i].Config = tc
+                List[i].Ctx = ctx
             }
         }
     }
@@ -137,21 +152,30 @@ func start() {
     event.Trigger("tips.show", params)
 
     for {
+        select {
         // 监测停止
-        if global.State.Status == 4 {
-            stoped()
-            break
-        }
-
-        for i, item := range List {
-            // 运行启用的一级任务
-            if !item.Status && item.Config.Status && item.Parent == "" {
-                go startOne(&List[i])
+        case <-ctx.Done():
+            running := 0
+            for _, v := range List {
+                if v.Status {
+                    running++
+                }
             }
+            if running == 0 {
+                stoped()
+                return
+            }
+        default:
+            // 执行任务
+            for i, item := range List {
+                // 运行启用的一级任务
+                if !item.Status && item.Config.Status && item.Parent == "" {
+                    go startOne(&List[i])
+                }
+            }
+            // 延迟一秒
+            time.Sleep(time.Second)
         }
-
-        // 延迟一秒
-        time.Sleep(time.Second)
     }
 }
 
@@ -185,21 +209,6 @@ func startOne(item *Task) {
             go startOne(&v)
         }
     }
-}
-
-func stop() {
-
-    if global.State.Status == 1 {
-        slog.Warn("任务还未启动")
-        return
-    }
-    if global.State.Status == 4 {
-        slog.Warn("任务正在停止中")
-        return
-    }
-
-    global.State.Status = 4
-
 }
 
 func stoped() {

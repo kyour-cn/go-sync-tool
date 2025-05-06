@@ -11,17 +11,14 @@ import (
 var (
     tempPath = "./temp"
 
-    GoodsStore   *safemap.Map[*erp_entity.Goods]
-    goodsStorage *persistence.Storage[[]*erp_entity.Goods]
-
-    GoodsPriceStore   *safemap.Map[*erp_entity.GoodsPrice]
-    goodsPriceStorage *persistence.Storage[[]*erp_entity.GoodsPrice]
-
-    GoodsStockStore   *safemap.Map[*erp_entity.GoodsStock]
-    goodsStockStorage *persistence.Storage[[]*erp_entity.GoodsStock]
-
-    MemberStore   *safemap.Map[*erp_entity.Member]
-    memberStorage *persistence.Storage[[]*erp_entity.Member]
+    GoodsStore        = safemap.New[*erp_entity.Goods]()
+    goodsStorage      = persistence.NewStorage[[]*erp_entity.Goods]()
+    GoodsPriceStore   = safemap.New[*erp_entity.GoodsPrice]()
+    goodsPriceStorage = persistence.NewStorage[[]*erp_entity.GoodsPrice]()
+    GoodsStockStore   = safemap.New[*erp_entity.GoodsStock]()
+    goodsStockStorage = persistence.NewStorage[[]*erp_entity.GoodsStock]()
+    MemberStore       = safemap.New[*erp_entity.Member]()
+    memberStorage     = persistence.NewStorage[[]*erp_entity.Member]()
 )
 
 func Init() {
@@ -34,8 +31,6 @@ func Init() {
     }
 
     // 初始化商品存储
-    GoodsStore = safemap.New[*erp_entity.Goods]()
-    goodsStorage = persistence.NewStorage[[]*erp_entity.Goods]()
     goodsSlice, err := goodsStorage.Load(tempPath + "/goods.dat")
     for _, v := range goodsSlice {
         GoodsStore.Set(v.GoodsErpSpid, v)
@@ -43,8 +38,6 @@ func Init() {
     slog.Debug("加载缓存商品数据", "num", GoodsStore.Len())
 
     // 初始化商品价格存储
-    GoodsPriceStore = safemap.New[*erp_entity.GoodsPrice]()
-    goodsPriceStorage = persistence.NewStorage[[]*erp_entity.GoodsPrice]()
     goodsPriceSlice, err := goodsPriceStorage.Load(tempPath + "/goods_price.dat")
     for _, v := range goodsPriceSlice {
         GoodsPriceStore.Set(v.GoodsErpSpid, v)
@@ -52,8 +45,6 @@ func Init() {
     slog.Debug("加载缓存商品价格数据", "num", GoodsPriceStore.Len())
 
     // 初始化商品库存存储
-    GoodsStockStore = safemap.New[*erp_entity.GoodsStock]()
-    goodsStockStorage = persistence.NewStorage[[]*erp_entity.GoodsStock]()
     goodsStockSlice, err := goodsStockStorage.Load(tempPath + "/goods_stock.dat")
     for _, v := range goodsStockSlice {
         GoodsStockStore.Set(v.GoodsErpSpid, v)
@@ -61,8 +52,6 @@ func Init() {
     slog.Debug("加载缓存商品库存数据", "num", GoodsStockStore.Len())
 
     // 初始化会员存储
-    MemberStore = safemap.New[*erp_entity.Member]()
-    memberStorage = persistence.NewStorage[[]*erp_entity.Member]()
     memberSlice, err := memberStorage.Load(tempPath + "/member.dat")
     for _, v := range memberSlice {
         MemberStore.Set(v.ErpUID, v)

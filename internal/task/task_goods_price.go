@@ -22,6 +22,14 @@ func (g GoodsSyncPrice) GetName() string {
 }
 
 func (g GoodsSyncPrice) Run(t *Task) error {
+    defer func() {
+        // 缓存数据到文件
+        err := store.SaveGoodsPrice()
+        if err != nil {
+            slog.Error("SaveGoodsPrice err: " + err.Error())
+        }
+    }()
+
     // 取出ERP全量数据
     var erpData []erp_entity.GoodsPrice
 
@@ -51,26 +59,32 @@ func (g GoodsSyncPrice) Run(t *Task) error {
 
     // 添加
     for _, v := range add.Values() {
+        // 优先检查退出信号
+        if t.Ctx.Err() != nil {
+            return nil
+        }
         addOrUpdateGoodsPrice(v)
         store.GoodsPriceStore.Set(v.GoodsErpSpid, v)
     }
 
     // 更新
     for _, v := range update.Values() {
+        // 优先检查退出信号
+        if t.Ctx.Err() != nil {
+            return nil
+        }
         addOrUpdateGoodsPrice(v)
         store.GoodsPriceStore.Set(v.GoodsErpSpid, v)
     }
 
     // 删除
     for _, v := range del.Values() {
+        // 优先检查退出信号
+        if t.Ctx.Err() != nil {
+            return nil
+        }
         delGoodsPrice(v)
         store.GoodsPriceStore.Delete(v.GoodsErpSpid)
-    }
-
-    // 缓存数据到文件
-    err := store.SaveGoodsPrice()
-    if err != nil {
-        return err
     }
 
     return nil

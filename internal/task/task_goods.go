@@ -26,6 +26,13 @@ func (g GoodsSync) GetName() string {
 }
 
 func (g GoodsSync) Run(t *Task) error {
+    defer func() {
+        // 缓存数据到文件
+        err := store.SaveGoods()
+        if err != nil {
+            slog.Error("SaveGoods err: " + err.Error())
+        }
+    }()
 
     // 取出ERP全量数据
     var erpData []erp_entity.Goods
@@ -48,36 +55,40 @@ func (g GoodsSync) Run(t *Task) error {
     }
     erpData = nil
 
-    slog.Info("ERP商品数据", "oldNum", store.GoodsStore.Len(), "newNum", newMap.Len())
-
     // 比对数据差异
     add, update, del := sync_tool.DiffMap[*erp_entity.Goods](store.GoodsStore, newMap)
-    newMap = nil
 
-    slog.Info("商品同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
+    slog.Info("商品同步比对", "old", store.GoodsStore.Len(), "new", newMap.Len(), "add", add.Len(), "update", update.Len(), "del", del.Len())
+    newMap = nil
 
     // 添加
     for _, v := range add.Values() {
+        // 优先检查退出信号
+        if t.Ctx.Err() != nil {
+            return nil
+        }
         addOrUpdateGoods(v)
         store.GoodsStore.Set(v.GoodsErpSpid, v)
     }
 
     // 更新
     for _, v := range update.Values() {
+        // 优先检查退出信号
+        if t.Ctx.Err() != nil {
+            return nil
+        }
         addOrUpdateGoods(v)
         store.GoodsStore.Set(v.GoodsErpSpid, v)
     }
 
     // 删除
     for _, v := range del.Values() {
+        // 优先检查退出信号
+        if t.Ctx.Err() != nil {
+            return nil
+        }
         delGoods(v)
         store.GoodsStore.Delete(v.GoodsErpSpid)
-    }
-
-    // 缓存数据到文件
-    err := store.SaveGoods()
-    if err != nil {
-        return err
     }
 
     return nil

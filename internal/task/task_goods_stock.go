@@ -22,6 +22,15 @@ func (g GoodsSyncStock) GetName() string {
 }
 
 func (g GoodsSyncStock) Run(t *Task) error {
+
+    defer func() {
+        // 缓存数据到文件
+        err := store.SaveGoodsStock()
+        if err != nil {
+            slog.Error("SaveGoodsStock err: " + err.Error())
+        }
+    }()
+
     // 取出ERP全量数据
     var erpData []erp_entity.GoodsStock
 
@@ -51,26 +60,32 @@ func (g GoodsSyncStock) Run(t *Task) error {
 
     // 添加
     for _, v := range add.Values() {
+        // 优先检查退出信号
+        if t.Ctx.Err() != nil {
+            return nil
+        }
         addOrUpdateGoodsStock(v)
         store.GoodsStockStore.Set(v.GoodsErpSpid, v)
     }
 
     // 更新
     for _, v := range update.Values() {
+        // 优先检查退出信号
+        if t.Ctx.Err() != nil {
+            return nil
+        }
         addOrUpdateGoodsStock(v)
         store.GoodsStockStore.Set(v.GoodsErpSpid, v)
     }
 
     // 删除
     for _, v := range del.Values() {
+        // 优先检查退出信号
+        if t.Ctx.Err() != nil {
+            return nil
+        }
         delGoodsStock(v)
         store.GoodsStockStore.Delete(v.GoodsErpSpid)
-    }
-
-    // 缓存数据到文件
-    err := store.SaveGoodsStock()
-    if err != nil {
-        return err
     }
 
     return nil
@@ -121,5 +136,7 @@ func addOrUpdateGoodsStock(item *erp_entity.GoodsStock) {
 }
 
 func delGoodsStock(goods *erp_entity.GoodsStock) {
-    // TODO 执行业务操作
+    // 更新价格为0
+    goods.GoodsStock = 0
+    addOrUpdateGoodsStock(goods)
 }

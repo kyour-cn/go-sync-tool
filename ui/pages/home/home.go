@@ -89,9 +89,7 @@ func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
                         //    return material.H6(theme.Material(), "运行状态: 空闲中").Layout(gtx)
                         //}),
                         layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-
-                            msg := "暂未开启任何同步项"
-
+                            taskMsg := "未开启任何同步项"
                             var taskList []string
                             for _, v := range task.List {
                                 if v.Config.Status {
@@ -99,10 +97,24 @@ func (c *View) Layout(gtx layout.Context, theme *chapartheme.Theme) layout.Dimen
                                 }
                             }
                             if len(taskList) > 0 {
-                                msg = "同步任务: " + strings.Join(taskList, "、")
+                                taskMsg = "启用中任务: " + strings.Join(taskList, "、")
                             }
 
-                            return material.Body1(theme.Material(), msg).Layout(gtx)
+                            return material.Body1(theme.Material(), taskMsg).Layout(gtx)
+                        }),
+                        layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+                            taskMsg := "未开启任何同步项"
+                            var taskList []string
+                            for _, v := range task.List {
+                                if v.Status {
+                                    taskList = append(taskList, v.Label)
+                                }
+                            }
+                            if len(taskList) > 0 {
+                                taskMsg = "运行中任务: " + strings.Join(taskList, "、")
+                            }
+
+                            return material.Body1(theme.Material(), taskMsg).Layout(gtx)
                         }),
                     )
                 })

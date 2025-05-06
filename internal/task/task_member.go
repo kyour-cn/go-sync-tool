@@ -27,6 +27,13 @@ func (g MemberSync) GetName() string {
 }
 
 func (g MemberSync) Run(t *Task) error {
+    defer func() {
+        // 缓存数据到文件
+        err := store.SaveMember()
+        if err != nil {
+            slog.Error("SaveMember err: " + err.Error())
+        }
+    }()
 
     // 取出ERP全量数据
     var erpData []erp_entity.Member
@@ -51,40 +58,44 @@ func (g MemberSync) Run(t *Task) error {
 
     // 比对数据差异
     add, update, del := sync_tool.DiffMap[*erp_entity.Member](store.MemberStore, newMap)
-    newMap = nil
 
-    slog.Info("会员同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
+    slog.Info("会员同步比对", "old", store.MemberStore.Len(), "new", newMap.Len(), "add", add.Len(), "update", update.Len(), "del", del.Len())
+    newMap = nil
 
     // 添加
     for _, v := range add.Values() {
+        // 优先检查退出信号
+        if t.Ctx.Err() != nil {
+            return nil
+        }
         addOrUpdateMember(v)
         store.MemberStore.Set(v.ErpUID, v)
     }
 
     // 更新
     for _, v := range update.Values() {
+        // 优先检查退出信号
+        if t.Ctx.Err() != nil {
+            return nil
+        }
         addOrUpdateMember(v)
         store.MemberStore.Set(v.ErpUID, v)
     }
 
     // 删除
     for _, v := range del.Values() {
+        // 优先检查退出信号
+        if t.Ctx.Err() != nil {
+            return nil
+        }
         delMember(v)
         store.MemberStore.Delete(v.ErpUID)
-    }
-
-    // 缓存数据到文件
-    err := store.SaveMember()
-    if err != nil {
-        return err
     }
 
     return nil
 }
 
 func addOrUpdateMember(item *erp_entity.Member) {
-    // TODO 执行业务操作
-    //v.MemberID = strings.TrimSpace(v.MemberID)
 
     var memberInfo *shop_model.Member
     var err error
@@ -134,8 +145,8 @@ func addOrUpdateMember(item *erp_entity.Member) {
     }
 }
 
-func delMember(member *erp_entity.Member) {
-    // TODO 执行业务操作
+func delMember(item *erp_entity.Member) {
+
 }
 
 func addMember(v *erp_entity.Member) error {
@@ -144,7 +155,7 @@ func addMember(v *erp_entity.Member) error {
     nowTime := int32(time.Now().Unix())
 
     // TODO: （可配置项）默认会员状态
-    var status int32 = -0
+    var status int32 = 0
 
     //查询销售员
     var salesmanId int32 = 0

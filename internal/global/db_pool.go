@@ -28,7 +28,7 @@ var DbPool *safemap.Map[*DbPoolType]
 type dbLogWriter struct{}
 
 func (w dbLogWriter) Printf(format string, args ...any) {
-    slog.Warn(fmt.Sprintf(format, args...))
+    slog.Debug(fmt.Sprintf(format, args...))
 }
 
 // ConnDb 开始链接数据库（初始化）
@@ -51,7 +51,7 @@ func ConnDb() error {
                 SlowThreshold:             time.Duration(shopConf.SlowLogTime) * time.Millisecond, // 慢 SQL 阈值
                 LogLevel:                  logger.Warn,                                            // 日志级别
                 IgnoreRecordNotFoundError: true,                                                   // 忽略记录未找到错误
-                Colorful:                  true,                                                   // 禁用彩色打印
+                Colorful:                  false,                                                  // 彩色打印
             },
         ),
     }
