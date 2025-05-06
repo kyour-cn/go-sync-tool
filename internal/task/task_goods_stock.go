@@ -47,7 +47,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
     add, update, del := sync_tool.DiffMap[*erp_entity.GoodsStock](store.GoodsStockStore, newMap)
     newMap = nil
 
-    slog.Debug("商品库存同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
+    slog.Info("商品库存同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
 
     // 添加
     for _, v := range add.Values() {
