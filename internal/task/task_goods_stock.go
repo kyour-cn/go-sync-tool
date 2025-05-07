@@ -25,7 +25,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
 
     defer func() {
         // 缓存数据到文件
-        err := store.SaveGoodsStock()
+        err := store.GoodsStockStore.Save()
         if err != nil {
             slog.Error("SaveGoodsStock err: " + err.Error())
         }
@@ -53,7 +53,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
     erpData = nil
 
     // 比对数据差异
-    add, update, del := sync_tool.DiffMap[*erp_entity.GoodsStock](store.GoodsStockStore, newMap)
+    add, update, del := sync_tool.DiffMap[*erp_entity.GoodsStock](store.GoodsStockStore.Store, newMap)
     newMap = nil
 
     slog.Info("商品库存同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
@@ -65,7 +65,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
             return nil
         }
         addOrUpdateGoodsStock(v)
-        store.GoodsStockStore.Set(v.GoodsErpSpid, v)
+        store.GoodsStockStore.Store.Set(v.GoodsErpSpid, v)
     }
 
     // 更新
@@ -75,7 +75,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
             return nil
         }
         addOrUpdateGoodsStock(v)
-        store.GoodsStockStore.Set(v.GoodsErpSpid, v)
+        store.GoodsStockStore.Store.Set(v.GoodsErpSpid, v)
     }
 
     // 删除
@@ -85,7 +85,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
             return nil
         }
         delGoodsStock(v)
-        store.GoodsStockStore.Delete(v.GoodsErpSpid)
+        store.GoodsStockStore.Store.Delete(v.GoodsErpSpid)
     }
 
     return nil

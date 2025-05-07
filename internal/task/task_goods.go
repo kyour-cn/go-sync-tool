@@ -28,7 +28,7 @@ func (g GoodsSync) GetName() string {
 func (g GoodsSync) Run(t *Task) error {
     defer func() {
         // 缓存数据到文件
-        err := store.SaveGoods()
+        err := store.GoodsStore.Save()
         if err != nil {
             slog.Error("SaveGoods err: " + err.Error())
         }
@@ -56,9 +56,9 @@ func (g GoodsSync) Run(t *Task) error {
     erpData = nil
 
     // 比对数据差异
-    add, update, del := sync_tool.DiffMap[*erp_entity.Goods](store.GoodsStore, newMap)
+    add, update, del := sync_tool.DiffMap[*erp_entity.Goods](store.GoodsStore.Store, newMap)
 
-    slog.Info("商品同步比对", "old", store.GoodsStore.Len(), "new", newMap.Len(), "add", add.Len(), "update", update.Len(), "del", del.Len())
+    slog.Info("商品同步比对", "old", store.GoodsStore.Store.Len(), "new", newMap.Len(), "add", add.Len(), "update", update.Len(), "del", del.Len())
     newMap = nil
 
     // 添加
@@ -68,7 +68,7 @@ func (g GoodsSync) Run(t *Task) error {
             return nil
         }
         addOrUpdateGoods(v)
-        store.GoodsStore.Set(v.GoodsErpSpid, v)
+        store.GoodsStore.Store.Set(v.GoodsErpSpid, v)
     }
 
     // 更新
@@ -78,7 +78,7 @@ func (g GoodsSync) Run(t *Task) error {
             return nil
         }
         addOrUpdateGoods(v)
-        store.GoodsStore.Set(v.GoodsErpSpid, v)
+        store.GoodsStore.Store.Set(v.GoodsErpSpid, v)
     }
 
     // 删除
@@ -88,7 +88,7 @@ func (g GoodsSync) Run(t *Task) error {
             return nil
         }
         delGoods(v)
-        store.GoodsStore.Delete(v.GoodsErpSpid)
+        store.GoodsStore.Store.Delete(v.GoodsErpSpid)
     }
 
     return nil

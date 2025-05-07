@@ -24,7 +24,7 @@ func (g MemberAddress) GetName() string {
 func (g MemberAddress) Run(t *Task) error {
     defer func() {
         // 缓存数据到文件
-        err := store.SaveMemberAddress()
+        err := store.MemberAddressStore.Save()
         if err != nil {
             slog.Error("SaveMemberAddress err: " + err.Error())
         }
@@ -52,7 +52,7 @@ func (g MemberAddress) Run(t *Task) error {
     erpData = nil
 
     // 比对数据差异
-    add, update, del := sync_tool.DiffMap[*erp_entity.MemberAddress](store.MemberAddressStore, newMap)
+    add, update, del := sync_tool.DiffMap[*erp_entity.MemberAddress](store.MemberAddressStore.Store, newMap)
     newMap = nil
 
     slog.Info("商品价格同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
@@ -64,7 +64,7 @@ func (g MemberAddress) Run(t *Task) error {
             return nil
         }
         addOrUpdateMemberAddress(v)
-        store.MemberAddressStore.Set(v.ID, v)
+        store.MemberAddressStore.Store.Set(v.ID, v)
     }
 
     // 更新
@@ -74,7 +74,7 @@ func (g MemberAddress) Run(t *Task) error {
             return nil
         }
         addOrUpdateMemberAddress(v)
-        store.MemberAddressStore.Set(v.ID, v)
+        store.MemberAddressStore.Store.Set(v.ID, v)
     }
 
     // 删除
@@ -84,7 +84,7 @@ func (g MemberAddress) Run(t *Task) error {
             return nil
         }
         delMemberAddress(v)
-        store.MemberAddressStore.Delete(v.ID)
+        store.MemberAddressStore.Store.Delete(v.ID)
     }
 
     return nil

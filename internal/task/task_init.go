@@ -3,6 +3,7 @@ package task
 import (
     "app/internal/config"
     "app/internal/global"
+    "app/internal/store"
     "context"
     "github.com/go-gourd/gourd/event"
     "log/slog"
@@ -68,6 +69,7 @@ var List = []Task{
         Label:       "经营范围",
         Description: "需同步到电商平台的客户经营范围",
         Parent:      "member",
+        Handle:      MemberAddress{},
     },
     {
         Name:        "salesman",
@@ -82,11 +84,14 @@ var List = []Task{
     },
 }
 
-// Init 初始化任务 协程启动
+// Init 初始化任务
 func Init() {
 
     var cancelCtx context.Context
     var cancelFunc context.CancelFunc
+
+    // 初始化存储库
+    store.Init()
 
     // 监听事件 -启动
     event.Listen("task.start", func(ctx context.Context) {

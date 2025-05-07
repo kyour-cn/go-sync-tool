@@ -29,7 +29,7 @@ func (g MemberSync) GetName() string {
 func (g MemberSync) Run(t *Task) error {
     defer func() {
         // 缓存数据到文件
-        err := store.SaveMember()
+        err := store.MemberStore.Save()
         if err != nil {
             slog.Error("SaveMember err: " + err.Error())
         }
@@ -57,9 +57,9 @@ func (g MemberSync) Run(t *Task) error {
     erpData = nil
 
     // 比对数据差异
-    add, update, del := sync_tool.DiffMap[*erp_entity.Member](store.MemberStore, newMap)
+    add, update, del := sync_tool.DiffMap[*erp_entity.Member](store.MemberStore.Store, newMap)
 
-    slog.Info("会员同步比对", "old", store.MemberStore.Len(), "new", newMap.Len(), "add", add.Len(), "update", update.Len(), "del", del.Len())
+    slog.Info("会员同步比对", "old", store.MemberStore.Store.Len(), "new", newMap.Len(), "add", add.Len(), "update", update.Len(), "del", del.Len())
     newMap = nil
 
     // 添加
@@ -69,7 +69,7 @@ func (g MemberSync) Run(t *Task) error {
             return nil
         }
         addOrUpdateMember(v)
-        store.MemberStore.Set(v.ErpUID, v)
+        store.MemberStore.Store.Set(v.ErpUID, v)
     }
 
     // 更新
@@ -79,7 +79,7 @@ func (g MemberSync) Run(t *Task) error {
             return nil
         }
         addOrUpdateMember(v)
-        store.MemberStore.Set(v.ErpUID, v)
+        store.MemberStore.Store.Set(v.ErpUID, v)
     }
 
     // 删除
@@ -89,7 +89,7 @@ func (g MemberSync) Run(t *Task) error {
             return nil
         }
         delMember(v)
-        store.MemberStore.Delete(v.ErpUID)
+        store.MemberStore.Store.Delete(v.ErpUID)
     }
 
     return nil

@@ -2,7 +2,6 @@ package initialize
 
 import (
     "app/internal/global"
-    "app/internal/store"
     "app/internal/task"
     "log/slog"
 )
@@ -16,9 +15,6 @@ func InitApp() {
     }
 
     slog.Info("应用启动，初始化中...")
-
-    // 初始化存储库
-    store.Init()
 
     // 初始化任务进程
     task.Init()
