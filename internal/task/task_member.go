@@ -62,6 +62,9 @@ func (g MemberSync) Run(t *Task) error {
     slog.Info("会员同步比对", "old", store.MemberStore.Store.Len(), "new", newMap.Len(), "add", add.Len(), "update", update.Len(), "del", del.Len())
     newMap = nil
 
+    // 统计差异总数
+    t.DataCount = add.Len() + update.Len() + del.Len()
+
     // 添加
     for _, v := range add.Values() {
         // 优先检查退出信号
@@ -70,6 +73,7 @@ func (g MemberSync) Run(t *Task) error {
         }
         addOrUpdateMember(v)
         store.MemberStore.Store.Set(v.ErpUID, v)
+        t.DataCount++
     }
 
     // 更新
@@ -80,6 +84,7 @@ func (g MemberSync) Run(t *Task) error {
         }
         addOrUpdateMember(v)
         store.MemberStore.Store.Set(v.ErpUID, v)
+        t.DataCount++
     }
 
     // 删除
@@ -90,6 +95,7 @@ func (g MemberSync) Run(t *Task) error {
         }
         delMember(v)
         store.MemberStore.Store.Delete(v.ErpUID)
+        t.DataCount++
     }
 
     return nil

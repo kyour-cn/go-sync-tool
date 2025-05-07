@@ -14,13 +14,16 @@ type Task struct {
     Name        string
     Label       string
     Description string
-    Status      bool // 运行状态 是否运行中
-    LastRunTime time.Time
     Type        int8 // 0=读取视图 1=写入中间表
     Config      config.TaskConfig
     Handle      Handle
     Parent      string // 父级任务，会等待父级任务完成一轮才会触发
     Ctx         context.Context
+
+    Status      bool      // 运行状态 是否运行中
+    LastRunTime time.Time // 上次运行时间
+    DataCount   int       // 数据总数
+    DoneCount   int       // 已完成数量
 }
 
 type Handle interface {
@@ -112,6 +115,10 @@ func Init() {
             slog.Warn("任务正在停止中")
             return
         }
+        // 状态改为停止中
+        global.State.Status = 4
+
+        // 通知协程停止任务
         cancelFunc()
     })
 
@@ -172,12 +179,14 @@ func start(ctx context.Context) {
         select {
         // 监测停止
         case <-ctx.Done():
+            // 读取运行中的任务数
             running := 0
             for _, v := range List {
                 if v.Status {
                     running++
                 }
             }
+            // 运行中任务为0时停止
             if running == 0 {
                 stoped()
                 return
@@ -219,6 +228,8 @@ func startOne(item *Task) {
     slog.Info("任务运行完成："+item.Label, "name", item.Name, "耗时", time.Since(item.LastRunTime).String())
 
     item.Status = false
+    item.DataCount = 0
+    item.DoneCount = 0
 
     // 遍历运行子任务 -可实现递归
     for _, v := range List {

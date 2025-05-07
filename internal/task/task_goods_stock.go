@@ -58,6 +58,9 @@ func (g GoodsSyncStock) Run(t *Task) error {
 
     slog.Info("商品库存同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
 
+    // 统计差异总数
+    t.DataCount = add.Len() + update.Len() + del.Len()
+
     // 添加
     for _, v := range add.Values() {
         // 优先检查退出信号
@@ -66,6 +69,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
         }
         addOrUpdateGoodsStock(v)
         store.GoodsStockStore.Store.Set(v.GoodsErpSpid, v)
+        t.DataCount++
     }
 
     // 更新
@@ -76,6 +80,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
         }
         addOrUpdateGoodsStock(v)
         store.GoodsStockStore.Store.Set(v.GoodsErpSpid, v)
+        t.DataCount++
     }
 
     // 删除
@@ -86,6 +91,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
         }
         delGoodsStock(v)
         store.GoodsStockStore.Store.Delete(v.GoodsErpSpid)
+        t.DataCount++
     }
 
     return nil

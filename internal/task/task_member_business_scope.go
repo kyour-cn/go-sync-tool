@@ -61,6 +61,9 @@ func (bs MemberBusinessScope) Run(t *Task) error {
 
     slog.Info("商品价格同步比对", "add", add.Len(), "update", update.Len(), "del", del.Len())
 
+    // 统计差异总数
+    t.DataCount = add.Len() + update.Len() + del.Len()
+
     // 添加
     for _, v := range add.Values() {
         // 优先检查退出信号
@@ -69,6 +72,7 @@ func (bs MemberBusinessScope) Run(t *Task) error {
         }
         bs.addOrUpdate(v)
         store.MemberBusinessScopeStore.Store.Set(v.ID.String(), v)
+        t.DataCount++
     }
 
     // 更新
@@ -79,6 +83,7 @@ func (bs MemberBusinessScope) Run(t *Task) error {
         }
         bs.addOrUpdate(v)
         store.MemberBusinessScopeStore.Store.Set(v.ID.String(), v)
+        t.DataCount++
     }
 
     // 删除
@@ -89,6 +94,7 @@ func (bs MemberBusinessScope) Run(t *Task) error {
         }
         bs.delete(v)
         store.MemberBusinessScopeStore.Store.Delete(v.ID.String())
+        t.DataCount++
     }
 
     return nil
