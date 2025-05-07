@@ -238,7 +238,9 @@ func start(ctx context.Context) {
 func startOne(item *Task) {
 
     // 判断运行状态和时间差
-    if item.Status || time.Since(item.LastRunTime) < time.Second*time.Duration(item.Config.IntervalTime) {
+    if item.Status ||
+        time.Since(item.LastRunTime) < time.Second*time.Duration(item.Config.IntervalTime) ||
+        global.State.Status != 3 {
         return
     }
 
