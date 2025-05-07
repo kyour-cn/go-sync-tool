@@ -61,7 +61,7 @@ func (g MemberAddress) Run(t *Task) error {
     t.DataCount = add.Len() + update.Len() + del.Len()
 
     // 添加
-    for _, v := range add.Values() {
+    for _, v := range *add.GetMap() {
         // 优先检查退出信号
         if t.Ctx.Err() != nil {
             return nil
@@ -72,7 +72,7 @@ func (g MemberAddress) Run(t *Task) error {
     }
 
     // 更新
-    for _, v := range update.Values() {
+    for _, v := range *update.GetMap() {
         // 优先检查退出信号
         if t.Ctx.Err() != nil {
             return nil
@@ -83,7 +83,7 @@ func (g MemberAddress) Run(t *Task) error {
     }
 
     // 删除
-    for _, v := range del.Values() {
+    for _, v := range *del.GetMap() {
         // 优先检查退出信号
         if t.Ctx.Err() != nil {
             return nil

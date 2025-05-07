@@ -237,6 +237,12 @@ func start(ctx context.Context) {
 // 运行单个任务
 func startOne(item *Task) {
 
+    defer func() {
+        if r := recover(); r != nil {
+            slog.Error("任务运行异常："+item.Label, "name", item.Name, "err", r)
+        }
+    }()
+
     // 判断运行状态和时间差
     if item.Status ||
         time.Since(item.LastRunTime) < time.Second*time.Duration(item.Config.IntervalTime) ||
