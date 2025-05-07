@@ -68,7 +68,7 @@ func (g MemberAddress) Run(t *Task) error {
         }
         addOrUpdateMemberAddress(v)
         store.MemberAddressStore.Store.Set(v.ID, v)
-        t.DataCount++
+        t.DoneCount++
     }
 
     // 更新
@@ -79,7 +79,7 @@ func (g MemberAddress) Run(t *Task) error {
         }
         addOrUpdateMemberAddress(v)
         store.MemberAddressStore.Store.Set(v.ID, v)
-        t.DataCount++
+        t.DoneCount++
     }
 
     // 删除
@@ -90,7 +90,7 @@ func (g MemberAddress) Run(t *Task) error {
         }
         delMemberAddress(v)
         store.MemberAddressStore.Store.Delete(v.ID)
-        t.DataCount++
+        t.DoneCount++
     }
 
     return nil

@@ -1,7 +1,9 @@
 package config
 
 import (
+    "context"
     "errors"
+    "github.com/go-gourd/gourd/event"
 )
 
 // TaskConfig 适用于单个连接的配置
@@ -44,6 +46,9 @@ func GetTaskConfigAll() (*TaskConfigMap, error) {
 func SetTaskConfigAll(conf *TaskConfigMap) error {
     key := "task"
     taskConfig = conf
+
+    defer event.Trigger("task.config", context.Background())
+
     return Marshal(key, conf)
 }
 

@@ -5,6 +5,7 @@ import (
     "app/internal/global"
     "app/internal/store"
     "context"
+    "errors"
     "github.com/go-gourd/gourd/event"
     "log/slog"
     "time"
@@ -96,6 +97,22 @@ func Init() {
     // 初始化存储库
     store.Init()
 
+    err := initConfig(cancelCtx)
+    if err != nil {
+        slog.Error("初始化配置失败", "err", err)
+        return
+    }
+
+    // 开启一个后台任务用于刷新UI
+    go func() {
+        for {
+            if global.State.Status == 3 {
+                event.Trigger("window.invalidate", cancelCtx)
+            }
+            time.Sleep(time.Second * 1)
+        }
+    }()
+
     // 监听事件 -启动
     event.Listen("task.start", func(ctx context.Context) {
         slog.Info("触发事件：任务启动")
@@ -122,6 +139,33 @@ func Init() {
         cancelFunc()
     })
 
+    // 监听事件 -配置更改
+    event.Listen("task.config", func(ctx context.Context) {
+        _ = initConfig(ctx)
+    })
+
+}
+
+func initConfig(ctx context.Context) error {
+    // 获取配置
+    taskConf, err := config.GetTaskConfigAll()
+    if err != nil {
+        return errors.New("获取配置失败")
+    }
+    if taskConf == nil {
+        return errors.New("未勾选运行的任务项")
+    }
+    // 遍历配置的任务进行初始化
+    for _, tc := range *taskConf {
+        // 匹配任务名
+        for i := range List {
+            if List[i].Name == tc.Name {
+                List[i].Config = tc
+                List[i].Ctx = ctx
+            }
+        }
+    }
+    return nil
 }
 
 func startErr(msg string) {
@@ -139,14 +183,10 @@ func start(ctx context.Context) {
 
     global.State.Status = 2
 
-    // 获取配置
-    taskConf, err := config.GetTaskConfigAll()
+    // 初始化任务配置
+    err := initConfig(ctx)
     if err != nil {
-        startErr("获取配置失败")
-        return
-    }
-    if taskConf == nil {
-        startErr("未勾选运行的任务项")
+        startErr(err.Error())
         return
     }
 
@@ -155,17 +195,6 @@ func start(ctx context.Context) {
         startErr("连接数据库失败")
         slog.Error("连接数据库失败", "err", err)
         return
-    }
-
-    // 遍历配置的任务进行初始化
-    for _, tc := range *taskConf {
-        // 匹配任务名
-        for i := range List {
-            if List[i].Name == tc.Name {
-                List[i].Config = tc
-                List[i].Ctx = ctx
-            }
-        }
     }
 
     // 运行中
@@ -232,9 +261,9 @@ func startOne(item *Task) {
     item.DoneCount = 0
 
     // 遍历运行子任务 -可实现递归
-    for _, v := range List {
+    for i, v := range List {
         if v.Parent == item.Name && v.Config.Status {
-            go startOne(&v)
+            go startOne(&List[i])
         }
     }
 }

@@ -73,7 +73,7 @@ func (g MemberSync) Run(t *Task) error {
         }
         addOrUpdateMember(v)
         store.MemberStore.Store.Set(v.ErpUID, v)
-        t.DataCount++
+        t.DoneCount++
     }
 
     // 更新
@@ -84,7 +84,7 @@ func (g MemberSync) Run(t *Task) error {
         }
         addOrUpdateMember(v)
         store.MemberStore.Store.Set(v.ErpUID, v)
-        t.DataCount++
+        t.DoneCount++
     }
 
     // 删除
@@ -95,7 +95,7 @@ func (g MemberSync) Run(t *Task) error {
         }
         delMember(v)
         store.MemberStore.Store.Delete(v.ErpUID)
-        t.DataCount++
+        t.DoneCount++
     }
 
     return nil

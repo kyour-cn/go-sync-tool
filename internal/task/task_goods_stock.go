@@ -69,7 +69,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
         }
         addOrUpdateGoodsStock(v)
         store.GoodsStockStore.Store.Set(v.GoodsErpSpid, v)
-        t.DataCount++
+        t.DoneCount++
     }
 
     // 更新
@@ -80,7 +80,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
         }
         addOrUpdateGoodsStock(v)
         store.GoodsStockStore.Store.Set(v.GoodsErpSpid, v)
-        t.DataCount++
+        t.DoneCount++
     }
 
     // 删除
@@ -91,7 +91,7 @@ func (g GoodsSyncStock) Run(t *Task) error {
         }
         delGoodsStock(v)
         store.GoodsStockStore.Store.Delete(v.GoodsErpSpid)
-        t.DataCount++
+        t.DoneCount++
     }
 
     return nil

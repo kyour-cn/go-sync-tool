@@ -72,7 +72,7 @@ func (bs MemberBusinessScope) Run(t *Task) error {
         }
         bs.addOrUpdate(v)
         store.MemberBusinessScopeStore.Store.Set(v.ID.String(), v)
-        t.DataCount++
+        t.DoneCount++
     }
 
     // 更新
@@ -83,7 +83,7 @@ func (bs MemberBusinessScope) Run(t *Task) error {
         }
         bs.addOrUpdate(v)
         store.MemberBusinessScopeStore.Store.Set(v.ID.String(), v)
-        t.DataCount++
+        t.DoneCount++
     }
 
     // 删除
@@ -94,7 +94,7 @@ func (bs MemberBusinessScope) Run(t *Task) error {
         }
         bs.delete(v)
         store.MemberBusinessScopeStore.Store.Delete(v.ID.String())
-        t.DataCount++
+        t.DoneCount++
     }
 
     return nil
