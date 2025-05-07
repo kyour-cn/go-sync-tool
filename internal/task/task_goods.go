@@ -9,12 +9,14 @@ import (
     "app/internal/tools"
     "app/internal/tools/safemap"
     "app/internal/tools/sync_tool"
+    "context"
     "encoding/json"
     "errors"
     "fmt"
     "gorm.io/gorm"
     "log/slog"
     "strings"
+    "sync"
 )
 
 // GoodsSync 同步ERP商品到商城
@@ -64,40 +66,112 @@ func (g GoodsSync) Run(t *Task) error {
     // 统计差异总数
     t.DataCount = add.Len() + update.Len() + del.Len()
 
-    // 添加
-    for _, v := range *add.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
-            return nil
-        }
+    // 新增数据处理
+    err := batchProcessor(*add.GetMap(), func(v *erp_entity.Goods) error {
         addOrUpdateGoods(v)
         store.GoodsStore.Store.Set(v.GoodsErpSpid, v)
         t.DoneCount++
+        return nil
+    }, 100, t.Ctx)
+    if err != nil {
+        return err
     }
 
-    // 更新
-    for _, v := range *update.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
-            return nil
-        }
+    // 更新数据处理
+    err = batchProcessor(*update.GetMap(), func(v *erp_entity.Goods) error {
         addOrUpdateGoods(v)
         store.GoodsStore.Store.Set(v.GoodsErpSpid, v)
         t.DoneCount++
+        return nil
+    }, 100, t.Ctx)
+    if err != nil {
+        return err
     }
 
-    // 删除
-    for _, v := range *del.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
-            return nil
-        }
+    // 删除数据处理
+    err = batchProcessor(*del.GetMap(), func(v *erp_entity.Goods) error {
         delGoods(v)
         store.GoodsStore.Store.Delete(v.GoodsErpSpid)
         t.DoneCount++
-    }
+        return nil
+    }, 100, t.Ctx)
+
+    // 新增
+    //for _, v := range *add.GetMap() {
+    //    // 优先检查退出信号
+    //    if t.Ctx.Err() != nil {
+    //        return nil
+    //    }
+    //    addOrUpdateGoods(v)
+    //    store.GoodsStore.Store.Set(v.GoodsErpSpid, v)
+    //    t.DoneCount++
+    //}
+
+    // 更新
+    //for _, v := range *update.GetMap() {
+    //    // 优先检查退出信号
+    //    if t.Ctx.Err() != nil {
+    //        return nil
+    //    }
+    //    addOrUpdateGoods(v)
+    //    store.GoodsStore.Store.Set(v.GoodsErpSpid, v)
+    //    t.DoneCount++
+    //}
+
+    // 删除
+    //for _, v := range *del.GetMap() {
+    //    // 优先检查退出信号
+    //    if t.Ctx.Err() != nil {
+    //        return nil
+    //    }
+    //    delGoods(v)
+    //    store.GoodsStore.Store.Delete(v.GoodsErpSpid)
+    //    t.DoneCount++
+    //}
 
     return nil
+}
+
+func batchProcessor[T any](
+    data map[string]T,
+    processor func(T) error,
+    maxConcurrent int,
+    ctx context.Context,
+) error {
+    var (
+        wg          sync.WaitGroup
+        sem         = make(chan struct{}, maxConcurrent)
+        combinedErr error
+        mu          sync.Mutex
+    )
+
+    // 直接遍历map值，避免内存拷贝
+    for _, v := range data {
+
+        // 优先检查退出信号
+        if ctx.Err() != nil {
+            return nil
+        }
+
+        wg.Add(1)
+        sem <- struct{}{}
+
+        go func(item T) {
+            defer func() {
+                <-sem
+                wg.Done()
+            }()
+
+            if err := processor(item); err != nil {
+                mu.Lock()
+                combinedErr = errors.Join(combinedErr, err)
+                mu.Unlock()
+            }
+        }(v)
+    }
+
+    wg.Wait()
+    return combinedErr
 }
 
 func addOrUpdateGoods(item *erp_entity.Goods) {
