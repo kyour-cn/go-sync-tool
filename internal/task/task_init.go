@@ -8,6 +8,7 @@ import (
     "errors"
     "github.com/go-gourd/gourd/event"
     "log/slog"
+    "sync"
     "time"
 )
 
@@ -290,4 +291,47 @@ func stoped() {
     // 提示
     params := context.WithValue(context.Background(), "tipMsg", "停止成功")
     event.Trigger("tips.show", params)
+}
+
+// 批量异步处理数据
+func batchProcessor[T any](
+    data map[string]T,
+    processor func(T) error,
+    maxConcurrent int,
+    ctx context.Context,
+) error {
+    var (
+        wg          sync.WaitGroup
+        sem         = make(chan struct{}, maxConcurrent)
+        combinedErr error
+        mu          sync.Mutex
+    )
+
+    // 直接遍历map值，避免内存拷贝
+    for _, v := range data {
+
+        // 优先检查退出信号
+        if ctx.Err() != nil {
+            break
+        }
+
+        wg.Add(1)
+        sem <- struct{}{}
+
+        go func(item T) {
+            defer func() {
+                <-sem
+                wg.Done()
+            }()
+
+            if err := processor(item); err != nil {
+                mu.Lock()
+                combinedErr = errors.Join(combinedErr, err)
+                mu.Unlock()
+            }
+        }(v)
+    }
+
+    wg.Wait()
+    return combinedErr
 }

@@ -9,14 +9,12 @@ import (
     "app/internal/tools"
     "app/internal/tools/safemap"
     "app/internal/tools/sync_tool"
-    "context"
     "encoding/json"
     "errors"
     "fmt"
     "gorm.io/gorm"
     "log/slog"
     "strings"
-    "sync"
 )
 
 // GoodsSync 同步ERP商品到商城
@@ -66,136 +64,77 @@ func (g GoodsSync) Run(t *Task) error {
     // 统计差异总数
     t.DataCount = add.Len() + update.Len() + del.Len()
 
+    maxConcurrent := 20
+
     // 新增数据处理
     err := batchProcessor(*add.GetMap(), func(v *erp_entity.Goods) error {
-        addOrUpdateGoods(v)
+        err := g.addOrUpdate(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
+            return nil
+        }
         store.GoodsStore.Store.Set(v.GoodsErpSpid, v)
         t.DoneCount++
         return nil
-    }, 100, t.Ctx)
+    }, maxConcurrent, t.Ctx)
     if err != nil {
         return err
     }
 
     // 更新数据处理
     err = batchProcessor(*update.GetMap(), func(v *erp_entity.Goods) error {
-        addOrUpdateGoods(v)
+        err := g.addOrUpdate(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
+            return nil
+        }
         store.GoodsStore.Store.Set(v.GoodsErpSpid, v)
         t.DoneCount++
         return nil
-    }, 100, t.Ctx)
+    }, maxConcurrent, t.Ctx)
     if err != nil {
         return err
     }
 
     // 删除数据处理
     err = batchProcessor(*del.GetMap(), func(v *erp_entity.Goods) error {
-        delGoods(v)
+        err := g.delete(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
+            return nil
+        }
         store.GoodsStore.Store.Delete(v.GoodsErpSpid)
         t.DoneCount++
         return nil
-    }, 100, t.Ctx)
-
-    // 新增
-    //for _, v := range *add.GetMap() {
-    //    // 优先检查退出信号
-    //    if t.Ctx.Err() != nil {
-    //        return nil
-    //    }
-    //    addOrUpdateGoods(v)
-    //    store.GoodsStore.Store.Set(v.GoodsErpSpid, v)
-    //    t.DoneCount++
-    //}
-
-    // 更新
-    //for _, v := range *update.GetMap() {
-    //    // 优先检查退出信号
-    //    if t.Ctx.Err() != nil {
-    //        return nil
-    //    }
-    //    addOrUpdateGoods(v)
-    //    store.GoodsStore.Store.Set(v.GoodsErpSpid, v)
-    //    t.DoneCount++
-    //}
-
-    // 删除
-    //for _, v := range *del.GetMap() {
-    //    // 优先检查退出信号
-    //    if t.Ctx.Err() != nil {
-    //        return nil
-    //    }
-    //    delGoods(v)
-    //    store.GoodsStore.Store.Delete(v.GoodsErpSpid)
-    //    t.DoneCount++
-    //}
+    }, maxConcurrent, t.Ctx)
 
     return nil
 }
 
-func batchProcessor[T any](
-    data map[string]T,
-    processor func(T) error,
-    maxConcurrent int,
-    ctx context.Context,
-) error {
-    var (
-        wg          sync.WaitGroup
-        sem         = make(chan struct{}, maxConcurrent)
-        combinedErr error
-        mu          sync.Mutex
-    )
-
-    // 直接遍历map值，避免内存拷贝
-    for _, v := range data {
-
-        // 优先检查退出信号
-        if ctx.Err() != nil {
-            return nil
-        }
-
-        wg.Add(1)
-        sem <- struct{}{}
-
-        go func(item T) {
-            defer func() {
-                <-sem
-                wg.Done()
-            }()
-
-            if err := processor(item); err != nil {
-                mu.Lock()
-                combinedErr = errors.Join(combinedErr, err)
-                mu.Unlock()
-            }
-        }(v)
-    }
-
-    wg.Wait()
-    return combinedErr
-}
-
-func addOrUpdateGoods(item *erp_entity.Goods) {
+func (g GoodsSync) addOrUpdate(item *erp_entity.Goods) error {
     // 查询商城里面是否存在该商品
     shopGoodsInfo, err := shop_query.Goods.
         Where(shop_query.Goods.GoodsErpSpid.Eq(item.GoodsErpSpid)).
         First()
     if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-        slog.Error("goodsSync Goods First err: " + err.Error())
-        return
+        slog.Error("查询商品信息失败: " + err.Error())
+        return err
     }
     if shopGoodsInfo != nil {
-        if err := updateShopGoods(item, *shopGoodsInfo); err != nil {
-            slog.Error("goodsSync updateShopGoods err: " + err.Error())
+        if err := g.update(item, *shopGoodsInfo); err != nil {
+            slog.Error("updateShopGoods err: " + err.Error())
+            return err
         }
     } else {
-        if err = addShopGoods(item); err != nil {
-            slog.Error("goodsSync addShopGoods err: " + err.Error())
+        if err = g.add(item); err != nil {
+            slog.Error("addShopGoods err: " + err.Error())
+            return err
         }
     }
-
+    return nil
 }
 
-func delGoods(goods *erp_entity.Goods) {
+func (g GoodsSync) delete(goods *erp_entity.Goods) error {
     // 查询商城里面是否存在该商品
     _, _ = shop_query.Goods.
         Where(shop_query.Goods.GoodsErpSpid.Eq(goods.GoodsErpSpid)).
@@ -207,11 +146,11 @@ func delGoods(goods *erp_entity.Goods) {
             GoodsState: 0,
             IsDelete:   1,
         })
+    return nil
 }
 
-func updateShopGoods(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Goods) error {
+func (g GoodsSync) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Goods) error {
 
-    _ = shopGoodsInfo
     attrValue := attrGoods(syncGoods)
     yddGoodsData := shop_model.Goods{
         GoodsName:         syncGoods.GoodsName.String(),
@@ -280,7 +219,7 @@ func updateShopGoods(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Goods
         slog.Error("updateShopGoods Updates err: " + er.Error())
         return er
     }
-    shopGoods, _ := shop_query.Goods.Where(shop_query.Goods.GoodsErpSpid.Eq(yddGoodsData.GoodsErpSpid)).Take()
+
     yddGoodsSkuData := shop_model.GoodsSku{
         Keywords:        yddGoodsData.Keywords,
         SkuName:         yddGoodsData.GoodsName,
@@ -297,7 +236,7 @@ func updateShopGoods(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Goods
 
     //更新GoodsSku表数据
     if _, er := shop_query.GoodsSku.
-        Where(shop_query.GoodsSku.GoodsID.Eq(shopGoods.GoodsID)).
+        Where(shop_query.GoodsSku.GoodsID.Eq(shopGoodsInfo.GoodsID)).
         Select(
             shop_query.GoodsSku.Keywords,
             shop_query.GoodsSku.SkuName,
@@ -321,7 +260,7 @@ func updateShopGoods(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Goods
     return nil
 }
 
-func addShopGoods(syncGoods *erp_entity.Goods) error {
+func (g GoodsSync) add(syncGoods *erp_entity.Goods) error {
 
     attrValue := attrGoods(syncGoods)
     yddGoodsData := shop_model.Goods{

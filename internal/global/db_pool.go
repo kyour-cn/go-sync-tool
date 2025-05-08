@@ -44,6 +44,8 @@ func ConnDb() error {
         return err
     }
 
+    shopConf.Param = "timeout=30s&readTimeout=60s&writeTimeout=60s"
+
     gormConfig := &gorm.Config{
         Logger: logger.New(
             dbLogWriter{},
@@ -59,6 +61,12 @@ func ConnDb() error {
     if err != nil {
         return err
     }
+
+    shopDbConn, _ := shopDb.DB()
+    // 设置空闲连接池中的最大连接数。
+    shopDbConn.SetMaxIdleConns(20)
+    // 设置数据库的最大打开连接数。
+    shopDbConn.SetMaxOpenConns(100)
 
     shop_query.SetDefault(shopDb)
 

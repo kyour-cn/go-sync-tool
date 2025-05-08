@@ -65,43 +65,54 @@ func (g MemberSync) Run(t *Task) error {
     // 统计差异总数
     t.DataCount = add.Len() + update.Len() + del.Len()
 
-    // 添加
-    for _, v := range *add.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
+    maxConcurrent := 20
+
+    // 新增数据处理
+    err := batchProcessor(*add.GetMap(), func(v *erp_entity.Member) error {
+        err := g.addOrUpdate(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
             return nil
         }
-        addOrUpdateMember(v)
         store.MemberStore.Store.Set(v.ErpUID, v)
         t.DoneCount++
+        return nil
+    }, maxConcurrent, t.Ctx)
+    if err != nil {
+        return err
     }
 
-    // 更新
-    for _, v := range *update.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
+    // 更新数据处理
+    err = batchProcessor(*update.GetMap(), func(v *erp_entity.Member) error {
+        err := g.addOrUpdate(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
             return nil
         }
-        addOrUpdateMember(v)
         store.MemberStore.Store.Set(v.ErpUID, v)
         t.DoneCount++
+        return nil
+    }, maxConcurrent, t.Ctx)
+    if err != nil {
+        return err
     }
 
-    // 删除
-    for _, v := range *del.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
+    // 删除数据处理
+    err = batchProcessor(*del.GetMap(), func(v *erp_entity.Member) error {
+        err := g.delete(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
             return nil
         }
-        delMember(v)
         store.MemberStore.Store.Delete(v.ErpUID)
         t.DoneCount++
-    }
+        return nil
+    }, maxConcurrent, t.Ctx)
 
     return nil
 }
 
-func addOrUpdateMember(item *erp_entity.Member) {
+func (g MemberSync) addOrUpdate(item *erp_entity.Member) error {
 
     var memberInfo *shop_model.Member
     var err error
@@ -112,8 +123,8 @@ func addOrUpdateMember(item *erp_entity.Member) {
             Where(shop_query.Member.MemberID.Eq(int32(memberId))).
             First()
         if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-            slog.Error("memberSync Member First", "err", err)
-            return
+            slog.Error("查询ERP返回的会员ID失败", "err", err)
+            return err
         }
     }
     // 根据ERPID匹配
@@ -122,8 +133,8 @@ func addOrUpdateMember(item *erp_entity.Member) {
             Where(shop_query.Member.ErpUID.Eq(item.ErpUID)).
             First()
         if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-            slog.Error("memberSync Member First", "err", err)
-            return
+            slog.Error("查询ERP返回的ERPID称失败", "err", err)
+            return err
         }
     }
 
@@ -133,29 +144,26 @@ func addOrUpdateMember(item *erp_entity.Member) {
             Where(shop_query.Member.Nickname.Eq(item.Nickname.String())).
             First()
         if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-            slog.Error("memberSync Member First", "err", err)
-            return
+            slog.Error("查询ERP返回的单位名称失败", "err", err)
+            return err
         }
     }
 
     if memberInfo != nil {
-        if er := updateMember(item, memberInfo); er != nil {
+        if er := g.update(item, memberInfo); er != nil {
             slog.Error("memberSync updateMember", "err", err)
-            return
+            return er
         }
     } else {
-        if er := addMember(item); er != nil {
+        if er := g.add(item); er != nil {
             slog.Error("memberSync addMember", "err", err)
-            return
+            return er
         }
     }
+    return nil
 }
 
-func delMember(item *erp_entity.Member) {
-
-}
-
-func addMember(v *erp_entity.Member) error {
+func (g MemberSync) add(v *erp_entity.Member) error {
     areaInfo := getAreaFormCache(v.Province.String(), v.City.String(), v.District.String())
 
     nowTime := int32(time.Now().Unix())
@@ -213,7 +221,7 @@ func addMember(v *erp_entity.Member) error {
     return shop_query.Member.Create(&memberData)
 }
 
-func updateMember(v *erp_entity.Member, m *shop_model.Member) error {
+func (g MemberSync) update(v *erp_entity.Member, m *shop_model.Member) error {
     areaInfo := getAreaFormCache(v.Province.String(), v.City.String(), v.District.String())
 
     nowTime := int32(time.Now().Unix())
@@ -300,6 +308,11 @@ func updateMember(v *erp_entity.Member, m *shop_model.Member) error {
             "status": status, //这里使用map更新，避免被忽略0值
         })
     return err
+}
+
+func (g MemberSync) delete(item *erp_entity.Member) error {
+    _ = item
+    return nil
 }
 
 type AreaInfo struct {
