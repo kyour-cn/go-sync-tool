@@ -13,15 +13,15 @@ import (
     "log/slog"
 )
 
-// GoodsSyncPrice 同步ERP商品到商城
-type GoodsSyncPrice struct {
+// GoodsPriceSync 同步ERP商品到商城
+type GoodsPriceSync struct {
 }
 
-func (g GoodsSyncPrice) GetName() string {
-    return "GoodsSyncPrice"
+func (g GoodsPriceSync) GetName() string {
+    return "GoodsPriceSync"
 }
 
-func (g GoodsSyncPrice) Run(t *Task) error {
+func (g GoodsPriceSync) Run(t *Task) error {
     defer func() {
         // 缓存数据到文件
         err := store.GoodsPriceStore.Save()
@@ -60,43 +60,53 @@ func (g GoodsSyncPrice) Run(t *Task) error {
     // 统计差异总数
     t.DataCount = add.Len() + update.Len() + del.Len()
 
-    // 添加
-    for _, v := range *add.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
+    maxConcurrent := 20
+
+    // 新增数据处理
+    err := batchProcessor(*add.GetMap(), func(v *erp_entity.GoodsPrice) error {
+        err := g.addOrUpdate(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
             return nil
         }
-        addOrUpdateGoodsPrice(v)
         store.GoodsPriceStore.Store.Set(v.GoodsErpSpid, v)
         t.DoneCount++
+        return nil
+    }, maxConcurrent, t.Ctx)
+    if err != nil {
+        return err
     }
 
-    // 更新
-    for _, v := range *update.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
+    // 更新数据处理
+    err = batchProcessor(*update.GetMap(), func(v *erp_entity.GoodsPrice) error {
+        err := g.addOrUpdate(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
             return nil
         }
-        addOrUpdateGoodsPrice(v)
         store.GoodsPriceStore.Store.Set(v.GoodsErpSpid, v)
         t.DoneCount++
+        return nil
+    }, maxConcurrent, t.Ctx)
+    if err != nil {
+        return err
     }
 
-    // 删除
-    for _, v := range *del.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
+    // 删除数据处理
+    err = batchProcessor(*del.GetMap(), func(v *erp_entity.GoodsPrice) error {
+        err := g.delete(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
             return nil
         }
-        delGoodsPrice(v)
         store.GoodsPriceStore.Store.Delete(v.GoodsErpSpid)
         t.DoneCount++
-    }
-
+        return nil
+    }, maxConcurrent, t.Ctx)
     return nil
 }
 
-func addOrUpdateGoodsPrice(item *erp_entity.GoodsPrice) {
+func (g GoodsPriceSync) addOrUpdate(item *erp_entity.GoodsPrice) error {
     shopGoods, err := shop_query.Goods.
         Where(shop_query.Goods.GoodsErpSpid.Eq(item.GoodsErpSpid)).
         Select(
@@ -106,10 +116,10 @@ func addOrUpdateGoodsPrice(item *erp_entity.GoodsPrice) {
         First()
     if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
         slog.Error("goodsPriceSync Goods First err: " + err.Error())
-        return
+        return err
     }
     if shopGoods == nil || shopGoods.PriceSync == 0 {
-        return
+        return err
     }
 
     slog.Debug("价格更新", "spid", item.GoodsErpSpid, "old", shopGoods.Price, "new", item.Price)
@@ -130,7 +140,7 @@ func addOrUpdateGoodsPrice(item *erp_entity.GoodsPrice) {
         Updates(goodsData)
     if e != nil {
         slog.Error("goodsPriceSync Goods update err" + e.Error())
-        return
+        return e
     }
     // 更新GoodsSku表
     skuData := shop_model.GoodsSku{
@@ -148,16 +158,16 @@ func addOrUpdateGoodsPrice(item *erp_entity.GoodsPrice) {
         Updates(skuData)
     if ers != nil {
         slog.Error("goodsPriceSync GoodsSku update err: " + ers.Error())
-        return
+        return ers
     }
 
+    return nil
 }
 
-func delGoodsPrice(goods *erp_entity.GoodsPrice) {
-
+func (g GoodsPriceSync) delete(goods *erp_entity.GoodsPrice) error {
     // 更新价格为0
     goods.Price = 0
     goods.CostPrice = 0
     goods.MarketPrice = 0
-    addOrUpdateGoodsPrice(goods)
+    return g.addOrUpdate(goods)
 }

@@ -46,14 +46,14 @@ var List = []Task{
         Name:        "goods_price",
         Label:       "商品价格",
         Description: "需同步到电商平台的商品价格",
-        Handle:      GoodsSyncPrice{},
+        Handle:      GoodsPriceSync{},
         Parent:      "goods",
     },
     {
         Name:        "goods_stock",
         Label:       "商品库存",
         Description: "需同步到电商平台的商品库存",
-        Handle:      GoodsSyncStock{},
+        Handle:      GoodsStockSync{},
         Parent:      "goods",
     },
     {
