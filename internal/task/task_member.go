@@ -18,15 +18,15 @@ import (
     "time"
 )
 
-// MemberSync 同步ERP商品到商城
-type MemberSync struct {
+// Member 同步ERP商品到商城
+type Member struct {
 }
 
-func (g MemberSync) GetName() string {
-    return "MemberSync"
+func (m Member) GetName() string {
+    return "Member"
 }
 
-func (g MemberSync) Run(t *Task) error {
+func (m Member) Run(t *Task) error {
     defer func() {
         // 缓存数据到文件
         err := store.MemberStore.Save()
@@ -65,11 +65,11 @@ func (g MemberSync) Run(t *Task) error {
     // 统计差异总数
     t.DataCount = add.Len() + update.Len() + del.Len()
 
-    maxConcurrent := 20
+    maxConcurrent := 10
 
     // 新增数据处理
     err := batchProcessor(*add.GetMap(), func(v *erp_entity.Member) error {
-        err := g.addOrUpdate(v)
+        err := m.addOrUpdate(v)
         if err != nil {
             // 这里忽略错误，否则将中断任务
             return nil
@@ -84,7 +84,7 @@ func (g MemberSync) Run(t *Task) error {
 
     // 更新数据处理
     err = batchProcessor(*update.GetMap(), func(v *erp_entity.Member) error {
-        err := g.addOrUpdate(v)
+        err := m.addOrUpdate(v)
         if err != nil {
             // 这里忽略错误，否则将中断任务
             return nil
@@ -99,7 +99,7 @@ func (g MemberSync) Run(t *Task) error {
 
     // 删除数据处理
     err = batchProcessor(*del.GetMap(), func(v *erp_entity.Member) error {
-        err := g.delete(v)
+        err := m.delete(v)
         if err != nil {
             // 这里忽略错误，否则将中断任务
             return nil
@@ -112,7 +112,7 @@ func (g MemberSync) Run(t *Task) error {
     return nil
 }
 
-func (g MemberSync) addOrUpdate(item *erp_entity.Member) error {
+func (m Member) addOrUpdate(item *erp_entity.Member) error {
 
     var memberInfo *shop_model.Member
     var err error
@@ -150,12 +150,12 @@ func (g MemberSync) addOrUpdate(item *erp_entity.Member) error {
     }
 
     if memberInfo != nil {
-        if er := g.update(item, memberInfo); er != nil {
+        if er := m.update(item, memberInfo); er != nil {
             slog.Error("memberSync updateMember", "err", err)
             return er
         }
     } else {
-        if er := g.add(item); er != nil {
+        if er := m.add(item); er != nil {
             slog.Error("memberSync addMember", "err", err)
             return er
         }
@@ -163,7 +163,7 @@ func (g MemberSync) addOrUpdate(item *erp_entity.Member) error {
     return nil
 }
 
-func (g MemberSync) add(v *erp_entity.Member) error {
+func (m Member) add(v *erp_entity.Member) error {
     areaInfo := getAreaFormCache(v.Province.String(), v.City.String(), v.District.String())
 
     nowTime := int32(time.Now().Unix())
@@ -221,7 +221,7 @@ func (g MemberSync) add(v *erp_entity.Member) error {
     return shop_query.Member.Create(&memberData)
 }
 
-func (g MemberSync) update(v *erp_entity.Member, m *shop_model.Member) error {
+func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
     areaInfo := getAreaFormCache(v.Province.String(), v.City.String(), v.District.String())
 
     nowTime := int32(time.Now().Unix())
@@ -294,7 +294,7 @@ func (g MemberSync) update(v *erp_entity.Member, m *shop_model.Member) error {
     }
 
     _, err := shop_query.Member.
-        Where(shop_query.Member.MemberID.Eq(m.MemberID)).
+        Where(shop_query.Member.MemberID.Eq(member.MemberID)).
         Select(updateCloumns...).
         Updates(&memberData)
     if err != nil {
@@ -310,8 +310,7 @@ func (g MemberSync) update(v *erp_entity.Member, m *shop_model.Member) error {
     return err
 }
 
-func (g MemberSync) delete(item *erp_entity.Member) error {
-    _ = item
+func (m Member) delete(_ *erp_entity.Member) error {
     return nil
 }
 

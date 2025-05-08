@@ -13,15 +13,15 @@ import (
     "log/slog"
 )
 
-// GoodsPriceSync 同步ERP商品到商城
-type GoodsPriceSync struct {
+// GoodsPrice 同步ERP商品到商城
+type GoodsPrice struct {
 }
 
-func (g GoodsPriceSync) GetName() string {
-    return "GoodsPriceSync"
+func (g GoodsPrice) GetName() string {
+    return "GoodsPrice"
 }
 
-func (g GoodsPriceSync) Run(t *Task) error {
+func (g GoodsPrice) Run(t *Task) error {
     defer func() {
         // 缓存数据到文件
         err := store.GoodsPriceStore.Save()
@@ -60,7 +60,7 @@ func (g GoodsPriceSync) Run(t *Task) error {
     // 统计差异总数
     t.DataCount = add.Len() + update.Len() + del.Len()
 
-    maxConcurrent := 20
+    maxConcurrent := 10
 
     // 新增数据处理
     err := batchProcessor(*add.GetMap(), func(v *erp_entity.GoodsPrice) error {
@@ -103,10 +103,11 @@ func (g GoodsPriceSync) Run(t *Task) error {
         t.DoneCount++
         return nil
     }, maxConcurrent, t.Ctx)
+
     return nil
 }
 
-func (g GoodsPriceSync) addOrUpdate(item *erp_entity.GoodsPrice) error {
+func (g GoodsPrice) addOrUpdate(item *erp_entity.GoodsPrice) error {
     shopGoods, err := shop_query.Goods.
         Where(shop_query.Goods.GoodsErpSpid.Eq(item.GoodsErpSpid)).
         Select(
@@ -119,7 +120,7 @@ func (g GoodsPriceSync) addOrUpdate(item *erp_entity.GoodsPrice) error {
         return err
     }
     if shopGoods == nil || shopGoods.PriceSync == 0 {
-        return err
+        return nil
     }
 
     slog.Debug("价格更新", "spid", item.GoodsErpSpid, "old", shopGoods.Price, "new", item.Price)
@@ -164,7 +165,7 @@ func (g GoodsPriceSync) addOrUpdate(item *erp_entity.GoodsPrice) error {
     return nil
 }
 
-func (g GoodsPriceSync) delete(goods *erp_entity.GoodsPrice) error {
+func (g GoodsPrice) delete(goods *erp_entity.GoodsPrice) error {
     // 更新价格为0
     goods.Price = 0
     goods.CostPrice = 0

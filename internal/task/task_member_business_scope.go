@@ -64,38 +64,49 @@ func (bs MemberBusinessScope) Run(t *Task) error {
     // 统计差异总数
     t.DataCount = add.Len() + update.Len() + del.Len()
 
-    // 添加
-    for _, v := range *add.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
+    maxConcurrent := 10
+
+    // 新增数据处理
+    err := batchProcessor(*add.GetMap(), func(v *erp_entity.MemberBusinessScope) error {
+        err := bs.addOrUpdate(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
             return nil
         }
-        bs.addOrUpdate(v)
         store.MemberBusinessScopeStore.Store.Set(v.ID.String(), v)
         t.DoneCount++
+        return nil
+    }, maxConcurrent, t.Ctx)
+    if err != nil {
+        return err
     }
 
-    // 更新
-    for _, v := range *update.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
+    // 更新数据处理
+    err = batchProcessor(*update.GetMap(), func(v *erp_entity.MemberBusinessScope) error {
+        err := bs.addOrUpdate(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
             return nil
         }
-        bs.addOrUpdate(v)
         store.MemberBusinessScopeStore.Store.Set(v.ID.String(), v)
         t.DoneCount++
+        return nil
+    }, maxConcurrent, t.Ctx)
+    if err != nil {
+        return err
     }
 
-    // 删除
-    for _, v := range *del.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
+    // 删除数据处理
+    err = batchProcessor(*del.GetMap(), func(v *erp_entity.MemberBusinessScope) error {
+        err := bs.delete(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
             return nil
         }
-        bs.delete(v)
         store.MemberBusinessScopeStore.Store.Delete(v.ID.String())
         t.DoneCount++
-    }
+        return nil
+    }, maxConcurrent, t.Ctx)
 
     return nil
 }
@@ -119,14 +130,14 @@ func (bs MemberBusinessScope) findMember(erpUid string) (*shop_model.Member, err
     return m, nil
 }
 
-func (bs MemberBusinessScope) addOrUpdate(item *erp_entity.MemberBusinessScope) {
+func (bs MemberBusinessScope) addOrUpdate(item *erp_entity.MemberBusinessScope) error {
     m, err := bs.findMember(item.ErpUID.String())
     if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
         slog.Error("memberBusinessScopeSync Member First err: " + err.Error())
-        return
+        return err
     }
     if m == nil {
-        return
+        return nil
     }
     //查询数据是否存在
     memberScope, err := shop_query.MemberBusinessScope.
@@ -136,22 +147,24 @@ func (bs MemberBusinessScope) addOrUpdate(item *erp_entity.MemberBusinessScope) 
         ).First()
     if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
         slog.Error("memberBusinessScopeSync MemberBusinessScope First err: " + err.Error())
-        return
+        return err
     }
     if memberScope != nil {
-        if er := bs.updateMemberScope(item, memberScope); er != nil {
+        if er := bs.update(item, memberScope); er != nil {
             slog.Error("memberBusinessScopeSync updateMemberScope err: " + er.Error())
-            return
+            return er
         }
     } else {
-        if er := bs.addMemberScope(item, m); er != nil {
+        if er := bs.add(item, m); er != nil {
             slog.Error("memberBusinessScopeSync addMemberScope err: " + er.Error())
-            return
+            return er
         }
     }
+
+    return nil
 }
 
-func (bs MemberBusinessScope) addMemberScope(v *erp_entity.MemberBusinessScope, m *shop_model.Member) error {
+func (bs MemberBusinessScope) add(v *erp_entity.MemberBusinessScope, m *shop_model.Member) error {
     memberScopeData := shop_model.MemberBusinessScope{
         MemberID:      m.MemberID,
         ErpUID:        v.ErpUID.String(),
@@ -161,7 +174,7 @@ func (bs MemberBusinessScope) addMemberScope(v *erp_entity.MemberBusinessScope, 
     return shop_query.MemberBusinessScope.Create(&memberScopeData)
 }
 
-func (bs MemberBusinessScope) updateMemberScope(v *erp_entity.MemberBusinessScope, md *shop_model.MemberBusinessScope) error {
+func (bs MemberBusinessScope) update(v *erp_entity.MemberBusinessScope, md *shop_model.MemberBusinessScope) error {
     memberScopeData := shop_model.MemberBusinessScope{
         BusinessScope: v.UserBusiness.String(),
         Medicinetype:  v.UserBusinessID.String(),
@@ -176,14 +189,14 @@ func (bs MemberBusinessScope) updateMemberScope(v *erp_entity.MemberBusinessScop
     return err
 }
 
-func (bs MemberBusinessScope) delete(item *erp_entity.MemberBusinessScope) {
+func (bs MemberBusinessScope) delete(item *erp_entity.MemberBusinessScope) error {
     m, err := bs.findMember(item.ErpUID.String())
     if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
         slog.Error("memberBusinessScopeSync Member First err: " + err.Error())
-        return
+        return err
     }
     if m == nil {
-        return
+        return nil
     }
 
     _, err = shop_query.MemberBusinessScope.
@@ -195,4 +208,6 @@ func (bs MemberBusinessScope) delete(item *erp_entity.MemberBusinessScope) {
     if err != nil {
         slog.Error("memberBusinessScopeSync delete err: " + err.Error())
     }
+
+    return err
 }

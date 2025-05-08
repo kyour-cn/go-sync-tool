@@ -17,15 +17,15 @@ import (
     "strings"
 )
 
-// GoodsSync 同步ERP商品到商城
-type GoodsSync struct {
+// Goods 同步ERP商品到商城
+type Goods struct {
 }
 
-func (g GoodsSync) GetName() string {
-    return "GoodsSync"
+func (g Goods) GetName() string {
+    return "Goods"
 }
 
-func (g GoodsSync) Run(t *Task) error {
+func (g Goods) Run(t *Task) error {
     defer func() {
         // 缓存数据到文件
         err := store.GoodsStore.Save()
@@ -64,7 +64,7 @@ func (g GoodsSync) Run(t *Task) error {
     // 统计差异总数
     t.DataCount = add.Len() + update.Len() + del.Len()
 
-    maxConcurrent := 20
+    maxConcurrent := 10
 
     // 新增数据处理
     err := batchProcessor(*add.GetMap(), func(v *erp_entity.Goods) error {
@@ -111,7 +111,7 @@ func (g GoodsSync) Run(t *Task) error {
     return nil
 }
 
-func (g GoodsSync) addOrUpdate(item *erp_entity.Goods) error {
+func (g Goods) addOrUpdate(item *erp_entity.Goods) error {
     // 查询商城里面是否存在该商品
     shopGoodsInfo, err := shop_query.Goods.
         Where(shop_query.Goods.GoodsErpSpid.Eq(item.GoodsErpSpid)).
@@ -134,7 +134,7 @@ func (g GoodsSync) addOrUpdate(item *erp_entity.Goods) error {
     return nil
 }
 
-func (g GoodsSync) delete(goods *erp_entity.Goods) error {
+func (g Goods) delete(goods *erp_entity.Goods) error {
     // 查询商城里面是否存在该商品
     _, _ = shop_query.Goods.
         Where(shop_query.Goods.GoodsErpSpid.Eq(goods.GoodsErpSpid)).
@@ -149,7 +149,7 @@ func (g GoodsSync) delete(goods *erp_entity.Goods) error {
     return nil
 }
 
-func (g GoodsSync) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Goods) error {
+func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Goods) error {
 
     attrValue := attrGoods(syncGoods)
     yddGoodsData := shop_model.Goods{
@@ -260,7 +260,7 @@ func (g GoodsSync) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.
     return nil
 }
 
-func (g GoodsSync) add(syncGoods *erp_entity.Goods) error {
+func (g Goods) add(syncGoods *erp_entity.Goods) error {
 
     attrValue := attrGoods(syncGoods)
     yddGoodsData := shop_model.Goods{

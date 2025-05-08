@@ -12,16 +12,16 @@ import (
     "log/slog"
 )
 
-// GoodsStockSync 同步ERP商品到商城
-type GoodsStockSync struct {
+// GoodsStock 同步ERP商品到商城
+type GoodsStock struct {
     IsRunning bool
 }
 
-func (g GoodsStockSync) GetName() string {
-    return "GoodsStockSync"
+func (g GoodsStock) GetName() string {
+    return "GoodsStock"
 }
 
-func (g GoodsStockSync) Run(t *Task) error {
+func (g GoodsStock) Run(t *Task) error {
 
     defer func() {
         // 缓存数据到文件
@@ -61,7 +61,7 @@ func (g GoodsStockSync) Run(t *Task) error {
     // 统计差异总数
     t.DataCount = add.Len() + update.Len() + del.Len()
 
-    maxConcurrent := 20
+    maxConcurrent := 10
 
     // 新增数据处理
     err := batchProcessor(*add.GetMap(), func(v *erp_entity.GoodsStock) error {
@@ -108,7 +108,7 @@ func (g GoodsStockSync) Run(t *Task) error {
     return nil
 }
 
-func (g GoodsStockSync) addOrUpdate(item *erp_entity.GoodsStock) error {
+func (g GoodsStock) addOrUpdate(item *erp_entity.GoodsStock) error {
 
     shopGoods, err := shop_query.Goods.
         Where(shop_query.Goods.GoodsErpSpid.Eq(item.GoodsErpSpid)).
@@ -153,7 +153,7 @@ func (g GoodsStockSync) addOrUpdate(item *erp_entity.GoodsStock) error {
     return nil
 }
 
-func (g GoodsStockSync) delete(goods *erp_entity.GoodsStock) error {
+func (g GoodsStock) delete(goods *erp_entity.GoodsStock) error {
     // 更新价格为0
     goods.GoodsStock = 0
     return g.addOrUpdate(goods)

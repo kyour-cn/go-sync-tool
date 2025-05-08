@@ -17,11 +17,11 @@ import (
 type MemberAddress struct {
 }
 
-func (g MemberAddress) GetName() string {
+func (ma MemberAddress) GetName() string {
     return "MemberAddress"
 }
 
-func (g MemberAddress) Run(t *Task) error {
+func (ma MemberAddress) Run(t *Task) error {
     defer func() {
         // 缓存数据到文件
         err := store.MemberAddressStore.Save()
@@ -60,43 +60,54 @@ func (g MemberAddress) Run(t *Task) error {
     // 统计差异总数
     t.DataCount = add.Len() + update.Len() + del.Len()
 
-    // 添加
-    for _, v := range *add.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
+    maxConcurrent := 10
+
+    // 新增数据处理
+    err := batchProcessor(*add.GetMap(), func(v *erp_entity.MemberAddress) error {
+        err := ma.addOrUpdate(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
             return nil
         }
-        addOrUpdateMemberAddress(v)
         store.MemberAddressStore.Store.Set(v.ID, v)
         t.DoneCount++
+        return nil
+    }, maxConcurrent, t.Ctx)
+    if err != nil {
+        return err
     }
 
-    // 更新
-    for _, v := range *update.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
+    // 更新数据处理
+    err = batchProcessor(*update.GetMap(), func(v *erp_entity.MemberAddress) error {
+        err := ma.addOrUpdate(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
             return nil
         }
-        addOrUpdateMemberAddress(v)
         store.MemberAddressStore.Store.Set(v.ID, v)
         t.DoneCount++
+        return nil
+    }, maxConcurrent, t.Ctx)
+    if err != nil {
+        return err
     }
 
-    // 删除
-    for _, v := range *del.GetMap() {
-        // 优先检查退出信号
-        if t.Ctx.Err() != nil {
+    // 删除数据处理
+    err = batchProcessor(*del.GetMap(), func(v *erp_entity.MemberAddress) error {
+        err := ma.delete(v)
+        if err != nil {
+            // 这里忽略错误，否则将中断任务
             return nil
         }
-        delMemberAddress(v)
         store.MemberAddressStore.Store.Delete(v.ID)
         t.DoneCount++
-    }
+        return nil
+    }, maxConcurrent, t.Ctx)
 
     return nil
 }
 
-func addOrUpdateMemberAddress(item *erp_entity.MemberAddress) {
+func (ma MemberAddress) addOrUpdate(item *erp_entity.MemberAddress) error {
 
     //查询是否存在商城表中
     memberInfo, err := shop_query.Member.
@@ -104,10 +115,10 @@ func addOrUpdateMemberAddress(item *erp_entity.MemberAddress) {
         Where(shop_query.Member.ErpUID.Eq(item.ErpUID)).First()
     if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
         slog.Error("memberAddressSync Member First err: " + err.Error())
-        return
+        return err
     }
     if memberInfo == nil { //关联会员未同步直接跳过
-        return
+        return nil
     }
 
     //查询用户地址是否存在 (同步ERP只许有一个地址)
@@ -141,20 +152,21 @@ func addOrUpdateMemberAddress(item *erp_entity.MemberAddress) {
         })
 
     if memberAddress != nil {
-        if er := updateMemberAddress(item, memberInfo, memberAddress); er != nil {
+        if er := ma.update(item, memberInfo, memberAddress); er != nil {
             slog.Error("memberAddressSync updateMemberAddress err: " + er.Error())
-            return
+            return er
         }
     } else {
-        if er := addMemberAddress(item, memberInfo); er != nil {
+        if er := ma.add(item, memberInfo); er != nil {
             slog.Error("memberAddressSync addMemberAddress err: " + er.Error())
-            return
+            return er
         }
     }
 
+    return nil
 }
 
-func addMemberAddress(v *erp_entity.MemberAddress, m *shop_model.Member) error {
+func (ma MemberAddress) add(v *erp_entity.MemberAddress, m *shop_model.Member) error {
     memberAddressData := shop_model.MemberAddress{
         MemberID:    m.MemberID,
         SiteID:      1,
@@ -171,7 +183,7 @@ func addMemberAddress(v *erp_entity.MemberAddress, m *shop_model.Member) error {
     return shop_query.MemberAddress.Create(&memberAddressData)
 }
 
-func updateMemberAddress(v *erp_entity.MemberAddress, m *shop_model.Member, md *shop_model.MemberAddress) error {
+func (ma MemberAddress) update(v *erp_entity.MemberAddress, m *shop_model.Member, md *shop_model.MemberAddress) error {
     memberAddressData := shop_model.MemberAddress{
         SiteID:      1,
         Name:        v.RealName.String(),
@@ -207,6 +219,7 @@ func updateMemberAddress(v *erp_entity.MemberAddress, m *shop_model.Member, md *
     return err
 }
 
-func delMemberAddress(goods *erp_entity.MemberAddress) {
+func (ma MemberAddress) delete(_ *erp_entity.MemberAddress) error {
 
+    return nil
 }
