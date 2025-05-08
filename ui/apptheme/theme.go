@@ -1,4 +1,4 @@
-package chapartheme
+package apptheme
 
 import (
 	"image/color"

@@ -1,26 +1,29 @@
 package main
 
 import (
-	"flag"
-	"log"
-	_ "net/http/pprof"
-	"os"
-
+	"app/internal/domain"
+	"app/internal/initialize"
 	mainApp "app/ui/app"
 	"gioui.org/app"
 	"gioui.org/unit"
+	"log"
+	"os"
 )
 
-var version = "v1.0.0"
-
+//go:generate rsrc -ico assets/images/favicon.ico -manifest assets/app.manifest -o main.syso
 func main() {
-	flag.Parse()
+
+	// 初始化
+	initialize.InitApp()
 
 	go func() {
 		var w app.Window
-		w.Option(app.Title("巨蟹ERP同步工具(B2B) "+version), app.Size(unit.Dp(1200), unit.Dp(800)))
+		w.Option(
+			app.Title(domain.AppName+" ("+domain.Version+")"),
+			app.Size(unit.Dp(900), unit.Dp(600)),
+		)
 
-		mainUI, err := mainApp.New(&w, version)
+		mainUI, err := mainApp.New(&w, domain.Version)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -30,6 +33,9 @@ func main() {
 		}
 		os.Exit(0)
 	}()
+
+	// 启动托盘图标
+	go mainApp.RunNotifyIcon()
 
 	app.Main()
 }
