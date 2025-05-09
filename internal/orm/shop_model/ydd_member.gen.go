@@ -29,7 +29,7 @@ type Member struct {
 	MemberLabel            int32   `gorm:"column:member_label;not null;comment:用户标签" json:"member_label"`                                                   // 用户标签
 	MemberLabelName        string  `gorm:"column:member_label_name;not null;comment:会员标签名称" json:"member_label_name"`                                       // 会员标签名称
 	Qq                     string  `gorm:"column:qq;not null;comment:qq号" json:"qq"`                                                                        // qq号
-	QqOpenid               string  `gorm:"column:qq_openid;not null;comment:qq互联id" json:"qq_openid"`                                                       // qq互联id
+	QqOpenid               string  `gorm:"column:qq_openid;not null;comment:qq互联id (已改为客服系统回话token)" json:"qq_openid"`                                      // qq互联id (已改为客服系统回话token)
 	WxOpenid               string  `gorm:"column:wx_openid;not null;comment:微信用户openid" json:"wx_openid"`                                                   // 微信用户openid
 	WeappOpenid            string  `gorm:"column:weapp_openid;not null;comment:微信小程序openid" json:"weapp_openid"`                                            // 微信小程序openid
 	WxUnionid              string  `gorm:"column:wx_unionid;not null;comment:微信unionid" json:"wx_unionid"`                                                  // 微信unionid
@@ -74,7 +74,7 @@ type Member struct {
 	CityID                 int32   `gorm:"column:city_id;comment:市id（增）" json:"city_id"`                                                                    // 市id（增）
 	DistrictID             int32   `gorm:"column:district_id;comment:区id（增）" json:"district_id"`                                                            // 区id（增）
 	FullAddress            string  `gorm:"column:full_address;comment:全地址（增）" json:"full_address"`                                                          // 全地址（增）
-	ErpUID                 string  `gorm:"column:erp_uid;comment:erpid（增）" json:"erp_uid"`                                                                  // erpid（增）
+	ErpUID                 string  `gorm:"column:erp_uid;not null;comment:erpid（增）" json:"erp_uid"`                                                         // erpid（增）
 	ErpCode                string  `gorm:"column:erp_code;comment:erpcode（增）" json:"erp_code"`                                                              // erpcode（增）
 	ErpName                string  `gorm:"column:erp_name;comment:客户店名（增）" json:"erp_name"`                                                                 // 客户店名（增）
 	Gid                    int32   `gorm:"column:gid" json:"gid"`

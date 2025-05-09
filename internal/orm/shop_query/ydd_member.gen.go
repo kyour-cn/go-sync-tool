@@ -155,7 +155,7 @@ type member struct {
 	MemberLabel            field.Int32   // 用户标签
 	MemberLabelName        field.String  // 会员标签名称
 	Qq                     field.String  // qq号
-	QqOpenid               field.String  // qq互联id
+	QqOpenid               field.String  // qq互联id (已改为客服系统回话token)
 	WxOpenid               field.String  // 微信用户openid
 	WeappOpenid            field.String  // 微信小程序openid
 	WxUnionid              field.String  // 微信unionid

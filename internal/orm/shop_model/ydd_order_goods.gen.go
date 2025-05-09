@@ -61,7 +61,7 @@ type OrderGoods struct {
 	CouponMoney          float64 `gorm:"column:coupon_money;not null;default:0.00;comment:优惠券金额" json:"coupon_money"`                            // 优惠券金额
 	AdjustMoney          float64 `gorm:"column:adjust_money;not null;default:0.00;comment:调整金额" json:"adjust_money"`                             // 调整金额
 	GoodsName            string  `gorm:"column:goods_name;not null;comment:商品名称" json:"goods_name"`                                              // 商品名称
-	SkuSpecFormat        string  `gorm:"column:sku_spec_format;not null;comment:sku规格格式" json:"sku_spec_format"`                                 // sku规格格式
+	SkuSpecFormat        string  `gorm:"column:sku_spec_format;comment:sku规格格式" json:"sku_spec_format"`                                          // sku规格格式
 	IsFenxiao            int32   `gorm:"column:is_fenxiao;not null;default:1" json:"is_fenxiao"`
 	UsePoint             int32   `gorm:"column:use_point;not null;comment:积分抵扣所用积分数" json:"use_point"`               // 积分抵扣所用积分数
 	PointMoney           float64 `gorm:"column:point_money;not null;default:0.00;comment:积分抵扣金额" json:"point_money"` // 积分抵扣金额

@@ -81,11 +81,11 @@ type Goods struct {
 	GoodsErpSpid       string  `gorm:"column:goods_erp_spid;not null;default:0;comment:erp商品唯一标识" json:"goods_erp_spid"`                            // erp商品唯一标识
 	IsKongxiao         int32   `gorm:"column:is_kongxiao;not null;comment:是否控销产品 0:不是 1：是--可删除、需清除代码" json:"is_kongxiao"`                           // 是否控销产品 0:不是 1：是--可删除、需清除代码
 	IsSyncGoodsState   int32   `gorm:"column:is_sync_goods_state;not null;default:1;comment:是否自动上下架 0:不是 1：是" json:"is_sync_goods_state"`           // 是否自动上下架 0:不是 1：是
-	GoodsArea          string  `gorm:"column:goods_area;comment:商品对应erp的库区" json:"goods_area"`                                                      // 商品对应erp的库区
+	GoodsArea          string  `gorm:"column:goods_area;not null;comment:商品对应erp的库区" json:"goods_area"`                                             // 商品对应erp的库区
 	GoodsAreaID        int32   `gorm:"column:goods_area_id;not null;comment:库存id" json:"goods_area_id"`                                             // 库存id
 	BarCode            string  `gorm:"column:bar_code;comment:商品条码" json:"bar_code"`                                                                // 商品条码
-	GoodsNum           string  `gorm:"column:goods_num;comment:商品编码" json:"goods_num"`                                                              // 商品编码
-	BusinessScope      string  `gorm:"column:business_scope;comment:商品属于的经营范围" json:"business_scope"`                                               // 商品属于的经营范围
+	GoodsNum           string  `gorm:"column:goods_num;not null;comment:商品编码" json:"goods_num"`                                                     // 商品编码
+	BusinessScope      string  `gorm:"column:business_scope;not null;comment:商品属于的经营范围ID" json:"business_scope"`                                    // 商品属于的经营范围ID
 	BusinessScopeName  string  `gorm:"column:business_scope_name;not null;comment:商品属于的经营范围名称" json:"business_scope_name"`                          // 商品属于的经营范围名称
 	Manufactor         string  `gorm:"column:manufactor;not null;comment:生产厂家 [new]" json:"manufactor"`                                             // 生产厂家 [new]
 	GoodsFlag          string  `gorm:"column:goods_flag;not null;comment:ERP字段 GOODS_FLAG--可删除、需清除代码" json:"goods_flag"`                            // ERP字段 GOODS_FLAG--可删除、需清除代码

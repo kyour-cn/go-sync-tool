@@ -217,7 +217,7 @@ type goods struct {
 	GoodsAreaID        field.Int32   // 库存id
 	BarCode            field.String  // 商品条码
 	GoodsNum           field.String  // 商品编码
-	BusinessScope      field.String  // 商品属于的经营范围
+	BusinessScope      field.String  // 商品属于的经营范围ID
 	BusinessScopeName  field.String  // 商品属于的经营范围名称
 	Manufactor         field.String  // 生产厂家 [new]
 	GoodsFlag          field.String  // ERP字段 GOODS_FLAG--可删除、需清除代码

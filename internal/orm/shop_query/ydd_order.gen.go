@@ -141,7 +141,6 @@ func newOrder(db *gorm.DB, opts ...gen.DOOption) order {
 	_order.Employeecode = field.NewString(tableName, "employeecode")
 	_order.SalesmanMemberID = field.NewInt32(tableName, "salesman_member_id")
 	_order.VoucherImg = field.NewString(tableName, "voucher_img")
-	_order.YcSyncTime = field.NewTime(tableName, "yc_sync_time")
 	_order.OrderGoods = orderHasManyOrderGoods{
 		db: db.Session(&gorm.Session{}),
 
@@ -294,7 +293,6 @@ type order struct {
 	Employeecode         field.String  // 开票人code
 	SalesmanMemberID     field.Int32   // 代客下单业务员id，非代客下单为0（新）
 	VoucherImg           field.String  // 凭证
-	YcSyncTime           field.Time    // 云仓同步时间
 	OrderGoods           orderHasManyOrderGoods
 
 	StaffSalesman orderHasOneStaffSalesman
@@ -431,7 +429,6 @@ func (o *order) updateTableName(table string) *order {
 	o.Employeecode = field.NewString(table, "employeecode")
 	o.SalesmanMemberID = field.NewInt32(table, "salesman_member_id")
 	o.VoucherImg = field.NewString(table, "voucher_img")
-	o.YcSyncTime = field.NewTime(table, "yc_sync_time")
 
 	o.fillFieldMap()
 
@@ -448,7 +445,7 @@ func (o *order) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *order) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 118)
+	o.fieldMap = make(map[string]field.Expr, 117)
 	o.fieldMap["order_id"] = o.OrderID
 	o.fieldMap["order_no"] = o.OrderNo
 	o.fieldMap["site_id"] = o.SiteID
@@ -562,7 +559,6 @@ func (o *order) fillFieldMap() {
 	o.fieldMap["employeecode"] = o.Employeecode
 	o.fieldMap["salesman_member_id"] = o.SalesmanMemberID
 	o.fieldMap["voucher_img"] = o.VoucherImg
-	o.fieldMap["yc_sync_time"] = o.YcSyncTime
 
 }
 

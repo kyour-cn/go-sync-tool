@@ -6,7 +6,6 @@ package shop_model
 
 import (
 	"encoding/json"
-	"time"
 )
 
 const TableNameOrder = "ydd_order"
@@ -126,7 +125,6 @@ type Order struct {
 	Employeecode         string              `gorm:"column:employeecode;not null;comment:开票人code" json:"employeecode"`                                              // 开票人code
 	SalesmanMemberID     int32               `gorm:"column:salesman_member_id;not null;comment:代客下单业务员id，非代客下单为0（新）" json:"salesman_member_id"`                     // 代客下单业务员id，非代客下单为0（新）
 	VoucherImg           string              `gorm:"column:voucher_img;comment:凭证" json:"voucher_img"`                                                              // 凭证
-	YcSyncTime           time.Time           `gorm:"column:yc_sync_time;comment:云仓同步时间" json:"yc_sync_time"`                                                        // 云仓同步时间
 	OrderGoods           []OrderGoods        `gorm:"foreignKey:order_id;references:order_id" json:"order_goods"`
 	StaffSalesman        StaffSalesman       `gorm:"foreignKey:member_id;references:salesman_member_id" json:"staff_salesman"`
 	SettlementType       OrderSettlementType `gorm:"foreignKey:ID;references:settle_type_id" json:"settlement_type"`
