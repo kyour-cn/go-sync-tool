@@ -330,7 +330,7 @@ func (o Order) refreshErpStatus() error {
             // 查询ERP未退款的商品
             var unRefundedGoods []erp_entity.SyncOrderGoods
             result = erpDb.Table(o.orderGoodsTable).
-                Where(fmt.Sprintf("status != -1 AND AND order_no = '%s'", item.OrderNo)).
+                Where(fmt.Sprintf("status != -1 AND order_no = '%s'", item.OrderNo)).
                 Select("order_no", "status").
                 Find(&erpData)
             if result.Error != nil {
@@ -390,7 +390,7 @@ func (o Order) updateOGStatus(orderNo string, status int32) error {
     result := erpDb.Exec(erpDb.ToSQL(func(tx *gorm.DB) *gorm.DB {
         return tx.Table(o.orderGoodsTable).
             Where("order_no = ?", orderNo).
-            Update("order_status", status)
+            Update("status", status)
     }))
     if result.Error != nil {
         slog.Error("更新ERP订单明细状态异常: " + result.Error.Error())
