@@ -86,6 +86,7 @@ var List = []Task{
         Label:       "订单",
         Description: "需同步到电商平台的订单",
         Type:        1,
+        Handle:      NewOrder(),
     },
 }
 
