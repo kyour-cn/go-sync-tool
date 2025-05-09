@@ -12,96 +12,94 @@ const TableNameMember = "ydd_member"
 
 // Member 系统用户表
 type Member struct {
-	MemberID               int32                 `gorm:"column:member_id;primaryKey;autoIncrement:true;comment:主键" json:"member_id"`                                      // 主键
-	SiteID                 int32                 `gorm:"column:site_id;comment:站点id" json:"site_id"`                                                                      // 站点id
-	SourceMember           int32                 `gorm:"column:source_member;not null;comment:推荐人" json:"source_member"`                                                  // 推荐人
-	FenxiaoID              int32                 `gorm:"column:fenxiao_id;not null;comment:分销商（分销有效）" json:"fenxiao_id"`                                                  // 分销商（分销有效）
-	IsFenxiao              bool                  `gorm:"column:is_fenxiao;not null;comment:是否是分销商" json:"is_fenxiao"`                                                     // 是否是分销商
-	Username               string                `gorm:"column:username;not null;comment:用户名" json:"username"`                                                            // 用户名
-	Nickname               string                `gorm:"column:nickname;not null;comment:用户昵称" json:"nickname"`                                                           // 用户昵称
-	Mobile                 string                `gorm:"column:mobile;not null;comment:手机号" json:"mobile"`                                                                // 手机号
-	Email                  string                `gorm:"column:email;not null;comment:邮箱" json:"email"`                                                                   // 邮箱
-	Password               string                `gorm:"column:password;not null;comment:用户密码（MD5）" json:"password"`                                                      // 用户密码（MD5）
-	Status                 int32                 `gorm:"column:status;not null;default:1;comment:用户状态  用户状态默认为1" json:"status"`                                           // 用户状态  用户状态默认为1
-	Headimg                string                `gorm:"column:headimg;not null;comment:用户头像" json:"headimg"`                                                             // 用户头像
-	MemberLevel            int32                 `gorm:"column:member_level;not null;comment:用户等级" json:"member_level"`                                                   // 用户等级
-	MemberLevelName        string                `gorm:"column:member_level_name;not null;comment:会员等级名称" json:"member_level_name"`                                       // 会员等级名称
-	MemberLabel            int32                 `gorm:"column:member_label;not null;comment:用户标签" json:"member_label"`                                                   // 用户标签
-	MemberLabelName        string                `gorm:"column:member_label_name;not null;comment:会员标签名称" json:"member_label_name"`                                       // 会员标签名称
-	Qq                     string                `gorm:"column:qq;not null;comment:qq号" json:"qq"`                                                                        // qq号
-	QqOpenid               string                `gorm:"column:qq_openid;not null;comment:qq互联id" json:"qq_openid"`                                                       // qq互联id
-	WxOpenid               string                `gorm:"column:wx_openid;not null;comment:微信用户openid" json:"wx_openid"`                                                   // 微信用户openid
-	WeappOpenid            string                `gorm:"column:weapp_openid;not null;comment:微信小程序openid" json:"weapp_openid"`                                            // 微信小程序openid
-	WxUnionid              string                `gorm:"column:wx_unionid;not null;comment:微信unionid" json:"wx_unionid"`                                                  // 微信unionid
-	AliOpenid              string                `gorm:"column:ali_openid;not null;comment:支付宝账户id" json:"ali_openid"`                                                    // 支付宝账户id
-	BaiduOpenid            string                `gorm:"column:baidu_openid;not null;comment:百度账户id" json:"baidu_openid"`                                                 // 百度账户id
-	ToutiaoOpenid          string                `gorm:"column:toutiao_openid;not null;comment:头条账号" json:"toutiao_openid"`                                               // 头条账号
-	DouyinOpenid           string                `gorm:"column:douyin_openid;not null;comment:抖音小程序openid" json:"douyin_openid"`                                          // 抖音小程序openid
-	LoginIP                string                `gorm:"column:login_ip;not null;comment:当前登录ip" json:"login_ip"`                                                         // 当前登录ip
-	LoginType              string                `gorm:"column:login_type;not null;default:h5;comment:当前登录的操作终端类型" json:"login_type"`                                     // 当前登录的操作终端类型
-	LoginTime              int32                 `gorm:"column:login_time;not null;comment:当前登录时间" json:"login_time"`                                                     // 当前登录时间
-	LastLoginIP            string                `gorm:"column:last_login_ip;not null;comment:上次登录ip" json:"last_login_ip"`                                               // 上次登录ip
-	LastLoginType          string                `gorm:"column:last_login_type;not null;default:h5;comment:上次登录的操作终端类型" json:"last_login_type"`                           // 上次登录的操作终端类型
-	LastLoginTime          int32                 `gorm:"column:last_login_time;not null;comment:上次登录时间" json:"last_login_time"`                                           // 上次登录时间
-	LoginNum               int32                 `gorm:"column:login_num;not null;comment:登录次数" json:"login_num"`                                                         // 登录次数
-	Realname               string                `gorm:"column:realname;not null;comment:真实姓名" json:"realname"`                                                           // 真实姓名
-	Sex                    int32                 `gorm:"column:sex;not null;comment:性别 0保密 1男 2女" json:"sex"`                                                             // 性别 0保密 1男 2女
-	Location               string                `gorm:"column:location;not null;comment:定位地址" json:"location"`                                                           // 定位地址
-	Birthday               int32                 `gorm:"column:birthday;not null;comment:出生日期" json:"birthday"`                                                           // 出生日期
-	RegTime                int32                 `gorm:"column:reg_time;not null;comment:注册时间" json:"reg_time"`                                                           // 注册时间
-	Point                  float64               `gorm:"column:point;not null;default:0.00;comment:积分" json:"point"`                                                      // 积分
-	Balance                float64               `gorm:"column:balance;not null;default:0.00;comment:余额" json:"balance"`                                                  // 余额
-	Growth                 float64               `gorm:"column:growth;not null;default:0.00;comment:成长值" json:"growth"`                                                   // 成长值
-	BalanceMoney           float64               `gorm:"column:balance_money;not null;default:0.00;comment:现金余额(可提现)" json:"balance_money"`                               // 现金余额(可提现)
-	Account5               float64               `gorm:"column:account5;not null;default:0.00;comment:账户5（改为下单时间）" json:"account5"`                                       // 账户5（改为下单时间）
-	IsAuth                 int32                 `gorm:"column:is_auth;not null;comment:是否认证" json:"is_auth"`                                                             // 是否认证
-	SignTime               int32                 `gorm:"column:sign_time;not null;default:00000000000;comment:最后一次签到时间" json:"sign_time"`                                 // 最后一次签到时间
-	SignDaysSeries         int32                 `gorm:"column:sign_days_series;not null;comment:持续签到天数" json:"sign_days_series"`                                         // 持续签到天数
-	PayPassword            string                `gorm:"column:pay_password;not null;comment:交易密码" json:"pay_password"`                                                   // 交易密码
-	OrderMoney             float64               `gorm:"column:order_money;not null;default:0.00;comment:付款后-消费金额" json:"order_money"`                                    // 付款后-消费金额
-	OrderCompleteMoney     float64               `gorm:"column:order_complete_money;not null;default:0.00;comment:订单完成-消费金额" json:"order_complete_money"`                 // 订单完成-消费金额
-	OrderNum               int32                 `gorm:"column:order_num;not null;comment:付款后-消费次数" json:"order_num"`                                                     // 付款后-消费次数
-	OrderCompleteNum       int32                 `gorm:"column:order_complete_num;not null;comment:订单完成-消费次数" json:"order_complete_num"`                                  // 订单完成-消费次数
-	BalanceWithdrawApply   float64               `gorm:"column:balance_withdraw_apply;not null;default:0.00;comment:提现中余额" json:"balance_withdraw_apply"`                 // 提现中余额
-	BalanceWithdraw        float64               `gorm:"column:balance_withdraw;not null;default:0.00;comment:已提现余额" json:"balance_withdraw"`                             // 已提现余额
-	IsDelete               bool                  `gorm:"column:is_delete;not null;comment:0正常  1已删除" json:"is_delete"`                                                    // 0正常  1已删除
-	MemberLevelType        int32                 `gorm:"column:member_level_type;not null;comment:会员卡类型 0免费卡 1付费卡" json:"member_level_type"`                              // 会员卡类型 0免费卡 1付费卡
-	LevelExpireTime        int32                 `gorm:"column:level_expire_time;not null;comment:会员卡过期时间" json:"level_expire_time"`                                      // 会员卡过期时间
-	IsEditUsername         int32                 `gorm:"column:is_edit_username;not null;comment:是否可修改用户名" json:"is_edit_username"`                                       // 是否可修改用户名
-	LoginTypeName          string                `gorm:"column:login_type_name;not null;comment:登陆类型名称" json:"login_type_name"`                                           // 登陆类型名称
-	CanReceiveRegistergift int32                 `gorm:"column:can_receive_registergift;not null;comment:是否可以领取新人礼(只针对后台注册的用户 1可以 0不可以)" json:"can_receive_registergift"` // 是否可以领取新人礼(只针对后台注册的用户 1可以 0不可以)
-	ProvinceID             int32                 `gorm:"column:province_id;comment:省id（增）" json:"province_id"`                                                            // 省id（增）
-	CityID                 int32                 `gorm:"column:city_id;comment:市id（增）" json:"city_id"`                                                                    // 市id（增）
-	DistrictID             int32                 `gorm:"column:district_id;comment:区id（增）" json:"district_id"`                                                            // 区id（增）
-	FullAddress            string                `gorm:"column:full_address;comment:全地址（增）" json:"full_address"`                                                          // 全地址（增）
-	ErpUID                 string                `gorm:"column:erp_uid;comment:erpid（增）" json:"erp_uid"`                                                                  // erpid（增）
-	ErpCode                string                `gorm:"column:erp_code;comment:erpcode（增）" json:"erp_code"`                                                              // erpcode（增）
-	ErpName                string                `gorm:"column:erp_name;comment:客户店名（增）" json:"erp_name"`                                                                 // 客户店名（增）
-	Gid                    int32                 `gorm:"column:gid" json:"gid"`
-	QualificationsImages   string                `gorm:"column:qualifications_images" json:"qualifications_images"`
-	Inputmanid             int32                 `gorm:"column:inputmanid;not null;comment:维护人ID" json:"inputmanid"`                                  // 维护人ID
-	Deptid                 int32                 `gorm:"column:deptid;not null;comment:维护人部门ID" json:"deptid"`                                        // 维护人部门ID
-	Employeename           string                `gorm:"column:employeename;not null;comment:维护人姓名" json:"employeename"`                              // 维护人姓名
-	ErpAgentid             int32                 `gorm:"column:erp_agentid;not null;comment:代理人ID" json:"erp_agentid"`                                // 代理人ID
-	Customopcode           string                `gorm:"column:customopcode;not null;comment:客户名称首字母" json:"customopcode"`                            // 客户名称首字母
-	SyncTime               int32                 `gorm:"column:sync_time;not null;comment:同步到erp的时间戳 0=未同步" json:"sync_time"`                         // 同步到erp的时间戳 0=未同步
-	MemberRemark           string                `gorm:"column:member_remark;not null;comment:后台显示备注（增）" json:"member_remark"`                        // 后台显示备注（增）
-	Employeeid             string                `gorm:"column:employeeid;not null;comment:代理人ID（增）" json:"employeeid"`                               // 代理人ID（增）
-	InviterID              int32                 `gorm:"column:inviter_id;not null;comment:推荐人id（增）" json:"inviter_id"`                               // 推荐人id（增）
-	InviteCode             string                `gorm:"column:invite_code;not null;comment:用户邀请码（增）" json:"invite_code"`                             // 用户邀请码（增）
-	QrInviteCode           string                `gorm:"column:qr_invite_code;not null;comment:邀请二维码地址（增）" json:"qr_invite_code"`                     // 邀请二维码地址（增）
-	IsNatureofbusiness     int32                 `gorm:"column:is_natureofbusiness;not null;default:1;comment:是否管控 0否 1是" json:"is_natureofbusiness"` // 是否管控 0否 1是
-	SalesmanID             int32                 `gorm:"column:salesman_id;not null;comment:业务员id" json:"salesman_id"`                                // 业务员id
-	StaffType              int32                 `gorm:"column:staff_type;not null;comment:员工类型（增）1业务员" json:"staff_type"`                            // 员工类型（增）1业务员
-	FristLoginTime         int32                 `gorm:"column:frist_login_time;not null;comment:首次登录时间" json:"frist_login_time"`                     // 首次登录时间
-	RegMobile              string                `gorm:"column:reg_mobile;comment:老客户注册时保存（未登录过）" json:"reg_mobile"`                                  // 老客户注册时保存（未登录过）
-	RegPassword            string                `gorm:"column:reg_password;comment:老客户注册时保存（未登录过）" json:"reg_password"`                              // 老客户注册时保存（未登录过）
-	AppointmenSalesmanID   int32                 `gorm:"column:appointmen_salesman_id;not null;comment:公海预约业务员id" json:"appointmen_salesman_id"`      // 公海预约业务员id
-	CreditBalance          float64               `gorm:"column:credit_balance;not null;default:0.00;comment:资信余额" json:"credit_balance"`              // 资信余额
-	CreditLimit            float64               `gorm:"column:credit_limit;not null;default:0.00;comment:资信额度" json:"credit_limit"`                  // 资信额度
-	SessionKey             string                `gorm:"column:session_key;comment:微信session_key" json:"session_key"`                                 // 微信session_key
-	MemberQualification    []MemberQualification `gorm:"foreignKey:member_id;references:member_id" json:"member_qualification"`
-	MemberAddress          []MemberAddress       `gorm:"foreignKey:member_id;references:member_id" json:"member_address"`
+	MemberID               int32   `gorm:"column:member_id;primaryKey;autoIncrement:true;comment:主键" json:"member_id"`                                      // 主键
+	SiteID                 int32   `gorm:"column:site_id;comment:站点id" json:"site_id"`                                                                      // 站点id
+	SourceMember           int32   `gorm:"column:source_member;not null;comment:推荐人" json:"source_member"`                                                  // 推荐人
+	FenxiaoID              int32   `gorm:"column:fenxiao_id;not null;comment:分销商（分销有效）" json:"fenxiao_id"`                                                  // 分销商（分销有效）
+	IsFenxiao              bool    `gorm:"column:is_fenxiao;not null;comment:是否是分销商" json:"is_fenxiao"`                                                     // 是否是分销商
+	Username               string  `gorm:"column:username;not null;comment:用户名" json:"username"`                                                            // 用户名
+	Nickname               string  `gorm:"column:nickname;not null;comment:用户昵称" json:"nickname"`                                                           // 用户昵称
+	Mobile                 string  `gorm:"column:mobile;not null;comment:手机号" json:"mobile"`                                                                // 手机号
+	Email                  string  `gorm:"column:email;not null;comment:邮箱" json:"email"`                                                                   // 邮箱
+	Password               string  `gorm:"column:password;not null;comment:用户密码（MD5）" json:"password"`                                                      // 用户密码（MD5）
+	Status                 int32   `gorm:"column:status;not null;default:1;comment:用户状态  用户状态默认为1" json:"status"`                                           // 用户状态  用户状态默认为1
+	Headimg                string  `gorm:"column:headimg;not null;comment:用户头像" json:"headimg"`                                                             // 用户头像
+	MemberLevel            int32   `gorm:"column:member_level;not null;comment:用户等级" json:"member_level"`                                                   // 用户等级
+	MemberLevelName        string  `gorm:"column:member_level_name;not null;comment:会员等级名称" json:"member_level_name"`                                       // 会员等级名称
+	MemberLabel            int32   `gorm:"column:member_label;not null;comment:用户标签" json:"member_label"`                                                   // 用户标签
+	MemberLabelName        string  `gorm:"column:member_label_name;not null;comment:会员标签名称" json:"member_label_name"`                                       // 会员标签名称
+	Qq                     string  `gorm:"column:qq;not null;comment:qq号" json:"qq"`                                                                        // qq号
+	QqOpenid               string  `gorm:"column:qq_openid;not null;comment:qq互联id" json:"qq_openid"`                                                       // qq互联id
+	WxOpenid               string  `gorm:"column:wx_openid;not null;comment:微信用户openid" json:"wx_openid"`                                                   // 微信用户openid
+	WeappOpenid            string  `gorm:"column:weapp_openid;not null;comment:微信小程序openid" json:"weapp_openid"`                                            // 微信小程序openid
+	WxUnionid              string  `gorm:"column:wx_unionid;not null;comment:微信unionid" json:"wx_unionid"`                                                  // 微信unionid
+	AliOpenid              string  `gorm:"column:ali_openid;not null;comment:支付宝账户id" json:"ali_openid"`                                                    // 支付宝账户id
+	BaiduOpenid            string  `gorm:"column:baidu_openid;not null;comment:百度账户id" json:"baidu_openid"`                                                 // 百度账户id
+	ToutiaoOpenid          string  `gorm:"column:toutiao_openid;not null;comment:头条账号" json:"toutiao_openid"`                                               // 头条账号
+	DouyinOpenid           string  `gorm:"column:douyin_openid;not null;comment:抖音小程序openid" json:"douyin_openid"`                                          // 抖音小程序openid
+	LoginIP                string  `gorm:"column:login_ip;not null;comment:当前登录ip" json:"login_ip"`                                                         // 当前登录ip
+	LoginType              string  `gorm:"column:login_type;not null;default:h5;comment:当前登录的操作终端类型" json:"login_type"`                                     // 当前登录的操作终端类型
+	LoginTime              int32   `gorm:"column:login_time;not null;comment:当前登录时间" json:"login_time"`                                                     // 当前登录时间
+	LastLoginIP            string  `gorm:"column:last_login_ip;not null;comment:上次登录ip" json:"last_login_ip"`                                               // 上次登录ip
+	LastLoginType          string  `gorm:"column:last_login_type;not null;default:h5;comment:上次登录的操作终端类型" json:"last_login_type"`                           // 上次登录的操作终端类型
+	LastLoginTime          int32   `gorm:"column:last_login_time;not null;comment:上次登录时间" json:"last_login_time"`                                           // 上次登录时间
+	LoginNum               int32   `gorm:"column:login_num;not null;comment:登录次数" json:"login_num"`                                                         // 登录次数
+	Realname               string  `gorm:"column:realname;not null;comment:真实姓名" json:"realname"`                                                           // 真实姓名
+	Sex                    int32   `gorm:"column:sex;not null;comment:性别 0保密 1男 2女" json:"sex"`                                                             // 性别 0保密 1男 2女
+	Location               string  `gorm:"column:location;not null;comment:定位地址" json:"location"`                                                           // 定位地址
+	Birthday               int32   `gorm:"column:birthday;not null;comment:出生日期" json:"birthday"`                                                           // 出生日期
+	RegTime                int32   `gorm:"column:reg_time;not null;comment:注册时间" json:"reg_time"`                                                           // 注册时间
+	Point                  float64 `gorm:"column:point;not null;default:0.00;comment:积分" json:"point"`                                                      // 积分
+	Balance                float64 `gorm:"column:balance;not null;default:0.00;comment:余额" json:"balance"`                                                  // 余额
+	Growth                 float64 `gorm:"column:growth;not null;default:0.00;comment:成长值" json:"growth"`                                                   // 成长值
+	BalanceMoney           float64 `gorm:"column:balance_money;not null;default:0.00;comment:现金余额(可提现)" json:"balance_money"`                               // 现金余额(可提现)
+	Account5               float64 `gorm:"column:account5;not null;default:0.00;comment:账户5（改为下单时间）" json:"account5"`                                       // 账户5（改为下单时间）
+	IsAuth                 int32   `gorm:"column:is_auth;not null;comment:是否认证" json:"is_auth"`                                                             // 是否认证
+	SignTime               int32   `gorm:"column:sign_time;not null;default:00000000000;comment:最后一次签到时间" json:"sign_time"`                                 // 最后一次签到时间
+	SignDaysSeries         int32   `gorm:"column:sign_days_series;not null;comment:持续签到天数" json:"sign_days_series"`                                         // 持续签到天数
+	PayPassword            string  `gorm:"column:pay_password;not null;comment:交易密码" json:"pay_password"`                                                   // 交易密码
+	OrderMoney             float64 `gorm:"column:order_money;not null;default:0.00;comment:付款后-消费金额" json:"order_money"`                                    // 付款后-消费金额
+	OrderCompleteMoney     float64 `gorm:"column:order_complete_money;not null;default:0.00;comment:订单完成-消费金额" json:"order_complete_money"`                 // 订单完成-消费金额
+	OrderNum               int32   `gorm:"column:order_num;not null;comment:付款后-消费次数" json:"order_num"`                                                     // 付款后-消费次数
+	OrderCompleteNum       int32   `gorm:"column:order_complete_num;not null;comment:订单完成-消费次数" json:"order_complete_num"`                                  // 订单完成-消费次数
+	BalanceWithdrawApply   float64 `gorm:"column:balance_withdraw_apply;not null;default:0.00;comment:提现中余额" json:"balance_withdraw_apply"`                 // 提现中余额
+	BalanceWithdraw        float64 `gorm:"column:balance_withdraw;not null;default:0.00;comment:已提现余额" json:"balance_withdraw"`                             // 已提现余额
+	IsDelete               bool    `gorm:"column:is_delete;not null;comment:0正常  1已删除" json:"is_delete"`                                                    // 0正常  1已删除
+	MemberLevelType        int32   `gorm:"column:member_level_type;not null;comment:会员卡类型 0免费卡 1付费卡" json:"member_level_type"`                              // 会员卡类型 0免费卡 1付费卡
+	LevelExpireTime        int32   `gorm:"column:level_expire_time;not null;comment:会员卡过期时间" json:"level_expire_time"`                                      // 会员卡过期时间
+	IsEditUsername         int32   `gorm:"column:is_edit_username;not null;comment:是否可修改用户名" json:"is_edit_username"`                                       // 是否可修改用户名
+	LoginTypeName          string  `gorm:"column:login_type_name;not null;comment:登陆类型名称" json:"login_type_name"`                                           // 登陆类型名称
+	CanReceiveRegistergift int32   `gorm:"column:can_receive_registergift;not null;comment:是否可以领取新人礼(只针对后台注册的用户 1可以 0不可以)" json:"can_receive_registergift"` // 是否可以领取新人礼(只针对后台注册的用户 1可以 0不可以)
+	ProvinceID             int32   `gorm:"column:province_id;comment:省id（增）" json:"province_id"`                                                            // 省id（增）
+	CityID                 int32   `gorm:"column:city_id;comment:市id（增）" json:"city_id"`                                                                    // 市id（增）
+	DistrictID             int32   `gorm:"column:district_id;comment:区id（增）" json:"district_id"`                                                            // 区id（增）
+	FullAddress            string  `gorm:"column:full_address;comment:全地址（增）" json:"full_address"`                                                          // 全地址（增）
+	ErpUID                 string  `gorm:"column:erp_uid;comment:erpid（增）" json:"erp_uid"`                                                                  // erpid（增）
+	ErpCode                string  `gorm:"column:erp_code;comment:erpcode（增）" json:"erp_code"`                                                              // erpcode（增）
+	ErpName                string  `gorm:"column:erp_name;comment:客户店名（增）" json:"erp_name"`                                                                 // 客户店名（增）
+	Gid                    int32   `gorm:"column:gid" json:"gid"`
+	QualificationsImages   string  `gorm:"column:qualifications_images" json:"qualifications_images"`
+	Inputmanid             int32   `gorm:"column:inputmanid;not null;comment:维护人ID" json:"inputmanid"`                                  // 维护人ID
+	Deptid                 int32   `gorm:"column:deptid;not null;comment:维护人部门ID" json:"deptid"`                                        // 维护人部门ID
+	Employeename           string  `gorm:"column:employeename;not null;comment:维护人姓名" json:"employeename"`                              // 维护人姓名
+	ErpAgentid             int32   `gorm:"column:erp_agentid;not null;comment:代理人ID" json:"erp_agentid"`                                // 代理人ID
+	Customopcode           string  `gorm:"column:customopcode;not null;comment:客户名称首字母" json:"customopcode"`                            // 客户名称首字母
+	SyncTime               int32   `gorm:"column:sync_time;not null;comment:同步到erp的时间戳 0=未同步" json:"sync_time"`                         // 同步到erp的时间戳 0=未同步
+	MemberRemark           string  `gorm:"column:member_remark;not null;comment:后台显示备注（增）" json:"member_remark"`                        // 后台显示备注（增）
+	Employeeid             string  `gorm:"column:employeeid;not null;comment:代理人ID（增）" json:"employeeid"`                               // 代理人ID（增）
+	InviterID              int32   `gorm:"column:inviter_id;not null;comment:推荐人id（增）" json:"inviter_id"`                               // 推荐人id（增）
+	InviteCode             string  `gorm:"column:invite_code;not null;comment:用户邀请码（增）" json:"invite_code"`                             // 用户邀请码（增）
+	QrInviteCode           string  `gorm:"column:qr_invite_code;not null;comment:邀请二维码地址（增）" json:"qr_invite_code"`                     // 邀请二维码地址（增）
+	IsNatureofbusiness     int32   `gorm:"column:is_natureofbusiness;not null;default:1;comment:是否管控 0否 1是" json:"is_natureofbusiness"` // 是否管控 0否 1是
+	SalesmanID             int32   `gorm:"column:salesman_id;not null;comment:业务员id" json:"salesman_id"`                                // 业务员id
+	StaffType              int32   `gorm:"column:staff_type;not null;comment:员工类型（增）1业务员" json:"staff_type"`                            // 员工类型（增）1业务员
+	FristLoginTime         int32   `gorm:"column:frist_login_time;not null;comment:首次登录时间" json:"frist_login_time"`                     // 首次登录时间
+	RegMobile              string  `gorm:"column:reg_mobile;comment:老客户注册时保存（未登录过）" json:"reg_mobile"`                                  // 老客户注册时保存（未登录过）
+	RegPassword            string  `gorm:"column:reg_password;comment:老客户注册时保存（未登录过）" json:"reg_password"`                              // 老客户注册时保存（未登录过）
+	AppointmenSalesmanID   int32   `gorm:"column:appointmen_salesman_id;not null;comment:公海预约业务员id" json:"appointmen_salesman_id"`      // 公海预约业务员id
+	CreditBalance          float64 `gorm:"column:credit_balance;not null;default:0.00;comment:资信余额" json:"credit_balance"`              // 资信余额
+	CreditLimit            float64 `gorm:"column:credit_limit;not null;default:0.00;comment:资信额度" json:"credit_limit"`                  // 资信额度
+	SessionKey             string  `gorm:"column:session_key;comment:微信session_key" json:"session_key"`                                 // 微信session_key
 }
 
 // MarshalBinary 支持json序列化

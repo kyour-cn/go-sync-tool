@@ -96,14 +96,14 @@ func main() {
             {
                 Name: "order_goods",
                 Relate: &[]gen_tool.TableRelate{
-                    //关联账户表
+                    // 关联表
                     {TableName: "goods", FieldName: "Goods", Type: field.HasOne, ForeignKey: "goods_id", LocalKey: "goods_id"},
                 },
             },
             {
                 Name: "order",
                 Relate: &[]gen_tool.TableRelate{
-                    //关联账户表
+                    // 关联表
                     {
                         TableName:  "order_goods",
                         FieldName:  "OrderGoods",
@@ -116,6 +116,7 @@ func main() {
                     },
                     {TableName: "staff_salesman", FieldName: "StaffSalesman", Type: field.HasOne, ForeignKey: "member_id", LocalKey: "salesman_member_id"},
                     {TableName: "order_settlement_type", FieldName: "SettlementType", Type: field.HasOne, ForeignKey: "ID", LocalKey: "settle_type_id"},
+                    {TableName: "member", FieldName: "Member", Type: field.HasOne, ForeignKey: "member_id", LocalKey: "member_id"},
                 },
             },
         },

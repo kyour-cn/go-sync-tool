@@ -130,6 +130,7 @@ type Order struct {
 	OrderGoods           []OrderGoods        `gorm:"foreignKey:order_id;references:order_id" json:"order_goods"`
 	StaffSalesman        StaffSalesman       `gorm:"foreignKey:member_id;references:salesman_member_id" json:"staff_salesman"`
 	SettlementType       OrderSettlementType `gorm:"foreignKey:ID;references:settle_type_id" json:"settlement_type"`
+	Member               Member              `gorm:"foreignKey:member_id;references:member_id" json:"member"`
 }
 
 // MarshalBinary 支持json序列化

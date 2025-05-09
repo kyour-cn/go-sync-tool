@@ -165,6 +165,12 @@ func newOrder(db *gorm.DB, opts ...gen.DOOption) order {
 		RelationField: field.NewRelation("SettlementType", "shop_model.OrderSettlementType"),
 	}
 
+	_order.Member = orderHasOneMember{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Member", "shop_model.Member"),
+	}
+
 	_order.fillFieldMap()
 
 	return _order
@@ -294,6 +300,8 @@ type order struct {
 	StaffSalesman orderHasOneStaffSalesman
 
 	SettlementType orderHasOneSettlementType
+
+	Member orderHasOneMember
 
 	fieldMap map[string]field.Expr
 }
@@ -440,7 +448,7 @@ func (o *order) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *order) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 117)
+	o.fieldMap = make(map[string]field.Expr, 118)
 	o.fieldMap["order_id"] = o.OrderID
 	o.fieldMap["order_no"] = o.OrderNo
 	o.fieldMap["site_id"] = o.SiteID
@@ -566,6 +574,8 @@ func (o order) clone(db *gorm.DB) order {
 	o.StaffSalesman.db.Statement.ConnPool = db.Statement.ConnPool
 	o.SettlementType.db = db.Session(&gorm.Session{Initialized: true})
 	o.SettlementType.db.Statement.ConnPool = db.Statement.ConnPool
+	o.Member.db = db.Session(&gorm.Session{Initialized: true})
+	o.Member.db.Statement.ConnPool = db.Statement.ConnPool
 	return o
 }
 
@@ -574,6 +584,7 @@ func (o order) replaceDB(db *gorm.DB) order {
 	o.OrderGoods.db = db.Session(&gorm.Session{})
 	o.StaffSalesman.db = db.Session(&gorm.Session{})
 	o.SettlementType.db = db.Session(&gorm.Session{})
+	o.Member.db = db.Session(&gorm.Session{})
 	return o
 }
 
@@ -820,6 +831,87 @@ func (a orderHasOneSettlementTypeTx) Count() int64 {
 }
 
 func (a orderHasOneSettlementTypeTx) Unscoped() *orderHasOneSettlementTypeTx {
+	a.tx = a.tx.Unscoped()
+	return &a
+}
+
+type orderHasOneMember struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a orderHasOneMember) Where(conds ...field.Expr) *orderHasOneMember {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a orderHasOneMember) WithContext(ctx context.Context) *orderHasOneMember {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a orderHasOneMember) Session(session *gorm.Session) *orderHasOneMember {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a orderHasOneMember) Model(m *shop_model.Order) *orderHasOneMemberTx {
+	return &orderHasOneMemberTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a orderHasOneMember) Unscoped() *orderHasOneMember {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type orderHasOneMemberTx struct{ tx *gorm.Association }
+
+func (a orderHasOneMemberTx) Find() (result *shop_model.Member, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a orderHasOneMemberTx) Append(values ...*shop_model.Member) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a orderHasOneMemberTx) Replace(values ...*shop_model.Member) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a orderHasOneMemberTx) Delete(values ...*shop_model.Member) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a orderHasOneMemberTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a orderHasOneMemberTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a orderHasOneMemberTx) Unscoped() *orderHasOneMemberTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }
