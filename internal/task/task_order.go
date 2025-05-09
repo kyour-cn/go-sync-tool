@@ -59,7 +59,6 @@ func (o Order) syncNewOrder(t *Task) error {
             shop_query.Order.OrderStatus.In(0, 1, 3),
             shop_query.Order.PromotionType.Neq("pointexchange"), //积分订单不同步
         ).
-        //Where(shop_query.Order.OrderNo.Eq("202304281432689001")).
         Find()
     if err != nil {
         slog.Error("getShopOrder orderList err: " + err.Error())
@@ -73,9 +72,9 @@ func (o Order) syncNewOrder(t *Task) error {
     for _, v := range orderList {
         orderMap.Set(v.OrderNo, v)
     }
+    orderList = nil
 
     err = batchProcessor(*orderMap.GetMap(), func(item *shop_model.Order) error {
-
         // 添加订单到ERP
         err := o.add(item)
         if err != nil {
@@ -88,34 +87,6 @@ func (o Order) syncNewOrder(t *Task) error {
     if err != nil {
         return err
     }
-
-    //returnData := make([]shop_model.Order, 0)
-    //orderData := make(map[string]shop_model.Order)
-    //orderDataGoods := make(map[string][]shop_model.OrderGoods)
-    //
-    //for _, v := range orderList {
-    //    for _, goodss := range v.OrderGoods {
-    //        orderDataGoods[v.OrderNo] = append(orderDataGoods[v.OrderNo], goodss)
-    //        v.OrderGoods = nil
-    //        orderData[v.OrderNo] = *v
-    //    }
-    //}
-    //// 订单表和订单商品进行对应
-    //for okey, order := range orderData {
-    //    for ogkey, ordergoods := range orderDataGoods {
-    //        for _, ordergood := range ordergoods {
-    //            if okey == ogkey {
-    //                price := o.getOrderPrice(orderDataGoods, okey)
-    //                order.OrderNo = ogkey
-    //                ordergood.OrderNo = ogkey
-    //                order.PayMoney = price
-    //                order.OrderGoods = append(order.OrderGoods, ordergood)
-    //            }
-    //        }
-    //
-    //    }
-    //    returnData = append(returnData, order)
-    //}
 
     return nil
 }
@@ -143,13 +114,15 @@ func (o Order) add(order *shop_model.Order) error {
         order.StaffSalesman.ErpSaleerID = order.StaffSalesman.SalesmanName
     }
 
+    slog.Info("同步新订单", "order_id", order.OrderID, "order_no", order.OrderNo)
+
     type u8 erp_entity.UTF8String
 
     orderData := map[string]any{
         "order_id":      order.OrderID,
         "order_no":      u8(order.OrderNo),
         "erp_uid":       u8(order.Member.ErpUID),
-        "pay_time":      time.Unix(int64(order.PayTime), 0).Format("2006-01-02 15:04:05"),
+        "pay_time":      time.Unix(int64(order.CreateTime), 0).Format("2006-01-02 15:04:05"),
         "order_money":   order.OrderMoney,
         "pay_money":     order.PayMoney,
         "pay_type":      u8(order.PayTypeName),
@@ -179,7 +152,7 @@ func (o Order) add(order *shop_model.Order) error {
             continue
         }
         if goods == nil || vs.Num <= 0 || goods.GoodsErpSpid == "" {
-            slog.Warn(fmt.Sprintf("订单商品数据不正确:%+v", vs))
+            slog.Debug(fmt.Sprintf("订单商品数据不正确:%+v", goods))
             continue
         }
         price := vs.RealGoodsMoney / float64(vs.Num)
@@ -196,21 +169,18 @@ func (o Order) add(order *shop_model.Order) error {
         })
     }
 
-    //if _, err = txOrder.CreateOrder(realOrderArgs); err != nil {
-    //    log.Errorf("erpSyncOrder CreateOrder err:%s,args:%+v", err, realOrderArgs)
-    //    return
-    //}
-
+    // 获取ERP数据库连接
     erpDb, ok := global.DbPool.Get("erp")
     if !ok {
         return errors.New("获取ERP数据库连接失败")
     }
 
+    // 创建订单
     result := erpDb.Exec(erpDb.ToSQL(func(tx *gorm.DB) *gorm.DB {
         return tx.Table(o.orderTable).Create(orderData)
     }))
     if result.Error != nil {
-        slog.Error(fmt.Sprintf("erpSyncOrder CreateOrder err:%s,args:%+v", result.Error, orderData))
+        slog.Error(fmt.Sprintf("ERP CreateOrder err:%s,args:%+v", result.Error, orderData))
         return nil
     }
 
@@ -221,10 +191,18 @@ func (o Order) add(order *shop_model.Order) error {
                 return tx.Table(o.orderGoodsTable).Create(og)
             }))
             if result.Error != nil {
-                slog.Error(fmt.Sprintf("erpSyncOrder CreateOrderGoods err:%s,args:%+v", result.Error, og))
-                continue
+                slog.Error(fmt.Sprintf("ERP CreateOrderGoods err:%s,args:%+v", result.Error, og))
+                return nil
             }
         }
+    }
+
+    // 修改商城数据为已同步
+    if _, er := shop_query.Order.
+        Where(shop_query.Order.OrderID.Eq(order.OrderID)).
+        Update(shop_query.Order.SyncTime, time.Now().Unix()); er != nil {
+        slog.Error("更新订单同步状态失败: " + er.Error())
+        return nil
     }
 
     return nil
@@ -252,7 +230,7 @@ func (o Order) refreshErpStatus() error {
         return errors.New("获取ERP数据库连接失败")
     }
 
-    // 将3天前的待提取[1]订单修改为已提取[2]（兼容处理，部分erp方未更新状态）
+    // 将3天前的待提取[1]订单修改为异常超时[3]（兼容处理，部分erp方未更新状态）
     lastThreeDays := time.Now().AddDate(0, 0, -3).Format("2006-01-02 15:04:05")
     result := erpDb.Exec(erpDb.ToSQL(func(tx *gorm.DB) *gorm.DB {
         return tx.Table(o.orderTable).
