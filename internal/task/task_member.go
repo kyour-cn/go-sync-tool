@@ -18,9 +18,12 @@ import (
     "time"
 )
 
-// Member 同步ERP商品到商城
-type Member struct {
+func NewMember() *Member {
+    return &Member{}
 }
+
+// Member 同步ERP商品到商城
+type Member struct{}
 
 func (m Member) GetName() string {
     return "Member"

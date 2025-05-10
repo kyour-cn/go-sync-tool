@@ -17,6 +17,10 @@ import (
     "strings"
 )
 
+func NewGoods() *Goods {
+    return &Goods{}
+}
+
 // Goods 同步ERP商品到商城
 type Goods struct {
 }

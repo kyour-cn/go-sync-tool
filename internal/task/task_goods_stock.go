@@ -12,6 +12,10 @@ import (
     "log/slog"
 )
 
+func NewGoodsStock() *GoodsStock {
+    return &GoodsStock{}
+}
+
 // GoodsStock 同步ERP商品到商城
 type GoodsStock struct {
     IsRunning bool

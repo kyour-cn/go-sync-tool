@@ -13,6 +13,10 @@ import (
     "log/slog"
 )
 
+func NewMemberBusinessScope() *MemberBusinessScope {
+    return &MemberBusinessScope{}
+}
+
 // MemberBusinessScope 同步ERP商品到商城
 type MemberBusinessScope struct {
     memberMap *safemap.Map[*shop_model.Member] // 用于临时缓存member数据

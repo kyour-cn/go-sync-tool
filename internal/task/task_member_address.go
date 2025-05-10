@@ -13,9 +13,12 @@ import (
     "log/slog"
 )
 
-// MemberAddress 同步ERP商品到商城
-type MemberAddress struct {
+func NewMemberAddress() *MemberAddress {
+    return &MemberAddress{}
 }
+
+// MemberAddress 同步ERP商品到商城
+type MemberAddress struct{}
 
 func (ma MemberAddress) GetName() string {
     return "MemberAddress"

@@ -35,51 +35,58 @@ type Handle interface {
     Run(*Task) error
 }
 
+// List 任务列表
 var List = []Task{
     {
         Name:        "goods",
         Label:       "商品资料",
         Description: "需同步到电商平台的商品基础资料",
-        Handle:      Goods{},
+        Handle:      NewGoods(),
     },
     {
         Name:        "goods_price",
         Label:       "商品价格",
         Description: "需同步到电商平台的商品价格",
-        Handle:      GoodsPrice{},
+        Handle:      NewGoodsPrice(),
         Parent:      "goods",
     },
     {
         Name:        "goods_stock",
         Label:       "商品库存",
         Description: "需同步到电商平台的商品库存",
-        Handle:      GoodsStock{},
+        Handle:      NewGoodsStock(),
         Parent:      "goods",
     },
     {
         Name:        "member",
         Label:       "客户资料",
         Description: "需同步到电商平台的客户资料",
-        Handle:      Member{},
+        Handle:      NewMember(),
     },
     {
         Name:        "member_address",
         Label:       "客户地址",
         Description: "需同步到电商平台的客户地址",
         Parent:      "member",
-        Handle:      MemberAddress{},
+        Handle:      NewMemberAddress(),
     },
     {
         Name:        "member_business_scope",
         Label:       "经营范围",
         Description: "需同步到电商平台的客户经营范围",
         Parent:      "member",
-        Handle:      MemberAddress{},
+        Handle:      NewMemberBusinessScope(),
     },
     {
         Name:        "salesman",
         Label:       "业务员",
         Description: "需同步到电商平台的客户地址",
+    },
+    {
+        Name:        "order_outbound",
+        Label:       "订单出库",
+        Description: "订单出库同步到商城将自动发货",
+        Handle:      NewOrderOutbound(),
     },
     {
         Name:        "order",

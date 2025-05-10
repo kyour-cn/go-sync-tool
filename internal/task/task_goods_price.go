@@ -13,9 +13,12 @@ import (
     "log/slog"
 )
 
-// GoodsPrice 同步ERP商品到商城
-type GoodsPrice struct {
+func NewGoodsPrice() *GoodsPrice {
+    return &GoodsPrice{}
 }
+
+// GoodsPrice 同步ERP商品到商城
+type GoodsPrice struct{}
 
 func (g GoodsPrice) GetName() string {
     return "GoodsPrice"
