@@ -21,6 +21,7 @@ var stores = []Loader{
     MemberStore,
     MemberAddressStore,
     MemberBusinessScopeStore,
+    OrderOutboundStore,
 }
 
 // 初始化各个实体存储（注意类型参数声明方式）
@@ -64,6 +65,13 @@ var (
         Store:    safemap.New[*erp_entity.MemberBusinessScope](),
         Storage:  persistence.NewStorage[[]*erp_entity.MemberBusinessScope](),
         KeyFunc:  func(mbs *erp_entity.MemberBusinessScope) string { return mbs.ID.String() },
+        FileName: "member_business_scope.dat",
+    }
+
+    OrderOutboundStore = &EntityStore[*erp_entity.OrderOutBound]{
+        Store:    safemap.New[*erp_entity.OrderOutBound](),
+        Storage:  persistence.NewStorage[[]*erp_entity.OrderOutBound](),
+        KeyFunc:  func(mbs *erp_entity.OrderOutBound) string { return mbs.OutboundNo.String() },
         FileName: "member_business_scope.dat",
     }
 )
