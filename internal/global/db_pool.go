@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-var DbPool *safemap.Map[*gorm.DB]
+var DbPool = safemap.New[*gorm.DB]()
 
 // 使用自定义logger接管gorm日志
 type dbLogWriter struct{}
@@ -29,8 +29,19 @@ func (w dbLogWriter) Printf(format string, args ...any) {
 // ConnDb 开始链接数据库（初始化）
 func ConnDb() error {
 
-	if DbPool == nil {
-		DbPool = safemap.New[*gorm.DB]()
+	if DbPool.Len() > 0 {
+		// 判断数据库连接是否正常
+		for _, v := range *DbPool.GetMap() {
+			db, err := v.DB()
+			if err != nil {
+				return err
+			}
+			err = db.Ping()
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	}
 
 	// 连接商城数据库
@@ -122,7 +133,11 @@ func ConnDb() error {
 
 func CloseDb() error {
 	// 遍历数据库连接池，关闭每个连接
-	for _, v := range DbPool.Values() {
+	dbMap := DbPool.GetMap()
+	if dbMap == nil {
+		return nil
+	}
+	for _, v := range *dbMap {
 		db, err := v.DB()
 		if err != nil {
 			return err
@@ -132,6 +147,8 @@ func CloseDb() error {
 			return err
 		}
 	}
+
+	DbPool.Clear()
 
 	return nil
 }
