@@ -99,8 +99,8 @@ var List = []Task{
 	},
 	{
 		Name:        "order",
-		Label:       "订单",
-		Description: "需同步到电商平台的订单",
+		Label:       "线上订单",
+		Description: "同步到线上订单至ERP，需创建中间表：jxkj_sync_order 和 jxkj_sync_order_goods",
 		Type:        1,
 		Handle:      NewOrder(),
 	},
@@ -364,7 +364,7 @@ func ValidateSql(name string) error {
 		}
 	}
 	if task == nil || task.VerifyStruct == nil {
-		return errors.New("改任务不支持校验")
+		return errors.New("该任务不支持SQL校验")
 	}
 
 	ctx := context.Background()

@@ -286,6 +286,10 @@ func (v *View) Layout(gtx layout.Context, theme *apptheme.Theme) layout.Dimensio
 
 					// 代码编辑器
 					layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+						// 写入类型暂不支持自定义SQL
+						if v.selectedNode == nil || v.selectedNode.Type == 1 {
+							return layout.Dimensions{}
+						}
 						return layout.Inset{
 							Top: unit.Dp(10),
 						}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
