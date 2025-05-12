@@ -382,6 +382,13 @@ func attrGoods(goods *erp_entity.Goods) string {
 			AttrValueId:   -3446,
 		},
 		{
+			AttrName:      "商品规格",
+			AttrValueName: goods.GoodsSpecs.String(),
+			AttrClassId:   -3451,
+			AttrId:        -3451,
+			AttrValueId:   -3451,
+		},
+		{
 			AttrName:      "批准文号",
 			AttrValueName: goods.AttrApprovalNumber.String(),
 			AttrClassId:   -3447,
@@ -412,13 +419,6 @@ func attrGoods(goods *erp_entity.Goods) string {
 		{
 			AttrName:      "产地",
 			AttrValueName: goods.Place.String(),
-			AttrClassId:   -3451,
-			AttrId:        -3451,
-			AttrValueId:   -3451,
-		},
-		{
-			AttrName:      "商品规格",
-			AttrValueName: goods.GoodsSpecs.String(),
 			AttrClassId:   -3451,
 			AttrId:        -3451,
 			AttrValueId:   -3451,
