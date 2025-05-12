@@ -245,7 +245,7 @@ func (v *View) Layout(gtx layout.Context, theme *apptheme.Theme) layout.Dimensio
 								return layout.Flex{Axis: layout.Horizontal, Alignment: layout.Middle}.Layout(gtx,
 									layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 										// 最大宽度
-										gtx.Constraints.Max.X = gtx.Dp(unit.Dp(200))
+										gtx.Constraints.Max.X = gtx.Dp(unit.Dp(160))
 										return v.intervalTime.Layout(gtx, theme)
 									}),
 									layout.Rigid(func(gtx layout.Context) layout.Dimensions {

@@ -88,7 +88,7 @@ var List = []Task{
 	},
 	{
 		Name:        "salesman",
-		Label:       "业务员",
+		Label:       "*业务员",
 		Description: "需同步到电商平台的客户地址",
 	},
 	{
@@ -96,6 +96,19 @@ var List = []Task{
 		Label:       "订单出库",
 		Description: "订单出库同步到商城将自动发货",
 		Handle:      NewOrderOutbound(),
+	},
+	{
+		Name:        "order_invoice",
+		Label:       "*订单发票",
+		Description: "同步订单的发票数据",
+	},
+	{
+		Name:         "member_credit",
+		Label:        "客户资信",
+		Description:  "【实验性功能】将ERP客户资信同步到平台用于下单",
+		Handle:       NewMemberCredit(),
+		VerifyStruct: erp_entity.MemberCredit{},
+		Parent:       "member",
 	},
 	{
 		Name:        "order",
