@@ -495,6 +495,13 @@ func FormatGoodsAttr(goodsAttrFormat string) map[string]string {
 			returnData["attr_country_code"] = goodsAttr.AttrValueName
 		case "产地":
 			returnData["attr_place"] = goodsAttr.AttrValueName
+
+		case "商品规格":
+			returnData["attr_goods_attr"] = goodsAttr.AttrValueName
+		case "产品批号":
+			returnData["attr_batch_number"] = goodsAttr.AttrValueName
+		case "保质期":
+			returnData["attr_shelf_life"] = goodsAttr.AttrValueName
 		}
 	}
 
