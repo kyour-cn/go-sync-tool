@@ -1,17 +1,17 @@
 package main
 
 import (
-    "app/internal/initialize"
-    "context"
-    "github.com/go-gourd/gourd/event"
+	"app/internal/initialize"
+	"context"
+	"github.com/go-gourd/gourd/event"
 )
 
 func main() {
 
-    // 初始化
-    initialize.InitApp()
+	// 初始化
+	initialize.InitApp()
 
-    event.Trigger("task.start", context.Background())
+	event.Trigger("task.start", context.Background())
 
-    select {}
+	select {}
 }
