@@ -3,7 +3,9 @@ package task
 import (
 	"app/internal/config"
 	"app/internal/global"
+	"app/internal/orm/erp_entity"
 	"app/internal/store"
+	"app/internal/tools/sync_tool"
 	"context"
 	"errors"
 	"github.com/go-gourd/gourd/event"
@@ -22,10 +24,11 @@ type Task struct {
 	Parent      string // 父级任务，会等待父级任务完成一轮才会触发
 	Ctx         context.Context
 
-	Status      bool      // 运行状态 是否运行中
-	LastRunTime time.Time // 上次运行时间
-	DataCount   int       // 数据总数
-	DoneCount   int       // 已完成数量
+	Status       bool      // 运行状态 是否运行中
+	LastRunTime  time.Time // 上次运行时间
+	DataCount    int       // 数据总数
+	DoneCount    int       // 已完成数量
+	VerifyStruct any
 }
 
 type Handle interface {
@@ -38,44 +41,50 @@ type Handle interface {
 // List 任务列表
 var List = []Task{
 	{
-		Name:        "goods",
-		Label:       "商品资料",
-		Description: "需同步到电商平台的商品基础资料",
-		Handle:      NewGoods(),
+		Name:         "goods",
+		Label:        "商品资料",
+		Description:  "需同步到电商平台的商品基础资料",
+		Handle:       NewGoods(),
+		VerifyStruct: erp_entity.Goods{},
 	},
 	{
-		Name:        "goods_price",
-		Label:       "商品价格",
-		Description: "需同步到电商平台的商品价格",
-		Handle:      NewGoodsPrice(),
-		Parent:      "goods",
+		Name:         "goods_price",
+		Label:        "商品价格",
+		Description:  "需同步到电商平台的商品价格",
+		Handle:       NewGoodsPrice(),
+		Parent:       "goods",
+		VerifyStruct: erp_entity.GoodsPrice{},
 	},
 	{
-		Name:        "goods_stock",
-		Label:       "商品库存",
-		Description: "需同步到电商平台的商品库存",
-		Handle:      NewGoodsStock(),
-		Parent:      "goods",
+		Name:         "goods_stock",
+		Label:        "商品库存",
+		Description:  "需同步到电商平台的商品库存",
+		Handle:       NewGoodsStock(),
+		Parent:       "goods",
+		VerifyStruct: erp_entity.GoodsStock{},
 	},
 	{
-		Name:        "member",
-		Label:       "客户资料",
-		Description: "需同步到电商平台的客户资料",
-		Handle:      NewMember(),
+		Name:         "member",
+		Label:        "客户资料",
+		Description:  "需同步到电商平台的客户资料",
+		Handle:       NewMember(),
+		VerifyStruct: erp_entity.Member{},
 	},
 	{
-		Name:        "member_address",
-		Label:       "客户地址",
-		Description: "需同步到电商平台的客户地址",
-		Parent:      "member",
-		Handle:      NewMemberAddress(),
+		Name:         "member_address",
+		Label:        "客户地址",
+		Description:  "需同步到电商平台的客户地址",
+		Parent:       "member",
+		Handle:       NewMemberAddress(),
+		VerifyStruct: erp_entity.MemberAddress{},
 	},
 	{
-		Name:        "member_business_scope",
-		Label:       "经营范围",
-		Description: "需同步到电商平台的客户经营范围",
-		Parent:      "member",
-		Handle:      NewMemberBusinessScope(),
+		Name:         "member_business_scope",
+		Label:        "经营范围",
+		Description:  "需同步到电商平台的客户经营范围",
+		Parent:       "member",
+		Handle:       NewMemberBusinessScope(),
+		VerifyStruct: erp_entity.MemberBusinessScope{},
 	},
 	{
 		Name:        "salesman",
@@ -342,4 +351,62 @@ func batchProcessor[T any](
 
 	wg.Wait()
 	return combinedErr
+}
+
+// ValidateSql 验证SQL字段结构
+func ValidateSql(name string) error {
+
+	var task *Task
+	for i := range List {
+		if List[i].Name == name {
+			task = &List[i]
+			break
+		}
+	}
+	if task == nil || task.VerifyStruct == nil {
+		return errors.New("改任务不支持校验")
+	}
+
+	ctx := context.Background()
+
+	// 初始化刷新配置
+	err := initConfig(ctx)
+	if err != nil {
+		return errors.New("初始化失败")
+	}
+
+	// 连接数据库
+	err = global.ConnDb()
+	if err != nil {
+		return err
+	}
+
+	// 获取数据库连接
+	erpDb, ok := global.DbPool.Get("erp")
+	if !ok {
+		return errors.New("获取ERP数据库连接失败")
+	}
+
+	db, err := erpDb.DB()
+	if err != nil {
+		return err
+	}
+	rows, err := db.QueryContext(context.TODO(), task.Config.Sql)
+	if err != nil {
+		return err
+	}
+	columns, err := rows.Columns()
+	if err != nil {
+		return err
+	}
+
+	notFound, err := sync_tool.StructFieldMatchSQL(task.VerifyStruct, columns)
+	if err != nil {
+		return err
+	}
+	if notFound != "" {
+		return errors.New(notFound)
+	}
+
+	return nil
 }

@@ -65,6 +65,29 @@ func New(theme *apptheme.Theme) *View {
 
 	leftTree := widgets.NewTreeView(leftTreeNode)
 
+	leftTree.SetOnMenuItemClick(func(node *widgets.TreeNode, item string) {
+		switch item {
+		case "校验SQL":
+			slog.Info("开始校验SQL")
+			err := task.ValidateSql(node.Identifier)
+			if err != nil {
+				// 提示框
+				params := context.WithValue(context.Background(), "modalMsg", err.Error())
+				event.Trigger("modal.message", params)
+				slog.Error("校验SQL失败：" + err.Error())
+			} else {
+				event.Trigger("tips.show", context.WithValue(context.Background(), "tipMsg", "校验SQL成功"))
+			}
+
+		case "查看说明":
+			slog.Info("查看说明")
+		case "清除缓存":
+			slog.Info("清除缓存")
+		default:
+			slog.Warn("操作不支持：" + item)
+		}
+	})
+
 	c := &View{
 		split: widgets.SplitView{
 			// Ratio:       -0.64,
