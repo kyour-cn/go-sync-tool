@@ -418,7 +418,7 @@ func attrGoods(goods *erp_entity.Goods) string {
         },
         {
             AttrName:      "商品规格",
-            AttrValueName: goods.AttrSpecs.String(),
+            AttrValueName: goods.GoodsSpecs.String(),
             AttrClassId:   -3451,
             AttrId:        -3451,
             AttrValueId:   -3451,
