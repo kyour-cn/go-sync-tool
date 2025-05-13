@@ -137,56 +137,91 @@ func (ma MemberAddress) addOrUpdate(item *erp_entity.MemberAddress) error {
 		Order(shop_query.MemberAddress.IsDefault.Desc()).
 		First()
 
-	// 如果会员没有地区信息，则重新获取
 	// 使用ERP地址信息的省市区信息获取商城的省市区信息
-	areaInfo := getAreaFormCache(item.Province.String(), item.City.String(), item.District.String())
-	memberInfo.ProvinceID = areaInfo.ProvinceID
-	memberInfo.CityID = areaInfo.CityID
-	memberInfo.DistrictID = areaInfo.DistrictID
-	memberInfo.FullAddress = areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName
+	areaInfo, _ := getAreaFormCache(item.Province.String(), item.City.String(), item.District.String())
 
-	// 更新会员地区信息
-	_, _ = shop_query.Member.
-		Where(
-			shop_query.Member.MemberID.Eq(memberInfo.MemberID),
-		).
-		Updates(shop_model.Member{
-			ProvinceID:  memberInfo.ProvinceID,
-			CityID:      memberInfo.CityID,
-			DistrictID:  memberInfo.DistrictID,
-			FullAddress: memberInfo.FullAddress,
-		})
+	// 匹配不上，不更新商城端
+	if areaInfo == nil {
+		return nil
+	}
+
+	//if areaInfo != nil {
+	//	memberInfo.ProvinceID = areaInfo.ProvinceID
+	//	memberInfo.CityID = areaInfo.CityID
+	//	memberInfo.DistrictID = areaInfo.DistrictID
+	//	memberInfo.FullAddress = areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName
+	//
+	//	// 更新会员地区信息
+	//	_, _ = shop_query.Member.
+	//		Where(
+	//			shop_query.Member.MemberID.Eq(memberInfo.MemberID),
+	//		).
+	//		Updates(shop_model.Member{
+	//			ProvinceID:  memberInfo.ProvinceID,
+	//			CityID:      memberInfo.CityID,
+	//			DistrictID:  memberInfo.DistrictID,
+	//			FullAddress: memberInfo.FullAddress,
+	//		})
+	//}
 
 	if memberAddress != nil {
-		if er := ma.update(item, memberInfo, memberAddress); er != nil {
-			slog.Error("会员地址同步 更新数据失败", "erp_uid", item.ErpUID, "err", er.Error())
-			return er
+		memberAddressData := shop_model.MemberAddress{
+			Name:        item.RealName.String(),
+			Mobile:      item.Mobile.String(),
+			Telephone:   item.Mobile.String(),
+			ProvinceID:  areaInfo.ProvinceID,
+			CityID:      areaInfo.CityID,
+			DistrictID:  areaInfo.DistrictID,
+			FullAddress: areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName,
+			Address:     item.Address.String(),
+		}
+
+		// 如果ERP手机号信息为空，则不更新
+		if memberAddress.Mobile != "" && memberAddressData.Mobile == "" {
+			memberAddressData.Mobile = memberAddress.Mobile
+			memberAddressData.Telephone = memberAddress.Mobile
+		}
+
+		_, err := shop_query.MemberAddress.
+			Where(shop_query.MemberAddress.ID.Eq(memberAddress.ID)).
+			Select(
+				shop_query.MemberAddress.Name,
+				shop_query.MemberAddress.Mobile,
+				shop_query.MemberAddress.Telephone,
+				shop_query.MemberAddress.ProvinceID,
+				shop_query.MemberAddress.CityID,
+				shop_query.MemberAddress.DistrictID,
+				shop_query.MemberAddress.FullAddress,
+				shop_query.MemberAddress.Address,
+			).
+			Updates(&memberAddressData)
+
+		if err != nil {
+			slog.Error("会员地址同步 更新数据失败", "erp_uid", item.ErpUID, "err", err.Error())
+			return err
 		}
 	} else {
-		if er := ma.add(item, memberInfo); er != nil {
-			slog.Error("会员地址同步 添加数据失败", "erp_uid", item.ErpUID, "err", er.Error())
-			return er
+		memberAddressData := shop_model.MemberAddress{
+			MemberID:    memberInfo.MemberID,
+			SiteID:      1,
+			Name:        item.RealName.String(),
+			Mobile:      item.Mobile.String(),
+			Telephone:   item.Mobile.String(),
+			ProvinceID:  areaInfo.ProvinceID,
+			CityID:      areaInfo.CityID,
+			DistrictID:  areaInfo.DistrictID,
+			FullAddress: areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName,
+			Address:     item.Address.String(),
+			IsDefault:   1,
+		}
+		err := shop_query.MemberAddress.Create(&memberAddressData)
+		if err != nil {
+			slog.Error("会员地址同步 添加数据失败", "erp_uid", item.ErpUID, "err", err)
+			return err
 		}
 	}
 
 	return nil
-}
-
-func (ma MemberAddress) add(v *erp_entity.MemberAddress, m *shop_model.Member) error {
-	memberAddressData := shop_model.MemberAddress{
-		MemberID:    m.MemberID,
-		SiteID:      1,
-		Name:        v.RealName.String(),
-		Mobile:      v.Mobile.String(),
-		Telephone:   v.Mobile.String(),
-		ProvinceID:  m.ProvinceID,
-		CityID:      m.CityID,
-		DistrictID:  m.DistrictID,
-		Address:     v.Address.String(),
-		FullAddress: m.FullAddress,
-		IsDefault:   1,
-	}
-	return shop_query.MemberAddress.Create(&memberAddressData)
 }
 
 func (ma MemberAddress) update(v *erp_entity.MemberAddress, m *shop_model.Member, md *shop_model.MemberAddress) error {

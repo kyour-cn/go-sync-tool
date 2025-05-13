@@ -171,7 +171,7 @@ func (m Member) addOrUpdate(item *erp_entity.Member) error {
 }
 
 func (m Member) add(v *erp_entity.Member) error {
-	areaInfo := getAreaFormCache(v.Province.String(), v.City.String(), v.District.String())
+	areaInfo, _ := getAreaFormCache(v.Province.String(), v.City.String(), v.District.String())
 
 	nowTime := int32(time.Now().Unix())
 
@@ -206,15 +206,18 @@ func (m Member) add(v *erp_entity.Member) error {
 		//Realname:    v.Contacts,
 		MemberLabel:            label.LabelID,
 		MemberLabelName:        label.LabelName,
-		ProvinceID:             areaInfo.ProvinceID,
-		CityID:                 areaInfo.CityID,
-		DistrictID:             areaInfo.DistrictID,
-		FullAddress:            areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName,
 		Password:               "e0145437e0c0a26c644efab6f97f2985",
 		Status:                 status,
 		RegTime:                nowTime,
 		SyncTime:               nowTime,
 		CanReceiveRegistergift: 1,
+	}
+
+	if areaInfo != nil {
+		memberData.ProvinceID = areaInfo.ProvinceID
+		memberData.CityID = areaInfo.CityID
+		memberData.DistrictID = areaInfo.DistrictID
+		memberData.FullAddress = areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName
 	}
 
 	// 是否管控
@@ -229,7 +232,7 @@ func (m Member) add(v *erp_entity.Member) error {
 }
 
 func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
-	areaInfo := getAreaFormCache(v.Province.String(), v.City.String(), v.District.String())
+	areaInfo, _ := getAreaFormCache(v.Province.String(), v.City.String(), v.District.String())
 
 	nowTime := int32(time.Now().Unix())
 
@@ -244,10 +247,6 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 		shop_query.Member.ErpName,
 		shop_query.Member.MemberLabel,
 		shop_query.Member.MemberLabelName,
-		shop_query.Member.ProvinceID,
-		shop_query.Member.CityID,
-		shop_query.Member.DistrictID,
-		shop_query.Member.FullAddress,
 		shop_query.Member.SyncTime,
 	}
 
@@ -283,11 +282,21 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 		SalesmanID:      salesmanId,
 		MemberLabel:     label.LabelID,
 		MemberLabelName: label.LabelName,
-		ProvinceID:      areaInfo.ProvinceID,
-		CityID:          areaInfo.CityID,
-		DistrictID:      areaInfo.DistrictID,
-		FullAddress:     areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName,
 		SyncTime:        nowTime,
+	}
+
+	if areaInfo != nil {
+		memberData.ProvinceID = areaInfo.ProvinceID
+		memberData.CityID = areaInfo.CityID
+		memberData.DistrictID = areaInfo.DistrictID
+		memberData.FullAddress = areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName
+
+		updateCloumns = append(updateCloumns,
+			shop_query.Member.ProvinceID,
+			shop_query.Member.CityID,
+			shop_query.Member.DistrictID,
+			shop_query.Member.FullAddress,
+		)
 	}
 
 	// 是否管控
@@ -330,18 +339,16 @@ type AreaInfo struct {
 	DistrictName string
 }
 
-func getAreaFormCache(province string, city string, district string) AreaInfo {
+func getAreaFormCache(province string, city string, district string) (*AreaInfo, error) {
 	key := "area:" + province + "_" + city + "_" + district
 	// 从缓存中获取
-	area, _ := cache.Remember(key, 300, func() (*AreaInfo, error) {
-		area := getArea(province, city, district)
-		return &area, nil
+	return cache.Remember(key, 300, func() (*AreaInfo, error) {
+		return getArea(province, city, district)
 	})
-	return *area
 }
 
 // 获取用户区域id
-func getArea(province string, city string, district string) AreaInfo {
+func getArea(province string, city string, district string) (*AreaInfo, error) {
 	areaInfo := AreaInfo{
 		ProvinceID:   0,
 		CityID:       0,
@@ -354,7 +361,7 @@ func getArea(province string, city string, district string) AreaInfo {
 	qa := shop_query.Area
 
 	// 省
-	provinceInfo, _ := qa.Where(
+	provinceInfo, err := qa.Where(
 		qa.Where(
 			qa.Where(
 				qa.Name.Like("%"+province+"%"),
@@ -369,7 +376,7 @@ func getArea(province string, city string, district string) AreaInfo {
 		areaInfo.ProvinceID = provinceInfo.ID
 		areaInfo.ProvinceName = provinceInfo.Name
 	} else {
-		return areaInfo
+		return nil, err
 	}
 
 	if city != "" {
@@ -405,7 +412,7 @@ func getArea(province string, city string, district string) AreaInfo {
 			}
 
 			// 区/县
-			districtInfo, _ := qa.Where(
+			districtInfo, err := qa.Where(
 				qa.Where(
 					qa.Where(
 						qa.Name.Like("%"+district+"%"),
@@ -420,12 +427,11 @@ func getArea(province string, city string, district string) AreaInfo {
 				areaInfo.DistrictID = districtInfo.ID
 				areaInfo.DistrictName = districtInfo.Name
 			} else {
-				//fmt.Println("区县不存在：" + district)
-				return areaInfo
+				return nil, err
 			}
 
 			// 反查市
-			cityInfo, _ := qa.Where(
+			cityInfo, err := qa.Where(
 				qa.ID.Eq(districtInfo.Pid),
 			).First()
 			if cityInfo != nil {
@@ -433,10 +439,10 @@ func getArea(province string, city string, district string) AreaInfo {
 				areaInfo.CityName = cityInfo.Name
 			}
 
-			return areaInfo
+			return nil, err
 		}
 		// 区/县
-		districtInfo, _ := qa.Where(
+		districtInfo, err := qa.Where(
 			qa.Where(
 				qa.Where(
 					qa.Name.Like("%"+district+"%"),
@@ -451,8 +457,7 @@ func getArea(province string, city string, district string) AreaInfo {
 			areaInfo.DistrictID = districtInfo.ID
 			areaInfo.DistrictName = districtInfo.Name
 		} else {
-			//fmt.Println("区县不存在：" + district)
-			return areaInfo
+			return nil, err
 		}
 	} else if district != "" { // 没有维护市，只维护区/县的情况
 
@@ -484,8 +489,7 @@ func getArea(province string, city string, district string) AreaInfo {
 			areaInfo.DistrictID = districtInfo.ID
 			areaInfo.DistrictName = districtInfo.Name
 		} else {
-			//fmt.Println("区县不存在：" + district)
-			return areaInfo
+			return nil, err
 		}
 
 		// 反查市
@@ -498,7 +502,11 @@ func getArea(province string, city string, district string) AreaInfo {
 		}
 	}
 
-	return areaInfo
+	if areaInfo.CityName == "暂无" && areaInfo.DistrictName == "暂无" {
+		return nil, errors.New("地址解析失败")
+	}
+
+	return &areaInfo, nil
 }
 
 // 获取用户标签id
