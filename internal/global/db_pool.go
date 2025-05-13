@@ -50,7 +50,7 @@ func ConnDb() error {
 		return err
 	}
 
-	shopConf.Param = "timeout=30s&readTimeout=60s&writeTimeout=60s"
+	shopConf.Param = "parseTime=True&timeout=30s&readTimeout=60s&writeTimeout=60s"
 
 	gormConfig := &gorm.Config{
 		Logger: logger.New(

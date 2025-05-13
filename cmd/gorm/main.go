@@ -65,7 +65,13 @@ func main() {
 			{Name: "order_settlement_type"},
 			{Name: "staff_salesman"},
 			{Name: "erp_invoice"},
-			{Name: "member_qualification"},
+			{
+				Name: "member_qualification",
+				Opts: []gen.ModelOpt{
+					gen.FieldType("expiration_start_date", "*time.Time"),
+					gen.FieldType("expiration_end_date", "*time.Time"),
+				},
+			},
 			{
 				Name: "erp_order_outbound",
 				Opts: []gen.ModelOpt{

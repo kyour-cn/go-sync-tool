@@ -122,6 +122,13 @@ var List = []Task{
 		Type:        1,
 		Handle:      NewOrder(),
 	},
+	{
+		Name:        "new_member",
+		Label:       "新客注册",
+		Description: "将商城端新注册并审核通过的客户资料同步到ERP用于建档，需创建中间表：jxkj_new_member 和 jxkj_new_member_qualifications",
+		Type:        1,
+		Handle:      NewMemberRegister(),
+	},
 }
 
 // Init 初始化任务

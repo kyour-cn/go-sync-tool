@@ -72,6 +72,8 @@ func (o Order) syncNewOrder(t *Task) error {
 		return nil
 	}
 
+	t.DataCount = len(orderList)
+
 	orderMap := safemap.New[*shop_model.Order]()
 	for _, v := range orderList {
 		orderMap.Set(v.OrderNo, v)
@@ -79,6 +81,11 @@ func (o Order) syncNewOrder(t *Task) error {
 	orderList = nil
 
 	err = batchProcessor(*orderMap.GetMap(), func(item *shop_model.Order) error {
+
+		slog.Debug("新订单同步至ERP", "order_id", item.OrderID, "order_no", item.OrderNo)
+
+		t.DoneCount++
+
 		// 添加订单到ERP
 		err := o.add(item)
 		if err != nil {
