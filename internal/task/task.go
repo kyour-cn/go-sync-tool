@@ -101,9 +101,11 @@ var List = []Task{
 		VerifyStruct: erp_entity.OrderOutBound{},
 	},
 	{
-		Name:        "order_invoice",
-		Label:       "*订单发票",
-		Description: "同步订单的发票数据",
+		Name:         "order_invoice",
+		Label:        "订单发票",
+		Description:  "同步订单的发票数据",
+		Handle:       NewOrderInvoice(),
+		VerifyStruct: erp_entity.OrderInvoice{},
 	},
 	{
 		Name:         "member_credit",

@@ -23,6 +23,7 @@ var stores = []Loader{
 	MemberBusinessScopeStore,
 	OrderOutboundStore,
 	MemberCreditStore,
+	OrderInvoiceStore,
 }
 
 // 初始化各个实体存储（注意类型参数声明方式）
@@ -81,6 +82,13 @@ var (
 		Storage:  persistence.NewStorage[[]*erp_entity.MemberCredit](),
 		KeyFunc:  func(mbs *erp_entity.MemberCredit) string { return mbs.ErpUID },
 		FileName: "member_credit.dat",
+	}
+
+	OrderInvoiceStore = &EntityStore[*erp_entity.OrderInvoice]{
+		Store:    safemap.New[*erp_entity.OrderInvoice](),
+		Storage:  persistence.NewStorage[[]*erp_entity.OrderInvoice](),
+		KeyFunc:  func(mbs *erp_entity.OrderInvoice) string { return mbs.InvoiceID },
+		FileName: "order_invoice.dat",
 	}
 )
 
