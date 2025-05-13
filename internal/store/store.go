@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	tempPath = "./temp"
+	tempPath = "./temp/cache"
 )
 
 // 需要初始化的存储列表
