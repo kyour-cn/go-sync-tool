@@ -59,37 +59,19 @@ func main() {
 			{Name: "config"},
 			{Name: "member_address"},
 			{Name: "member_label"},
-			{
-				Name: "member",
-				Relate: &[]gen_tool.TableRelate{
-					{
-						TableName:  "member_qualification",
-						FieldName:  "MemberQualification",
-						Type:       field.HasMany,
-						ForeignKey: "member_id",
-						LocalKey:   "member_id",
-					},
-					{
-						TableName:  "member_address",
-						FieldName:  "MemberAddress",
-						Type:       field.HasMany,
-						ForeignKey: "member_id",
-						LocalKey:   "member_id",
-					},
-				},
-			},
 			{Name: "area"},
 			{Name: "member_business_scope"},
+			{Name: "member_business_scope_row"},
+			{Name: "order_settlement_type"},
+			{Name: "staff_salesman"},
+			{Name: "erp_invoice"},
+			{Name: "member_qualification"},
 			{
 				Name: "erp_order_outbound",
 				Opts: []gen.ModelOpt{
 					gen.FieldIgnoreReg("execution_time"),
 				},
 			},
-			{Name: "member_business_scope_row"},
-			{Name: "order_settlement_type"},
-			{Name: "staff_salesman"},
-			{Name: "erp_invoice"},
 			{
 				Name: "order_goods",
 				Relate: &[]gen_tool.TableRelate{
@@ -114,6 +96,25 @@ func main() {
 					{TableName: "staff_salesman", FieldName: "StaffSalesman", Type: field.HasOne, ForeignKey: "member_id", LocalKey: "salesman_member_id"},
 					{TableName: "order_settlement_type", FieldName: "SettlementType", Type: field.HasOne, ForeignKey: "ID", LocalKey: "settle_type_id"},
 					{TableName: "member", FieldName: "Member", Type: field.HasOne, ForeignKey: "member_id", LocalKey: "member_id"},
+				},
+			},
+			{
+				Name: "member",
+				Relate: &[]gen_tool.TableRelate{
+					{
+						TableName:  "member_qualification",
+						FieldName:  "MemberQualification",
+						Type:       field.HasMany,
+						ForeignKey: "member_id",
+						LocalKey:   "member_id",
+					},
+					{
+						TableName:  "member_address",
+						FieldName:  "MemberAddress",
+						Type:       field.HasMany,
+						ForeignKey: "member_id",
+						LocalKey:   "member_id",
+					},
 				},
 			},
 		},

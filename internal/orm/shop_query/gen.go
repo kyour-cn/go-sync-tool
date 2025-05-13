@@ -28,6 +28,7 @@ var (
 	MemberBusinessScope    *memberBusinessScope
 	MemberBusinessScopeRow *memberBusinessScopeRow
 	MemberLabel            *memberLabel
+	MemberQualification    *memberQualification
 	Order                  *order
 	OrderGoods             *orderGoods
 	OrderSettlementType    *orderSettlementType
@@ -47,6 +48,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	MemberBusinessScope = &Q.MemberBusinessScope
 	MemberBusinessScopeRow = &Q.MemberBusinessScopeRow
 	MemberLabel = &Q.MemberLabel
+	MemberQualification = &Q.MemberQualification
 	Order = &Q.Order
 	OrderGoods = &Q.OrderGoods
 	OrderSettlementType = &Q.OrderSettlementType
@@ -67,6 +69,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		MemberBusinessScope:    newMemberBusinessScope(db, opts...),
 		MemberBusinessScopeRow: newMemberBusinessScopeRow(db, opts...),
 		MemberLabel:            newMemberLabel(db, opts...),
+		MemberQualification:    newMemberQualification(db, opts...),
 		Order:                  newOrder(db, opts...),
 		OrderGoods:             newOrderGoods(db, opts...),
 		OrderSettlementType:    newOrderSettlementType(db, opts...),
@@ -88,6 +91,7 @@ type Query struct {
 	MemberBusinessScope    memberBusinessScope
 	MemberBusinessScopeRow memberBusinessScopeRow
 	MemberLabel            memberLabel
+	MemberQualification    memberQualification
 	Order                  order
 	OrderGoods             orderGoods
 	OrderSettlementType    orderSettlementType
@@ -110,6 +114,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		MemberBusinessScope:    q.MemberBusinessScope.clone(db),
 		MemberBusinessScopeRow: q.MemberBusinessScopeRow.clone(db),
 		MemberLabel:            q.MemberLabel.clone(db),
+		MemberQualification:    q.MemberQualification.clone(db),
 		Order:                  q.Order.clone(db),
 		OrderGoods:             q.OrderGoods.clone(db),
 		OrderSettlementType:    q.OrderSettlementType.clone(db),
@@ -139,6 +144,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		MemberBusinessScope:    q.MemberBusinessScope.replaceDB(db),
 		MemberBusinessScopeRow: q.MemberBusinessScopeRow.replaceDB(db),
 		MemberLabel:            q.MemberLabel.replaceDB(db),
+		MemberQualification:    q.MemberQualification.replaceDB(db),
 		Order:                  q.Order.replaceDB(db),
 		OrderGoods:             q.OrderGoods.replaceDB(db),
 		OrderSettlementType:    q.OrderSettlementType.replaceDB(db),
@@ -158,6 +164,7 @@ type queryCtx struct {
 	MemberBusinessScope    IMemberBusinessScopeDo
 	MemberBusinessScopeRow IMemberBusinessScopeRowDo
 	MemberLabel            IMemberLabelDo
+	MemberQualification    IMemberQualificationDo
 	Order                  IOrderDo
 	OrderGoods             IOrderGoodsDo
 	OrderSettlementType    IOrderSettlementTypeDo
@@ -177,6 +184,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		MemberBusinessScope:    q.MemberBusinessScope.WithContext(ctx),
 		MemberBusinessScopeRow: q.MemberBusinessScopeRow.WithContext(ctx),
 		MemberLabel:            q.MemberLabel.WithContext(ctx),
+		MemberQualification:    q.MemberQualification.WithContext(ctx),
 		Order:                  q.Order.WithContext(ctx),
 		OrderGoods:             q.OrderGoods.WithContext(ctx),
 		OrderSettlementType:    q.OrderSettlementType.WithContext(ctx),
