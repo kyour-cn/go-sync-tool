@@ -118,7 +118,7 @@ func (ma MemberAddress) addOrUpdate(item *erp_entity.MemberAddress) error {
 
 	//查询是否存在商城表中
 	memberInfo, err := shop_query.Member.
-		Select().
+		Select(shop_query.Member.MemberID).
 		Where(shop_query.Member.ErpUID.Eq(item.ErpUID)).First()
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		slog.Error("查询商城会员信息失败", "err", err.Error())
@@ -143,7 +143,6 @@ func (ma MemberAddress) addOrUpdate(item *erp_entity.MemberAddress) error {
 	memberInfo.ProvinceID = areaInfo.ProvinceID
 	memberInfo.CityID = areaInfo.CityID
 	memberInfo.DistrictID = areaInfo.DistrictID
-
 	memberInfo.FullAddress = areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName
 
 	// 更新会员地区信息
@@ -178,8 +177,8 @@ func (ma MemberAddress) add(v *erp_entity.MemberAddress, m *shop_model.Member) e
 		MemberID:    m.MemberID,
 		SiteID:      1,
 		Name:        v.RealName.String(),
-		Mobile:      v.Mobile,
-		Telephone:   v.Mobile,
+		Mobile:      v.Mobile.String(),
+		Telephone:   v.Mobile.String(),
 		ProvinceID:  m.ProvinceID,
 		CityID:      m.CityID,
 		DistrictID:  m.DistrictID,
@@ -194,8 +193,8 @@ func (ma MemberAddress) update(v *erp_entity.MemberAddress, m *shop_model.Member
 	memberAddressData := shop_model.MemberAddress{
 		SiteID:      1,
 		Name:        v.RealName.String(),
-		Mobile:      v.Mobile,
-		Telephone:   v.Mobile,
+		Mobile:      v.Mobile.String(),
+		Telephone:   v.Mobile.String(),
 		ProvinceID:  m.ProvinceID,
 		CityID:      m.CityID,
 		DistrictID:  m.DistrictID,
