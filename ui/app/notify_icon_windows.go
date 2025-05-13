@@ -9,6 +9,7 @@ import (
 	"github.com/go-gourd/gourd/event"
 	"github.com/lxn/walk"
 	"log"
+	"log/slog"
 )
 
 var (
@@ -40,6 +41,7 @@ func RunNotifyIcon() {
 	// 设置托盘图标按钮事件
 	ni.MouseDown().Attach(func(x, y int, button walk.MouseButton) {
 		global.State.HideWindow = false
+		slog.Info("点击通知栏图标")
 	})
 
 	_ = ni.SetVisible(true)

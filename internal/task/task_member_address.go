@@ -121,7 +121,7 @@ func (ma MemberAddress) addOrUpdate(item *erp_entity.MemberAddress) error {
 		Select().
 		Where(shop_query.Member.ErpUID.Eq(item.ErpUID)).First()
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		slog.Error("memberAddressSync Member First err: " + err.Error())
+		slog.Error("查询商城会员信息失败", "err", err.Error())
 		return err
 	}
 	if memberInfo == nil { //关联会员未同步直接跳过
@@ -160,12 +160,12 @@ func (ma MemberAddress) addOrUpdate(item *erp_entity.MemberAddress) error {
 
 	if memberAddress != nil {
 		if er := ma.update(item, memberInfo, memberAddress); er != nil {
-			slog.Error("memberAddressSync updateMemberAddress err: " + er.Error())
+			slog.Error("会员地址同步 更新数据失败", "erp_uid", item.ErpUID, "err", er.Error())
 			return er
 		}
 	} else {
 		if er := ma.add(item, memberInfo); er != nil {
-			slog.Error("memberAddressSync addMemberAddress err: " + er.Error())
+			slog.Error("会员地址同步 添加数据失败", "erp_uid", item.ErpUID, "err", er.Error())
 			return er
 		}
 	}
