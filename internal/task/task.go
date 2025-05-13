@@ -92,10 +92,11 @@ var List = []Task{
 		Description: "需同步到电商平台的客户地址",
 	},
 	{
-		Name:        "order_outbound",
-		Label:       "订单出库",
-		Description: "订单出库同步到商城将自动发货",
-		Handle:      NewOrderOutbound(),
+		Name:         "order_outbound",
+		Label:        "订单出库",
+		Description:  "订单出库同步到商城将自动发货",
+		Handle:       NewOrderOutbound(),
+		VerifyStruct: erp_entity.OrderOutBound{},
 	},
 	{
 		Name:        "order_invoice",
