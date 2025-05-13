@@ -22,11 +22,15 @@ type MemberCredit struct {
 	IsRunning bool
 }
 
-func (g MemberCredit) GetName() string {
+func (mc MemberCredit) GetName() string {
 	return "MemberCredit"
 }
 
-func (g MemberCredit) Run(t *Task) error {
+func (MemberCredit) ClearCache() error {
+	return store.MemberCreditStore.Clear()
+}
+
+func (mc MemberCredit) Run(t *Task) error {
 
 	defer func() {
 		// 缓存数据到文件
@@ -70,7 +74,7 @@ func (g MemberCredit) Run(t *Task) error {
 
 	// 新增数据处理
 	err := batchProcessor(*add.GetMap(), func(v *erp_entity.MemberCredit) error {
-		err := g.addOrUpdate(v)
+		err := mc.addOrUpdate(v)
 		if err != nil {
 			// 这里忽略错误，否则将中断任务
 			return nil
@@ -85,7 +89,7 @@ func (g MemberCredit) Run(t *Task) error {
 
 	// 更新数据处理
 	err = batchProcessor(*update.GetMap(), func(v *erp_entity.MemberCredit) error {
-		err := g.addOrUpdate(v)
+		err := mc.addOrUpdate(v)
 		if err != nil {
 			// 这里忽略错误，否则将中断任务
 			return nil
@@ -100,7 +104,7 @@ func (g MemberCredit) Run(t *Task) error {
 
 	// 删除数据处理
 	err = batchProcessor(*del.GetMap(), func(v *erp_entity.MemberCredit) error {
-		err := g.delete(v)
+		err := mc.delete(v)
 		if err != nil {
 			// 这里忽略错误，否则将中断任务
 			return nil
@@ -113,7 +117,7 @@ func (g MemberCredit) Run(t *Task) error {
 	return nil
 }
 
-func (g MemberCredit) addOrUpdate(item *erp_entity.MemberCredit) error {
+func (mc MemberCredit) addOrUpdate(item *erp_entity.MemberCredit) error {
 
 	member, err := shop_query.Member.
 		Where(shop_query.Member.ErpUID.Eq(item.ErpUID)).
@@ -151,9 +155,9 @@ func (g MemberCredit) addOrUpdate(item *erp_entity.MemberCredit) error {
 	return nil
 }
 
-func (g MemberCredit) delete(member *erp_entity.MemberCredit) error {
+func (mc MemberCredit) delete(member *erp_entity.MemberCredit) error {
 	// 更新为0
 	member.Limit = 0
 	member.Money = 0
-	return g.addOrUpdate(member)
+	return mc.addOrUpdate(member)
 }

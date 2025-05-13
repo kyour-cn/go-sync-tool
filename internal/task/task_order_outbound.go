@@ -25,6 +25,10 @@ func (o OrderOutbound) GetName() string {
 	return "orderOutbound"
 }
 
+func (OrderOutbound) ClearCache() error {
+	return store.OrderOutboundStore.Clear()
+}
+
 func (o OrderOutbound) Run(t *Task) error {
 
 	defer func() {

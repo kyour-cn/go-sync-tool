@@ -36,6 +36,8 @@ type Handle interface {
 	GetName() string
 	// Run 执行任务入口
 	Run(*Task) error
+	// ClearCache 清理缓存
+	ClearCache() error
 }
 
 // List 任务列表
@@ -368,11 +370,11 @@ func batchProcessor[T any](
 }
 
 // ValidateSql 验证SQL字段结构
-func ValidateSql(name string) error {
+func ValidateSql(taskName string) error {
 
 	var task *Task
 	for i := range List {
-		if List[i].Name == name {
+		if List[i].Name == taskName {
 			task = &List[i]
 			break
 		}
@@ -423,4 +425,20 @@ func ValidateSql(name string) error {
 	}
 
 	return nil
+}
+
+// ClearCache 清理缓存
+func ClearCache(taskName string) error {
+	var task *Task
+	for i := range List {
+		if List[i].Name == taskName {
+			task = &List[i]
+			break
+		}
+	}
+	if task == nil {
+		return errors.New("该任务不支持此操作")
+	}
+
+	return task.Handle.ClearCache()
 }

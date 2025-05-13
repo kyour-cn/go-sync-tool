@@ -125,6 +125,11 @@ func (es *EntityStore[T]) Save() error {
 	return es.Storage.Save(es.Store.Values(), filePath)
 }
 
+func (es *EntityStore[T]) Clear() error {
+	es.Store.Clear()
+	return es.Save()
+}
+
 func Init() {
 	// 创建临时目录
 	if _, err := os.Stat(tempPath); os.IsNotExist(err) {

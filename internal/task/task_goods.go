@@ -29,6 +29,10 @@ func (g Goods) GetName() string {
 	return "Goods"
 }
 
+func (Goods) ClearCache() error {
+	return store.GoodsStore.Clear()
+}
+
 func (g Goods) Run(t *Task) error {
 	defer func() {
 		// 缓存数据到文件

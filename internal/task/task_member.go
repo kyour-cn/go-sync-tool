@@ -29,6 +29,10 @@ func (m Member) GetName() string {
 	return "Member"
 }
 
+func (Member) ClearCache() error {
+	return store.MemberStore.Clear()
+}
+
 func (m Member) Run(t *Task) error {
 	defer func() {
 		// 缓存数据到文件

@@ -26,6 +26,10 @@ func (bs MemberBusinessScope) GetName() string {
 	return "MemberBusinessScope"
 }
 
+func (MemberBusinessScope) ClearCache() error {
+	return store.MemberBusinessScopeStore.Clear()
+}
+
 func (bs MemberBusinessScope) Run(t *Task) error {
 	defer func() {
 		bs.memberMap = nil

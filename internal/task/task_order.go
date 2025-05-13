@@ -30,6 +30,10 @@ func (o Order) GetName() string {
 	return "Order"
 }
 
+func (Order) ClearCache() error {
+	return nil
+}
+
 func (o Order) Run(t *Task) error {
 
 	// 同步新订单

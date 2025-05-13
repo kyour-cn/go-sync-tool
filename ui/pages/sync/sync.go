@@ -42,7 +42,6 @@ func New(theme *apptheme.Theme) *View {
 			Identifier: node.Name,
 			MenuOptions: []string{
 				"校验SQL",
-				"查看说明",
 				"清除缓存",
 			},
 		}
@@ -78,11 +77,18 @@ func New(theme *apptheme.Theme) *View {
 			} else {
 				event.Trigger("tips.show", context.WithValue(context.Background(), "tipMsg", "校验SQL成功"))
 			}
-
-		case "查看说明":
-			slog.Info("查看说明")
 		case "清除缓存":
 			slog.Info("清除缓存")
+			err := task.ClearCache(node.Identifier)
+			if err != nil {
+				// 提示框
+				params := context.WithValue(context.Background(), "modalMsg", err.Error())
+				event.Trigger("modal.message", params)
+				slog.Error("清除缓存失败：" + err.Error())
+			} else {
+				event.Trigger("tips.show", context.WithValue(context.Background(), "tipMsg", "清除缓存成功"))
+			}
+
 		default:
 			slog.Warn("操作不支持：" + item)
 		}

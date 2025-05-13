@@ -25,6 +25,10 @@ func (g GoodsStock) GetName() string {
 	return "GoodsStock"
 }
 
+func (GoodsStock) ClearCache() error {
+	return store.GoodsStockStore.Clear()
+}
+
 func (g GoodsStock) Run(t *Task) error {
 
 	defer func() {
