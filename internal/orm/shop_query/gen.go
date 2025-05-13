@@ -30,6 +30,7 @@ var (
 	MemberLabel            *memberLabel
 	Order                  *order
 	OrderGoods             *orderGoods
+	OrderSettlementType    *orderSettlementType
 	StaffSalesman          *staffSalesman
 )
 
@@ -48,6 +49,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	MemberLabel = &Q.MemberLabel
 	Order = &Q.Order
 	OrderGoods = &Q.OrderGoods
+	OrderSettlementType = &Q.OrderSettlementType
 	StaffSalesman = &Q.StaffSalesman
 }
 
@@ -67,6 +69,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		MemberLabel:            newMemberLabel(db, opts...),
 		Order:                  newOrder(db, opts...),
 		OrderGoods:             newOrderGoods(db, opts...),
+		OrderSettlementType:    newOrderSettlementType(db, opts...),
 		StaffSalesman:          newStaffSalesman(db, opts...),
 	}
 }
@@ -87,6 +90,7 @@ type Query struct {
 	MemberLabel            memberLabel
 	Order                  order
 	OrderGoods             orderGoods
+	OrderSettlementType    orderSettlementType
 	StaffSalesman          staffSalesman
 }
 
@@ -108,6 +112,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		MemberLabel:            q.MemberLabel.clone(db),
 		Order:                  q.Order.clone(db),
 		OrderGoods:             q.OrderGoods.clone(db),
+		OrderSettlementType:    q.OrderSettlementType.clone(db),
 		StaffSalesman:          q.StaffSalesman.clone(db),
 	}
 }
@@ -136,6 +141,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		MemberLabel:            q.MemberLabel.replaceDB(db),
 		Order:                  q.Order.replaceDB(db),
 		OrderGoods:             q.OrderGoods.replaceDB(db),
+		OrderSettlementType:    q.OrderSettlementType.replaceDB(db),
 		StaffSalesman:          q.StaffSalesman.replaceDB(db),
 	}
 }
@@ -154,6 +160,7 @@ type queryCtx struct {
 	MemberLabel            IMemberLabelDo
 	Order                  IOrderDo
 	OrderGoods             IOrderGoodsDo
+	OrderSettlementType    IOrderSettlementTypeDo
 	StaffSalesman          IStaffSalesmanDo
 }
 
@@ -172,6 +179,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		MemberLabel:            q.MemberLabel.WithContext(ctx),
 		Order:                  q.Order.WithContext(ctx),
 		OrderGoods:             q.OrderGoods.WithContext(ctx),
+		OrderSettlementType:    q.OrderSettlementType.WithContext(ctx),
 		StaffSalesman:          q.StaffSalesman.WithContext(ctx),
 	}
 }

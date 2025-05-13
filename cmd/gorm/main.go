@@ -56,8 +56,9 @@ func main() {
 		Tables: []gen_tool.Table{
 			{Name: "goods_sku"},
 			{Name: "goods"},
-			//{Name: "sync_metrics"},
 			{Name: "config"},
+			{Name: "member_address"},
+			{Name: "member_label"},
 			{
 				Name: "member",
 				Relate: &[]gen_tool.TableRelate{
@@ -77,9 +78,7 @@ func main() {
 					},
 				},
 			},
-			{Name: "member_address"},
 			{Name: "area"},
-			{Name: "member_label"},
 			{Name: "member_business_scope"},
 			{
 				Name: "erp_order_outbound",
@@ -88,11 +87,9 @@ func main() {
 				},
 			},
 			{Name: "member_business_scope_row"},
-			//{Name: "order_settlement_type"},
+			{Name: "order_settlement_type"},
 			{Name: "staff_salesman"},
 			{Name: "erp_invoice"},
-			//{Name: "fenxiao"},
-			//{Name: "fenxiao_level"},
 			{
 				Name: "order_goods",
 				Relate: &[]gen_tool.TableRelate{
