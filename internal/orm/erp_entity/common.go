@@ -1,12 +1,12 @@
 package erp_entity
 
 import (
+	"app/internal/global"
 	"encoding/json"
 	"fmt"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"strings"
 	"time"
-	"unicode/utf8"
 )
 
 // UTF8String 兼容数据库字符串各种编码
@@ -15,15 +15,18 @@ type UTF8String string
 func (us *UTF8String) Scan(value interface{}) error {
 	switch v := value.(type) {
 	case []byte:
-		if utf8.ValidString(string(v)) {
-			*us = UTF8String(strings.TrimSpace(string(v)))
-		} else {
+
+		// GBK编码
+		if global.State.ErpEncoding == 1 {
 			str, err := simplifiedchinese.GBK.NewDecoder().Bytes(v)
 			if err != nil {
 				return err
 			}
-			*us = UTF8String(strings.TrimSpace(string(str)))
+			*us = UTF8String(str)
 		}
+
+		*us = UTF8String(strings.TrimSpace(us.String()))
+
 	case string:
 		*us = UTF8String(strings.TrimSpace(v))
 	case time.Time:
