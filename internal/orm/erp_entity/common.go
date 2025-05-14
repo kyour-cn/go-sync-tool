@@ -17,7 +17,7 @@ func (us *UTF8String) Scan(value interface{}) error {
 	case []byte:
 
 		// GBK编码
-		if global.State.ErpEncoding == 1 {
+		if global.State.ErpEncoding == 0 {
 			str, err := simplifiedchinese.GBK.NewDecoder().Bytes(v)
 			if err != nil {
 				return err

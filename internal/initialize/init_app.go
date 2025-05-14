@@ -1,6 +1,7 @@
 package initialize
 
 import (
+	"app/internal/config"
 	"app/internal/global"
 	"app/internal/task"
 	"log/slog"
@@ -15,6 +16,15 @@ func InitApp() {
 	}
 
 	slog.Info("应用启动，初始化中...")
+
+	// 获取应用配置
+	appConf, err := config.GetAppConfig()
+	if err != nil {
+		panic(err)
+	}
+
+	// 设置ERP编码
+	global.State.ErpEncoding = appConf.ErpEncoding
 
 	// 初始化任务进程
 	task.Init()

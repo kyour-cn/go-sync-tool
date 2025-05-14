@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"app/internal/config"
+	"app/internal/global"
 	"app/ui/apptheme"
 	"app/ui/widgets"
 	"context"
@@ -34,8 +35,8 @@ var (
 )
 
 type ConfForm struct {
+	// 项目名称
 	projectName *widgets.LabeledInput
-
 	// 商城数据库
 	shopDbType *widgets.DropDown
 	shopDbHost *widgets.LabeledInput
@@ -51,6 +52,9 @@ type ConfForm struct {
 	erpDbName *widgets.LabeledInput
 	erpDbUser *widgets.LabeledInput
 	erpDbPass *widgets.LabeledInput
+
+	// ERP编码
+	erpDbCode *widgets.DropDown
 }
 
 func New(theme *apptheme.Theme) *View {
@@ -147,6 +151,12 @@ func New(theme *apptheme.Theme) *View {
 				MinLabelWidth:  unit.Dp(80),
 				Editor:         widgets.NewPatternEditor(),
 			},
+
+			erpDbCode: widgets.NewDropDown(
+				theme,
+				widgets.NewDropDownOption("GBK").WithValue("0"),
+				widgets.NewDropDownOption("UTF8").WithValue("1"),
+			),
 		},
 	}
 
@@ -181,6 +191,7 @@ func New(theme *apptheme.Theme) *View {
 	}
 
 	c.confForm.projectName.SetText(appconf.ProjectName)
+	c.confForm.erpDbCode.SetSelectedByValue(strconv.Itoa(appconf.ErpEncoding))
 
 	return c
 }
@@ -223,6 +234,8 @@ func (v *View) Save() {
 	}
 
 	appconf.ProjectName = v.confForm.projectName.Text()
+	appconf.ErpEncoding, _ = strconv.Atoi(v.confForm.erpDbCode.GetSelected().Value)
+	global.State.ErpEncoding = appconf.ErpEncoding
 	err = config.SetAppConfig(appconf)
 	if err != nil {
 		slog.Error("Set app config error: " + err.Error())
@@ -378,7 +391,6 @@ func (v *View) Layout(gtx layout.Context, theme *apptheme.Theme) layout.Dimensio
 						layout.Flexed(.5, func(gtx C) D {
 							return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 								layout.Rigid(func(gtx C) D {
-
 									return subFormInset.Layout(gtx, func(gtx C) D {
 										return layout.Flex{
 											Axis:      layout.Horizontal,
@@ -390,7 +402,6 @@ func (v *View) Layout(gtx layout.Context, theme *apptheme.Theme) layout.Dimensio
 											}),
 											layout.Rigid(func(gtx C) D {
 												return v.confForm.erpDbType.Layout(gtx, theme)
-
 											}),
 										)
 									})
@@ -403,6 +414,22 @@ func (v *View) Layout(gtx layout.Context, theme *apptheme.Theme) layout.Dimensio
 								layout.Rigid(func(gtx C) D {
 									return subFormInset.Layout(gtx, func(gtx C) D {
 										return v.confForm.erpDbUser.Layout(gtx, theme)
+									})
+								}),
+								layout.Rigid(func(gtx C) D {
+									return subFormInset.Layout(gtx, func(gtx C) D {
+										return layout.Flex{
+											Axis:      layout.Horizontal,
+											Alignment: layout.Middle,
+										}.Layout(gtx,
+											layout.Rigid(func(gtx C) D {
+												gtx.Constraints.Min.X = gtx.Dp(85)
+												return material.Label(theme.Material(), theme.TextSize, "字符编码").Layout(gtx)
+											}),
+											layout.Rigid(func(gtx C) D {
+												return v.confForm.erpDbCode.Layout(gtx, theme)
+											}),
+										)
 									})
 								}),
 							)
