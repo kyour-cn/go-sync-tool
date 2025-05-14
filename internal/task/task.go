@@ -4,6 +4,7 @@ import (
 	"app/internal/config"
 	"app/internal/global"
 	"app/internal/orm/erp_entity"
+	"app/internal/orm/shop_query"
 	"app/internal/store"
 	"app/internal/tools/sync_tool"
 	"context"
@@ -293,6 +294,13 @@ func startOne(item *Task) {
 		return
 	}
 
+	_, err := shop_query.Config.
+		Where(shop_query.Config.ConfigKey.Eq("API_CONFIG")).
+		Update(shop_query.Config.ModifyTime, time.Now().Unix())
+	if err != nil {
+		slog.Error("更新配置同步时间失败: " + err.Error())
+	}
+
 	// 修改状态和同步时间
 	item.Status = true
 	item.LastRunTime = time.Now()
@@ -300,7 +308,7 @@ func startOne(item *Task) {
 	slog.Info("开始运行任务："+item.Label, "name", item.Name)
 
 	// 运行业务代码
-	err := item.Handle.Run(item)
+	err = item.Handle.Run(item)
 	if err != nil {
 		slog.Error("任务运行失败："+item.Label, "name", item.Name, "err", err)
 	}
