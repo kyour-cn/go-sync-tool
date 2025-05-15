@@ -23,9 +23,11 @@ func (us *UTF8String) Scan(value interface{}) error {
 				return err
 			}
 			*us = UTF8String(str)
+		} else {
+			*us = UTF8String(v)
 		}
 
-		*us = UTF8String(strings.TrimSpace(us.String()))
+		*us = UTF8String(strings.TrimSpace(string(*us)))
 
 	case string:
 		*us = UTF8String(strings.TrimSpace(v))
