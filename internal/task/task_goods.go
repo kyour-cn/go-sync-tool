@@ -361,35 +361,86 @@ func attrGoods(goods *erp_entity.Goods) string {
 		AttrValueId   int32  `json:"attr_value_id"`
 		Sort          int32  `json:"sort"`
 	}
-
-	// 修复后的属性特征列表
-	attributes := []struct {
-		name     string
-		getValue func(*erp_entity.Goods) string
-	}{
-		{name: "效期", getValue: func(g *erp_entity.Goods) string { return g.AttrValidity.String() }},
-		{name: "生产日期", getValue: func(g *erp_entity.Goods) string { return g.FactoryDate.String() }},
-		{name: "规格", getValue: func(g *erp_entity.Goods) string { return g.AttrSpecs.String() }},
-		{name: "商品规格", getValue: func(g *erp_entity.Goods) string { return g.GoodsSpecs.String() }},
-		{name: "批准文号", getValue: func(g *erp_entity.Goods) string { return g.AttrApprovalNumber.String() }},
-		{name: "剂型", getValue: func(g *erp_entity.Goods) string { return g.AttrDosageForm.String() }},
-		{name: "生产厂家", getValue: func(g *erp_entity.Goods) string { return g.AttrFactory.String() }},
-		{name: "国家码", getValue: func(g *erp_entity.Goods) string { return g.AttrCountryCode.String() }},
-		{name: "产地", getValue: func(g *erp_entity.Goods) string { return g.Place.String() }},
-		{name: "保质期", getValue: func(g *erp_entity.Goods) string { return g.AttrShelfLife.String() }},
-		{name: "产品批号", getValue: func(g *erp_entity.Goods) string { return g.GoodsBatch.String() }},
-	}
-
-	m := make([]Attr, len(attributes))
-	for i, attr := range attributes {
-		m[i] = Attr{
-			AttrName:      attr.name,
-			AttrValueName: attr.getValue(goods),
-			AttrClassId:   int32(i),
-			AttrId:        int32(i),
-			AttrValueId:   int32(i),
+	m := []Attr{
+		{
+			AttrName:      "效期",
+			AttrValueName: goods.AttrValidity.String(),
+			AttrClassId:   -3444,
+			AttrId:        -3444,
+			AttrValueId:   -3444,
 			Sort:          0,
-		}
+		},
+		{
+			AttrName:      "生产日期",
+			AttrValueName: goods.FactoryDate.String(),
+			AttrClassId:   -3445,
+			AttrId:        -3445,
+			AttrValueId:   -3445,
+			Sort:          0,
+		},
+		{
+			AttrName:      "规格",
+			AttrValueName: goods.AttrSpecs.String(),
+			AttrClassId:   -3446,
+			AttrId:        -3446,
+			AttrValueId:   -3446,
+		},
+		{
+			AttrName:      "商品规格",
+			AttrValueName: goods.GoodsSpecs.String(),
+			AttrClassId:   -3451,
+			AttrId:        -3451,
+			AttrValueId:   -3451,
+		},
+		{
+			AttrName:      "批准文号",
+			AttrValueName: goods.AttrApprovalNumber.String(),
+			AttrClassId:   -3447,
+			AttrId:        -3447,
+			AttrValueId:   -3447,
+		},
+		{
+			AttrName:      "剂型",
+			AttrValueName: goods.AttrDosageForm.String(),
+			AttrClassId:   -3448,
+			AttrId:        -3448,
+			AttrValueId:   -3448,
+		},
+		{
+			AttrName:      "生产厂家",
+			AttrValueName: goods.AttrFactory.String(),
+			AttrClassId:   -3449,
+			AttrId:        -3449,
+			AttrValueId:   -3449,
+		},
+		{
+			AttrName:      "国家码",
+			AttrValueName: goods.AttrCountryCode.String(),
+			AttrClassId:   -3450,
+			AttrId:        -3450,
+			AttrValueId:   -3450,
+		},
+		{
+			AttrName:      "产地",
+			AttrValueName: goods.Place.String(),
+			AttrClassId:   -3451,
+			AttrId:        -3451,
+			AttrValueId:   -3451,
+		},
+		{
+			AttrName:      "保质期",
+			AttrValueName: goods.AttrShelfLife.String(),
+			AttrClassId:   -3452,
+			AttrId:        -3452,
+			AttrValueId:   -3452,
+		},
+		{
+			AttrName:      "产品批号",
+			AttrValueName: goods.GoodsBatch.String(),
+			AttrClassId:   -3453,
+			AttrId:        -3453,
+			AttrValueId:   -3453,
+		},
 	}
 
 	bytes, _ := json.Marshal(m)
