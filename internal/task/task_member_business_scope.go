@@ -71,6 +71,9 @@ func (bs MemberBusinessScope) Run(t *Task) error {
 
 	// 统计差异总数
 	t.DataCount = add.Len() + update.Len() + del.Len()
+	if t.DataCount == 0 {
+		return nil
+	}
 
 	maxConcurrent := 10
 
@@ -115,6 +118,71 @@ func (bs MemberBusinessScope) Run(t *Task) error {
 		t.DoneCount++
 		return nil
 	}, maxConcurrent, t.Ctx)
+
+	// 添加经营类型到Row
+	bsRows, err := shop_query.MemberBusinessScopeRow.Distinct(shop_query.MemberBusinessScopeRow.TypeID).Find()
+	if err != nil {
+		slog.Error("MemberBusinessScopeRow Distinct First", "err", err)
+		return err
+	}
+	bsTypeIDs := make([]string, 0, len(bsRows))
+	for _, bs := range bsRows {
+		bsTypeIDs = append(bsTypeIDs, bs.TypeID)
+	}
+	memberScopes, err := shop_query.MemberBusinessScope.
+		Select(shop_query.MemberBusinessScope.BusinessScope, shop_query.MemberBusinessScope.Medicinetype).
+		Group(shop_query.MemberBusinessScope.Medicinetype).
+		Where(
+			shop_query.MemberBusinessScope.Medicinetype.NotIn(bsTypeIDs...),
+			shop_query.MemberBusinessScope.Medicinetype.Neq(""),
+		).Find()
+	if len(memberScopes) > 0 {
+		newBsRows := make([]*shop_model.MemberBusinessScopeRow, 0, len(memberScopes))
+		for _, ms := range memberScopes {
+			newBsRows = append(newBsRows, &shop_model.MemberBusinessScopeRow{
+				Name:   ms.BusinessScope,
+				TypeID: ms.Medicinetype,
+			})
+		}
+		if er := shop_query.MemberBusinessScopeRow.CreateInBatches(newBsRows, 50); er != nil {
+			slog.Error("MemberBusinessScopeRow Create", "err", err)
+			return err
+		}
+	}
+
+	// 商品经营类型
+	bsRows, err = shop_query.MemberBusinessScopeRow.Distinct(shop_query.MemberBusinessScopeRow.TypeID).Find()
+	if err != nil {
+		slog.Error("MemberBusinessScopeRow Distinct First", "err", err)
+		return err
+	}
+
+	bsTypeIDs = make([]string, 0, len(bsRows))
+	for _, bs := range bsRows {
+		bsTypeIDs = append(bsTypeIDs, bs.TypeID)
+	}
+
+	goodsScopes, err := shop_query.Goods.
+		Select(shop_query.Goods.BusinessScope, shop_query.Goods.BusinessScope).
+		Group(shop_query.Goods.BusinessScope).
+		Where(
+			shop_query.Goods.BusinessScope.NotIn(bsTypeIDs...),
+			shop_query.Goods.BusinessScope.Neq(""),
+		).Find()
+
+	if len(goodsScopes) > 0 {
+		newBsRows := make([]*shop_model.MemberBusinessScopeRow, 0, len(memberScopes))
+		for _, ms := range goodsScopes {
+			newBsRows = append(newBsRows, &shop_model.MemberBusinessScopeRow{
+				Name:   ms.BusinessScopeName,
+				TypeID: ms.BusinessScope,
+			})
+		}
+		if er := shop_query.MemberBusinessScopeRow.CreateInBatches(newBsRows, 50); er != nil {
+			slog.Error("MemberBusinessScopeRow Create", "err", err)
+			return err
+		}
+	}
 
 	return nil
 }
