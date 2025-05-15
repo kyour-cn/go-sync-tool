@@ -31,7 +31,7 @@ func (conf DbConfig) GenerateDsn() string {
 			dsnParam = "?" + conf.Param
 		}
 		dsnF := "%s:%s@(%s:%d)/%s%s"
-		dsn = fmt.Sprintf(dsnF, conf.User, url.QueryEscape(conf.Pass), conf.Host, conf.Port, conf.Database, dsnParam)
+		dsn = fmt.Sprintf(dsnF, conf.User, conf.Pass, conf.Host, conf.Port, conf.Database, dsnParam)
 	} else if conf.Type == "sqlserver" {
 		if conf.Param != "" {
 			dsnParam = "&" + conf.Param
