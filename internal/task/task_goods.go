@@ -161,7 +161,8 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 
 	attrValue := attrGoods(syncGoods)
 	yddGoodsData := shop_model.Goods{
-		GoodsName:         syncGoods.GoodsName.String(),
+		// 更新时不修改名称，因为电商可能会自定义
+		//GoodsName:         syncGoods.GoodsName.String(),
 		Currencyname:      syncGoods.GoodsNickname.String(), // 通用名
 		GoodsAttrFormat:   attrValue,
 		Unit:              syncGoods.Unit.String(),
