@@ -81,7 +81,7 @@ func (o MemberRegister) Run(t *Task) error {
 			City:       erp_entity.UTF8String(addressArr[1]),
 			District:   erp_entity.UTF8String(addressArr[2]),
 			Address:    "",
-			SyncTime:   erp_entity.UTF8String(nowTime.String()),
+			SyncTime:   erp_entity.UTF8String(nowTime.Format("2006-01-02 15:04:05")),
 		}
 		if len(member.MemberAddress) > 0 {
 			newMember.Address = erp_entity.UTF8String(member.MemberAddress[0].Address)
