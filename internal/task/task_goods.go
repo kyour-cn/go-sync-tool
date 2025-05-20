@@ -372,6 +372,13 @@ func attrGoods(goods *erp_entity.Goods) string {
 			Sort:          0,
 		},
 		{
+			AttrName:      "保质期",
+			AttrValueName: goods.AttrShelfLife.String(),
+			AttrClassId:   -3452,
+			AttrId:        -3452,
+			AttrValueId:   -3452,
+		},
+		{
 			AttrName:      "生产日期",
 			AttrValueName: goods.FactoryDate.String(),
 			AttrClassId:   -3445,
@@ -427,13 +434,6 @@ func attrGoods(goods *erp_entity.Goods) string {
 			AttrClassId:   -3451,
 			AttrId:        -3451,
 			AttrValueId:   -3451,
-		},
-		{
-			AttrName:      "保质期",
-			AttrValueName: goods.AttrShelfLife.String(),
-			AttrClassId:   -3452,
-			AttrId:        -3452,
-			AttrValueId:   -3452,
 		},
 		{
 			AttrName:      "产品批号",
