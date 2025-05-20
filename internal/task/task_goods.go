@@ -230,9 +230,9 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 	}
 
 	yddGoodsSkuData := shop_model.GoodsSku{
-		Keywords:        yddGoodsData.Keywords,
-		SkuName:         yddGoodsData.GoodsName,
-		GoodsName:       yddGoodsData.GoodsName,
+		Keywords: yddGoodsData.Keywords,
+		//SkuName:         yddGoodsData.GoodsName,
+		//GoodsName:       yddGoodsData.GoodsName,
 		GoodsClassName:  yddGoodsData.GoodsClassName,
 		GoodsAttrFormat: yddGoodsData.GoodsAttrFormat,
 		Unit:            yddGoodsData.Unit,
@@ -248,8 +248,8 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 		Where(shop_query.GoodsSku.GoodsID.Eq(shopGoodsInfo.GoodsID)).
 		Select(
 			shop_query.GoodsSku.Keywords,
-			shop_query.GoodsSku.SkuName,
-			shop_query.GoodsSku.GoodsName,
+			//shop_query.GoodsSku.SkuName,
+			//shop_query.GoodsSku.GoodsName,
 			shop_query.GoodsSku.GoodsClassName,
 			shop_query.GoodsSku.GoodsAttrFormat,
 			shop_query.GoodsSku.Unit,
