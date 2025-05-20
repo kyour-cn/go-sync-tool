@@ -202,7 +202,7 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 	if _, er := shop_query.Goods.
 		Where(shop_query.Goods.GoodsErpSpid.Eq(yddGoodsData.GoodsErpSpid)).
 		Select(
-			shop_query.Goods.GoodsName,
+			//shop_query.Goods.GoodsName,
 			shop_query.Goods.BusinessScope,
 			shop_query.Goods.BusinessScopeName,
 			shop_query.Goods.Currencyname,
