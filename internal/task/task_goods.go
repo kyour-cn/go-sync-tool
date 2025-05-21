@@ -130,12 +130,12 @@ func (g Goods) addOrUpdate(item *erp_entity.Goods) error {
 	}
 	if shopGoodsInfo != nil {
 		if err := g.update(item, *shopGoodsInfo); err != nil {
-			slog.Error("updateShopGoods err: " + err.Error())
+			slog.Error("更新商品资料异常", "err", err.Error(), "ERP ID", item.GoodsErpSpid)
 			return err
 		}
 	} else {
 		if err = g.add(item); err != nil {
-			slog.Error("addShopGoods err: " + err.Error())
+			slog.Error("添加商品资料异常", "err", err.Error(), "ERP ID", item.GoodsErpSpid)
 			return err
 		}
 	}

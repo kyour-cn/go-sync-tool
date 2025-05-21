@@ -13,7 +13,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log/slog"
-	"net/url"
 	"time"
 )
 
@@ -108,7 +107,7 @@ func ConnDb() error {
 			erpConf.Port,
 			erpConf.Database,
 			erpConf.User,
-			url.QueryEscape(erpConf.Pass),
+			erpConf.Pass,
 		)
 		// 创建数据库连接
 		erpOdbc, err = sql.Open("odbc", dsn)
