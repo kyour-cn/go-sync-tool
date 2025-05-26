@@ -111,7 +111,13 @@ func (o Order) add(order *shop_model.Order) error {
 	}
 
 	if order.Member.MemberID == 0 {
-		slog.Error("会员信息为空", "order_id", order.OrderID)
+		slog.Error("会员信息为空", "order_no", order.OrderNo)
+		return nil
+	}
+
+	// 没有ERP_UID不同步
+	if order.Member.ErpUID == "" {
+		slog.Error("会员ERP_UID为空", "order_no", order.OrderNo)
 		return nil
 	}
 
