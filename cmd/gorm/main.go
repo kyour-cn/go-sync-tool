@@ -56,6 +56,7 @@ func main() {
 		Tables: []gen_tool.Table{
 			{Name: "goods_sku"},
 			{Name: "goods"},
+			{Name: "goods_category"},
 			{Name: "config"},
 			{Name: "member_address"},
 			{Name: "member_label"},

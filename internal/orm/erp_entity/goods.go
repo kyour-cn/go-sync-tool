@@ -7,6 +7,7 @@ type Goods struct {
 	GoodsSpecs         UTF8String `db:"goods_specs" gorm:"column:goods_specs" json:"goods_specs"`
 	AttrShelfLife      UTF8String `db:"attr_shelf_life" gorm:"column:attr_shelf_life" json:"attr_shelf_life"`
 	GoodsBatch         UTF8String `db:"goods_batch" gorm:"column:goods_batch" json:"goods_batch"`
+	GoodsCategory      UTF8String `db:"goods_category" gorm:"column:goods_category" json:"goods_category"`
 	Unit               UTF8String `db:"unit" gorm:"column:unit" json:"unit"`
 	GoodsErpSpid       string     `db:"goods_erp_spid" gorm:"column:goods_erp_spid" json:"goods_erp_spid"`
 	AttrFactory        UTF8String `db:"attr_factory" gorm:"column:attr_factory" json:"attr_factory"`

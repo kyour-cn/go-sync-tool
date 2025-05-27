@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"log/slog"
+	"strconv"
 	"strings"
 )
 
@@ -182,9 +183,46 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 		YibaoNo:           syncGoods.YiBaoNo.String(),
 		IsMedicinal:       int32(syncGoods.IsMedicinal),
 		IsDelete:          0,
+
+		CategoryID:   shopGoodsInfo.CategoryID,
+		CategoryJSON: shopGoodsInfo.CategoryJSON,
 	}
 	if yddGoodsData.MinBuy == 0 {
 		yddGoodsData.MinBuy = 1
+	}
+
+	// 商品分类同步
+	if syncGoods.GoodsCategory != "" {
+		oldCategoryIds := strings.Split(strings.TrimSuffix(shopGoodsInfo.CategoryID, ","), ",")
+		// 最新分类
+		category, err := shop_query.GoodsCategory.
+			Where(
+				shop_query.GoodsCategory.CategoryName.Eq(syncGoods.GoodsCategory.String()),
+				shop_query.GoodsCategory.IsShow.Eq(0),
+			).
+			Order(shop_query.GoodsCategory.CategoryID.Desc()).
+			First()
+		if err == nil && category != nil {
+			// 判断是否已存在
+			oldHas := false
+			for _, oldCategoryId := range oldCategoryIds {
+				if oldCategoryId == strconv.Itoa(int(category.CategoryID)) {
+					oldHas = true
+					break
+				}
+			}
+
+			// 如果不存在，则添加
+			if !oldHas {
+				oldCategoryIds = append(oldCategoryIds, strconv.Itoa(int(category.CategoryID)))
+				yddGoodsData.CategoryID = "," + strings.Join(oldCategoryIds, ",") + ","
+
+				// 转json
+				categoryJSON, _ := json.Marshal(oldCategoryIds)
+				yddGoodsData.CategoryJSON = string(categoryJSON)
+			}
+
+		}
 	}
 
 	extensionData := FormatGoodsAttr(attrValue)
@@ -223,6 +261,9 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 			shop_query.Goods.IsMedicinal,
 			shop_query.Goods.ExtensionData,
 			shop_query.Goods.IsDelete,
+
+			shop_query.Goods.CategoryID,
+			shop_query.Goods.CategoryJSON,
 		).
 		Updates(&yddGoodsData); er != nil {
 		slog.Error("updateShopGoods Updates err: " + er.Error())
@@ -303,6 +344,21 @@ func (g Goods) add(syncGoods *erp_entity.Goods) error {
 		DzjgCode:          syncGoods.DzjgCode,
 		TraceabilityCode:  syncGoods.TraceabilityCode,
 	}
+
+	// 商品分类同步
+	if syncGoods.GoodsCategory != "" {
+		category, err := shop_query.GoodsCategory.
+			Where(
+				shop_query.GoodsCategory.CategoryName.Eq(syncGoods.GoodsCategory.String()),
+				shop_query.GoodsCategory.IsShow.Eq(0),
+			).First()
+		if err == nil && category != nil {
+			categoryId := strconv.Itoa(int(category.CategoryID))
+			yddGoodsData.CategoryID = ",1," + categoryId + ","
+			yddGoodsData.CategoryJSON = "[\"1\",\"" + categoryId + "\"]"
+		}
+	}
+
 	if yddGoodsData.MinBuy == 0 {
 		yddGoodsData.MinBuy = 1
 	}

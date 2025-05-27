@@ -22,6 +22,7 @@ var (
 	ErpInvoice             *erpInvoice
 	ErpOrderOutbound       *erpOrderOutbound
 	Goods                  *goods
+	GoodsCategory          *goodsCategory
 	GoodsSku               *goodsSku
 	Member                 *member
 	MemberAddress          *memberAddress
@@ -42,6 +43,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	ErpInvoice = &Q.ErpInvoice
 	ErpOrderOutbound = &Q.ErpOrderOutbound
 	Goods = &Q.Goods
+	GoodsCategory = &Q.GoodsCategory
 	GoodsSku = &Q.GoodsSku
 	Member = &Q.Member
 	MemberAddress = &Q.MemberAddress
@@ -63,6 +65,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		ErpInvoice:             newErpInvoice(db, opts...),
 		ErpOrderOutbound:       newErpOrderOutbound(db, opts...),
 		Goods:                  newGoods(db, opts...),
+		GoodsCategory:          newGoodsCategory(db, opts...),
 		GoodsSku:               newGoodsSku(db, opts...),
 		Member:                 newMember(db, opts...),
 		MemberAddress:          newMemberAddress(db, opts...),
@@ -85,6 +88,7 @@ type Query struct {
 	ErpInvoice             erpInvoice
 	ErpOrderOutbound       erpOrderOutbound
 	Goods                  goods
+	GoodsCategory          goodsCategory
 	GoodsSku               goodsSku
 	Member                 member
 	MemberAddress          memberAddress
@@ -108,6 +112,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		ErpInvoice:             q.ErpInvoice.clone(db),
 		ErpOrderOutbound:       q.ErpOrderOutbound.clone(db),
 		Goods:                  q.Goods.clone(db),
+		GoodsCategory:          q.GoodsCategory.clone(db),
 		GoodsSku:               q.GoodsSku.clone(db),
 		Member:                 q.Member.clone(db),
 		MemberAddress:          q.MemberAddress.clone(db),
@@ -138,6 +143,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		ErpInvoice:             q.ErpInvoice.replaceDB(db),
 		ErpOrderOutbound:       q.ErpOrderOutbound.replaceDB(db),
 		Goods:                  q.Goods.replaceDB(db),
+		GoodsCategory:          q.GoodsCategory.replaceDB(db),
 		GoodsSku:               q.GoodsSku.replaceDB(db),
 		Member:                 q.Member.replaceDB(db),
 		MemberAddress:          q.MemberAddress.replaceDB(db),
@@ -158,6 +164,7 @@ type queryCtx struct {
 	ErpInvoice             IErpInvoiceDo
 	ErpOrderOutbound       IErpOrderOutboundDo
 	Goods                  IGoodsDo
+	GoodsCategory          IGoodsCategoryDo
 	GoodsSku               IGoodsSkuDo
 	Member                 IMemberDo
 	MemberAddress          IMemberAddressDo
@@ -178,6 +185,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		ErpInvoice:             q.ErpInvoice.WithContext(ctx),
 		ErpOrderOutbound:       q.ErpOrderOutbound.WithContext(ctx),
 		Goods:                  q.Goods.WithContext(ctx),
+		GoodsCategory:          q.GoodsCategory.WithContext(ctx),
 		GoodsSku:               q.GoodsSku.WithContext(ctx),
 		Member:                 q.Member.WithContext(ctx),
 		MemberAddress:          q.MemberAddress.WithContext(ctx),

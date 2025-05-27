@@ -114,7 +114,7 @@ var List = []Task{
 		Description:  "【实验性功能】将ERP客户资信同步到平台用于下单",
 		Handle:       NewMemberCredit(),
 		VerifyStruct: erp_entity.MemberCredit{},
-		Parent:       "member",
+		//Parent:       "member",
 	},
 	{
 		Name:        "order",

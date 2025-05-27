@@ -122,6 +122,7 @@ func (mc MemberCredit) addOrUpdate(item *erp_entity.MemberCredit) error {
 	member, err := shop_query.Member.
 		Where(shop_query.Member.ErpUID.Eq(item.ErpUID)).
 		Select(
+			shop_query.Member.MemberID,
 			shop_query.Member.ErpUID,
 			shop_query.Member.CreditBalance,
 			shop_query.Member.CreditLimit,
