@@ -193,7 +193,7 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 
 	// 商品分类同步
 	if syncGoods.GoodsCategory != "" {
-		oldCategoryIds := strings.Split(strings.TrimSuffix(shopGoodsInfo.CategoryID, ","), ",")
+		oldCategoryIds := strings.Split(strings.Trim(shopGoodsInfo.CategoryID, ","), ",")
 		// 最新分类
 		category, err := shop_query.GoodsCategory.
 			Where(
