@@ -236,7 +236,7 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 
 	nowTime := int32(time.Now().Unix())
 
-	var status int32 = 1 // 默认会员是激活状态
+	//var status int32 = 1 // 默认会员是激活状态
 
 	// 要更新的字段
 	var updateCloumns = []field.Expr{
@@ -318,11 +318,11 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 	}
 
 	//单独更新状态
-	_, err = shop_query.Member.
-		Where(shop_query.Member.ErpUID.Eq(v.ErpUID)).
-		Updates(map[string]interface{}{
-			"status": status, //这里使用map更新，避免被忽略0值
-		})
+	//_, err = shop_query.Member.
+	//	Where(shop_query.Member.ErpUID.Eq(v.ErpUID)).
+	//	Updates(map[string]interface{}{
+	//		"status": status, //这里使用map更新，避免被忽略0值
+	//	})
 	return err
 }
 
