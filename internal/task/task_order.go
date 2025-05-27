@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"log/slog"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -337,6 +339,7 @@ func (o Order) refreshErpStatus() error {
 				Where(
 					shop_query.OrderGoods.OrderNo.Eq(item.OrderNo),
 					shop_query.OrderGoods.RefundStatus.Eq(3), //退款完成
+					//shop_query.OrderGoods.
 				).Find()
 			if err != nil {
 				return err
@@ -348,8 +351,8 @@ func (o Order) refreshErpStatus() error {
 			var unRefundedGoods []erp_entity.SyncOrderGoods
 			result = erpDb.Table(o.orderGoodsTable).
 				Where(fmt.Sprintf("status != -1 AND order_no = '%s'", item.OrderNo)).
-				Select("order_no", "status").
-				Find(&erpData)
+				Select("order_no", "status", "goods_erp_spid", "num", "order_goods_id").
+				Find(&unRefundedGoods)
 			if result.Error != nil {
 				return result.Error
 			}
@@ -364,10 +367,9 @@ func (o Order) refreshErpStatus() error {
 				}
 				//更新商城已退款erp未退款的订单单个商品
 				for _, urGoods := range unRefundedGoods {
-					if rog.Goods.GoodsErpSpid != urGoods.GoodsErpSpid.String() {
-						continue
+					if rog.Goods.GoodsErpSpid == urGoods.GoodsErpSpid.String() && rog.Num == urGoods.Num {
+						_ = o.updateOGStatus(urGoods.OrderNo.String(), -1, []int32{urGoods.OrderGoodsId})
 					}
-					_ = o.updateOGStatus(urGoods.OrderNo.String(), -1)
 				}
 			}
 		}
@@ -393,20 +395,28 @@ func (o Order) updateStatus(order *shop_model.Order, status int32) error {
 	}
 
 	// 更新明细状态
-	_ = o.updateOGStatus(order.OrderNo, status)
+	_ = o.updateOGStatus(order.OrderNo, status, nil)
 
 	return nil
 }
 
-func (o Order) updateOGStatus(orderNo string, status int32) error {
+func (o Order) updateOGStatus(orderNo string, status int32, ogId []int32) error {
 	erpDb, ok := global.DbPool.Get("erp")
 	if !ok {
 		return errors.New("获取ERP数据库连接失败")
 	}
 	// 更新ERP状态
 	result := erpDb.Exec(erpDb.ToSQL(func(tx *gorm.DB) *gorm.DB {
+		ogIdWhere := ""
+		if len(ogId) > 0 {
+			ogIdStr := make([]string, 0, len(ogId))
+			for _, v := range ogId {
+				ogIdStr = append(ogIdStr, strconv.Itoa(int(v)))
+			}
+			ogIdWhere = fmt.Sprintf(" AND order_goods_id IN (%s)", strings.Join(ogIdStr, ","))
+		}
 		return tx.Table(o.orderGoodsTable).
-			Where("order_no = ?", orderNo).
+			Where("order_no = ?"+ogIdWhere, orderNo).
 			Update("status", status)
 	}))
 	if result.Error != nil {
