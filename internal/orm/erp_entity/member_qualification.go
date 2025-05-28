@@ -11,4 +11,5 @@ type MemberQualification struct {
 	CardNo              UTF8String `db:"card_no" gorm:"column:card_no;size:255;not null;default:''" json:"card_no"`
 	AttrName            UTF8String `db:"attr_name" gorm:"column:attr_name;size:255;not null;default:''" json:"attr_name"`
 	AttrVal             UTF8String `db:"attr_val" gorm:"column:attr_val;size:255;not null;default:''" json:"attr_val"`
+	CustomForm          UTF8String `db:"custom_form" gorm:"column:custom_form;size:255;not null;default:''" json:"custom_form"`
 }

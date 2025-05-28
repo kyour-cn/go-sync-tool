@@ -126,6 +126,12 @@ func (o MemberRegister) Run(t *Task) error {
 						AttrName: erp_entity.UTF8String(attr.Name),
 						AttrVal:  erp_entity.UTF8String(attr.Value),
 					}
+
+					// 自定义表单
+					if v.Custom != "" {
+						mq.CustomForm = erp_entity.UTF8String(v.Custom)
+					}
+
 					if v.ExpirationStartDate != nil {
 						mq.ExpirationStartDate = v.ExpirationStartDate.Format("2006-01-02")
 					}
