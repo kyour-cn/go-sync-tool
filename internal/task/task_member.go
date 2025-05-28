@@ -176,7 +176,7 @@ func (m Member) add(v *erp_entity.Member) error {
 	nowTime := int32(time.Now().Unix())
 
 	// TODO: （可配置项）默认会员状态
-	var status int32 = 0
+	var status int32 = 1
 
 	//查询销售员
 	var salesmanId int32 = 0
