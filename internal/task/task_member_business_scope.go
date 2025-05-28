@@ -11,6 +11,7 @@ import (
 	"errors"
 	"gorm.io/gorm"
 	"log/slog"
+	"strings"
 )
 
 func NewMemberBusinessScope() *MemberBusinessScope {
@@ -135,6 +136,7 @@ func (bs MemberBusinessScope) Run(t *Task) error {
 		Where(
 			shop_query.MemberBusinessScope.Medicinetype.NotIn(bsTypeIDs...),
 			shop_query.MemberBusinessScope.Medicinetype.Neq(""),
+			shop_query.MemberBusinessScope.BusinessScope.Neq(""),
 		).Find()
 	if len(memberScopes) > 0 {
 		newBsRows := make([]*shop_model.MemberBusinessScopeRow, 0, len(memberScopes))
@@ -163,11 +165,12 @@ func (bs MemberBusinessScope) Run(t *Task) error {
 	}
 
 	goodsScopes, err := shop_query.Goods.
-		Select(shop_query.Goods.BusinessScope, shop_query.Goods.BusinessScope).
+		Select(shop_query.Goods.BusinessScope, shop_query.Goods.BusinessScopeName).
 		Group(shop_query.Goods.BusinessScope).
 		Where(
 			shop_query.Goods.BusinessScope.NotIn(bsTypeIDs...),
 			shop_query.Goods.BusinessScope.Neq(""),
+			shop_query.Goods.BusinessScopeName.Neq(""),
 		).Find()
 
 	if len(goodsScopes) > 0 {
@@ -207,6 +210,25 @@ func (bs MemberBusinessScope) findMember(erpUid string) (*shop_model.Member, err
 }
 
 func (bs MemberBusinessScope) addOrUpdate(item *erp_entity.MemberBusinessScope) error {
+
+	if strings.Contains(item.UserBusiness.String(), ",") {
+		// 拆分遍历处理
+		list := strings.Split(item.UserBusiness.String(), ",")
+		for _, v := range list {
+			mbs := &erp_entity.MemberBusinessScope{
+				ErpUID:         item.ErpUID,
+				UserBusiness:   erp_entity.UTF8String(v),
+				UserBusinessID: erp_entity.UTF8String(v),
+			}
+			err := bs.addOrUpdate(mbs)
+			if err != nil {
+				// 这里忽略错误，否则将中断任务
+				return nil
+			}
+		}
+		return nil
+	}
+
 	m, err := bs.findMember(item.ErpUID.String())
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		slog.Error("memberBusinessScopeSync Member First err: " + err.Error())
