@@ -15,6 +15,7 @@ import (
 	"log/slog"
 	"regexp"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -510,10 +511,21 @@ func getArea(province string, city string, district string) (*AreaInfo, error) {
 }
 
 // 获取用户标签id
+var mutexMap sync.Map
+
 func getMemberLabel(labelName string) *shop_model.MemberLabel {
 	if labelName == "" {
 		return &shop_model.MemberLabel{}
 	}
+
+	// 获取标签名对应的互斥锁（不存在时自动创建）
+	mutex, _ := mutexMap.LoadOrStore(labelName, &sync.Mutex{})
+	m := mutex.(*sync.Mutex)
+
+	// 对当前标签名加锁
+	m.Lock()
+	defer m.Unlock()
+
 	key := "member_label:" + labelName
 	// 从缓存中获取
 	label, _ := cache.Remember(key, 300, func() (label *shop_model.MemberLabel, err error) {
