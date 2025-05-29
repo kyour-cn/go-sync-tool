@@ -176,8 +176,11 @@ func (m Member) add(v *erp_entity.Member) error {
 
 	nowTime := int32(time.Now().Unix())
 
-	// TODO: （可配置项）默认会员状态
+	// 会员状态
 	var status int32 = 1
+	if v.Status > -1 {
+		status = v.Status
+	}
 
 	//查询销售员
 	var salesmanId int32 = 0
@@ -237,8 +240,6 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 
 	nowTime := int32(time.Now().Unix())
 
-	//var status int32 = 1 // 默认会员是激活状态
-
 	// 要更新的字段
 	var updateCloumns = []field.Expr{
 		shop_query.Member.SiteID,
@@ -284,6 +285,12 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 		MemberLabel:     label.LabelID,
 		MemberLabelName: label.LabelName,
 		SyncTime:        nowTime,
+	}
+
+	// 状态同步
+	if v.Status > -1 {
+		memberData.Status = v.Status
+		updateCloumns = append(updateCloumns, shop_query.Member.Status)
 	}
 
 	if areaInfo != nil {

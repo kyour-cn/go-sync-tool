@@ -13,4 +13,5 @@ type Member struct {
 	MemberType   UTF8String `db:"member_type" gorm:"column:member_type" json:"member_type"`
 	MemberID     string     `db:"member_id" gorm:"column:member_id" json:"member_id"`
 	ScopeControl int32      `db:"scope_control" gorm:"column:scope_control" json:"scope_control"`
+	Status       int32      `db:"status" gorm:"column:status" json:"status"`
 }
