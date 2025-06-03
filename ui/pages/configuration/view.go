@@ -156,6 +156,7 @@ func New(theme *apptheme.Theme) *View {
 				theme,
 				widgets.NewDropDownOption("GBK").WithValue("0"),
 				widgets.NewDropDownOption("UTF8").WithValue("1"),
+				widgets.NewDropDownOption("智能识别").WithValue("2"),
 			),
 		},
 	}

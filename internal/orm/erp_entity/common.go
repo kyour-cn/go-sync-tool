@@ -7,6 +7,7 @@ import (
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // UTF8String 兼容数据库字符串各种编码
@@ -23,10 +24,22 @@ func (us *UTF8String) Scan(value interface{}) error {
 				return err
 			}
 			*us = UTF8String(str)
-		} else {
+		} else if global.State.ErpEncoding == 1 {
 			*us = UTF8String(v)
+		} else {
+			// 自动识别
+			if utf8.ValidString(string(v)) {
+				*us = UTF8String(v)
+			} else {
+				str, err := simplifiedchinese.GBK.NewDecoder().Bytes(v)
+				if err != nil {
+					return err
+				}
+				*us = UTF8String(str)
+			}
 		}
 
+		// 去除空格
 		*us = UTF8String(strings.TrimSpace(string(*us)))
 
 	case string:

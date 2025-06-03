@@ -5,7 +5,7 @@ type AppConfig struct {
 	IsDark      bool   `toml:"is_dark" json:"is_dark" comment:"是否为深色模式"`
 	AutoStart   bool   `toml:"auto_start" json:"auto_start" comment:"是否自动启动"`
 	ProjectName string `toml:"project_name" json:"project_name" comment:"项目名"`
-	ErpEncoding int    `toml:"erp_encoding" json:"erp_encoding" comment:"erp编码 0=gbk 1=uft8"`
+	ErpEncoding int    `toml:"erp_encoding" json:"erp_encoding" comment:"erp编码 0=gbk 1=uft8 2=智能识别"`
 }
 
 var appConf *AppConfig
