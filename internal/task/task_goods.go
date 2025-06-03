@@ -184,8 +184,9 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 		IsMedicinal:       int32(syncGoods.IsMedicinal),
 		IsDelete:          0,
 
-		CategoryID:   shopGoodsInfo.CategoryID,
-		CategoryJSON: shopGoodsInfo.CategoryJSON,
+		CategoryID:       shopGoodsInfo.CategoryID,
+		CategoryJSON:     shopGoodsInfo.CategoryJSON,
+		TraceabilityCode: syncGoods.TraceabilityCode,
 	}
 	if yddGoodsData.MinBuy == 0 {
 		yddGoodsData.MinBuy = 1
@@ -261,6 +262,7 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 			shop_query.Goods.IsMedicinal,
 			shop_query.Goods.ExtensionData,
 			shop_query.Goods.IsDelete,
+			shop_query.Goods.TraceabilityCode,
 
 			shop_query.Goods.CategoryID,
 			shop_query.Goods.CategoryJSON,
