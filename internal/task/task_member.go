@@ -241,7 +241,7 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 	nowTime := int32(time.Now().Unix())
 
 	// 要更新的字段
-	var updateCloumns = []field.Expr{
+	var updateColumns = []field.Expr{
 		shop_query.Member.SiteID,
 		//shop_query.Member.Username,
 		shop_query.Member.Nickname,
@@ -263,13 +263,13 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 		}
 		if salesman != nil {
 			salesmanId = salesman.SalesmanID
-			updateCloumns = append(updateCloumns, shop_query.Member.SalesmanID)
+			updateColumns = append(updateColumns, shop_query.Member.SalesmanID)
 		}
 	}
 
 	// 手机号
 	if v.Mobile != "" {
-		updateCloumns = append(updateCloumns, shop_query.Member.Mobile)
+		updateColumns = append(updateColumns, shop_query.Member.Mobile)
 	}
 
 	label := getMemberLabel(v.MemberType.String())
@@ -290,7 +290,7 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 	// 状态同步
 	if v.Status > -1 {
 		memberData.Status = v.Status
-		updateCloumns = append(updateCloumns, shop_query.Member.Status)
+		updateColumns = append(updateColumns, shop_query.Member.Status)
 	}
 
 	if areaInfo != nil {
@@ -299,7 +299,7 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 		memberData.DistrictID = areaInfo.DistrictID
 		memberData.FullAddress = areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName
 
-		updateCloumns = append(updateCloumns,
+		updateColumns = append(updateColumns,
 			shop_query.Member.ProvinceID,
 			shop_query.Member.CityID,
 			shop_query.Member.DistrictID,
@@ -310,7 +310,7 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 	// 是否管控
 	if v.ScopeControl > -1 {
 		memberData.IsNatureofbusiness = v.ScopeControl
-		updateCloumns = append(updateCloumns, shop_query.Member.IsNatureofbusiness)
+		updateColumns = append(updateColumns, shop_query.Member.IsNatureofbusiness)
 	}
 
 	if v.Mobile != "" && memberData.Mobile == "" {
@@ -319,7 +319,7 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 
 	_, err := shop_query.Member.
 		Where(shop_query.Member.MemberID.Eq(member.MemberID)).
-		Select(updateCloumns...).
+		Select(updateColumns...).
 		Updates(&memberData)
 	if err != nil {
 		return err

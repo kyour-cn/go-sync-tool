@@ -9,6 +9,7 @@ import (
 	"app/internal/tools/safemap"
 	"app/internal/tools/sync_tool"
 	"errors"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"log/slog"
 )
@@ -130,6 +131,26 @@ func (g GoodsPrice) addOrUpdate(item *erp_entity.GoodsPrice) error {
 		return nil
 	}
 
+	// 要更新的字段
+	var updateColumns []field.Expr
+	var updateColumns2 []field.Expr
+
+	if item.Price > -1 && shopGoods.Price != item.Price {
+		updateColumns = append(updateColumns, shop_query.Goods.Price)
+		updateColumns2 = append(updateColumns2, shop_query.GoodsSku.Price)
+	}
+	if item.CostPrice > -1 && shopGoods.CostPrice != item.CostPrice {
+		updateColumns = append(updateColumns, shop_query.Goods.CostPrice)
+		updateColumns2 = append(updateColumns2, shop_query.GoodsSku.CostPrice)
+	}
+	if item.MarketPrice > -1 && shopGoods.MarketPrice != item.MarketPrice {
+		updateColumns = append(updateColumns, shop_query.Goods.MarketPrice)
+		updateColumns2 = append(updateColumns2, shop_query.GoodsSku.MarketPrice)
+	}
+	if len(updateColumns) == 0 {
+		return nil
+	}
+
 	slog.Debug("价格更新", "spid", item.GoodsErpSpid, "old", shopGoods.Price, "new", item.Price)
 
 	// 更新Goods表
@@ -139,11 +160,7 @@ func (g GoodsPrice) addOrUpdate(item *erp_entity.GoodsPrice) error {
 		MarketPrice: item.MarketPrice,
 	}
 	_, e := shop_query.Goods.
-		Select(
-			shop_query.Goods.Price,
-			shop_query.Goods.CostPrice,
-			shop_query.Goods.MarketPrice,
-		).
+		Select(updateColumns...).
 		Where(shop_query.Goods.GoodsID.Eq(shopGoods.GoodsID)).
 		Updates(goodsData)
 	if e != nil {
@@ -156,12 +173,9 @@ func (g GoodsPrice) addOrUpdate(item *erp_entity.GoodsPrice) error {
 		CostPrice:   item.CostPrice,
 		MarketPrice: item.MarketPrice,
 	}
+
 	_, ers := shop_query.GoodsSku.
-		Select(
-			shop_query.GoodsSku.Price,
-			shop_query.GoodsSku.CostPrice,
-			shop_query.GoodsSku.MarketPrice,
-		).
+		Select(updateColumns2...).
 		Where(shop_query.GoodsSku.GoodsID.Eq(shopGoods.GoodsID)).
 		Updates(skuData)
 	if ers != nil {
