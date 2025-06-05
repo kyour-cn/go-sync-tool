@@ -147,7 +147,7 @@ func (o MemberRegister) Run(t *Task) error {
 						for _, v := range businessScopeList {
 							businessScopeNames = append(businessScopeNames, v.Name)
 						}
-						newMember.BusinessScope = erp_entity.UTF8String(strings.Join(businessScopeNames, ","))
+						mq.BusinessScope = erp_entity.UTF8String(strings.Join(businessScopeNames, ","))
 					}
 				}
 
