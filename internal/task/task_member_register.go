@@ -4,7 +4,6 @@ import (
 	"app/internal/global"
 	"app/internal/orm/erp_entity"
 	"app/internal/orm/shop_query"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
@@ -95,59 +94,38 @@ func (o MemberRegister) Run(t *Task) error {
 
 		if len(member.MemberQualification) > 0 {
 
-			type memberQualificationAttr struct {
-				Name  string `json:"name"`
-				Key   string `json:"key"`
-				Type  string `json:"type"`
-				Value string `json:"value"`
-			}
-
 			for _, v := range member.MemberQualification {
 				if v.Status != 1 { //不同步未完成审核资质
 					continue
 				}
-				var attrs []memberQualificationAttr
-				if len(v.Custom) == 0 {
-					attrs = []memberQualificationAttr{{}}
-				} else {
-					if er := json.Unmarshal([]byte(v.Custom), &attrs); er != nil {
-						slog.Error("newMemberSync Qualification Unmarshal err:%s,custom:%s", er, v.Custom)
-						continue
-					}
+				mq := erp_entity.MemberQualification{
+					MemberID: int(v.MemberID),
+					Name:     erp_entity.UTF8String(v.Name),
+					Identify: erp_entity.UTF8String(v.Identify),
+					LongTerm: int(v.LongTerm),
+					Image:    erp_entity.UTF8String(v.Image),
+					CardNo:   erp_entity.UTF8String(v.CardNo),
 				}
-				for _, attr := range attrs {
-					mq := erp_entity.MemberQualification{
-						MemberID: int(v.MemberID),
-						Name:     erp_entity.UTF8String(v.Name),
-						Identify: erp_entity.UTF8String(v.Identify),
-						LongTerm: int(v.LongTerm),
-						Image:    erp_entity.UTF8String(v.Image),
-						CardNo:   erp_entity.UTF8String(v.CardNo),
-						AttrName: erp_entity.UTF8String(attr.Name),
-						AttrVal:  erp_entity.UTF8String(attr.Value),
-					}
 
-					// 自定义表单
-					if v.Custom != "" {
-						mq.CustomForm = erp_entity.UTF8String(v.Custom)
-					}
+				// 自定义表单
+				if v.Custom != "" {
+					mq.CustomForm = erp_entity.UTF8String(v.Custom)
+				}
 
-					if v.ExpirationStartDate != nil {
-						mq.ExpirationStartDate = v.ExpirationStartDate.Format("2006-01-02")
-					}
-					if v.ExpirationEndDate != nil {
-						mq.ExpirationEndDate = v.ExpirationEndDate.Format("2006-01-02")
-					}
+				if v.ExpirationStartDate != nil {
+					mq.ExpirationStartDate = v.ExpirationStartDate.Format("2006-01-02")
+				}
+				if v.ExpirationEndDate != nil {
+					mq.ExpirationEndDate = v.ExpirationEndDate.Format("2006-01-02")
+				}
 
-					// 写入ERP
-					result := erpDb.Exec(erpDb.ToSQL(func(tx *gorm.DB) *gorm.DB {
-						return tx.Table(o.newMemberQualificationTable).Create(&mq)
-					}))
-					if result.Error != nil {
-						slog.Error(fmt.Sprintf("ERP CreateOrder err:%s,args:%+v", result.Error, mq))
-						return nil
-					}
-
+				// 写入ERP
+				result := erpDb.Exec(erpDb.ToSQL(func(tx *gorm.DB) *gorm.DB {
+					return tx.Table(o.newMemberQualificationTable).Create(&mq)
+				}))
+				if result.Error != nil {
+					slog.Error(fmt.Sprintf("ERP CreateOrder err:%s,args:%+v", result.Error, mq))
+					return nil
 				}
 			}
 		}
