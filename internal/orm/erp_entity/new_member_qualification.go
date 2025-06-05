@@ -10,4 +10,5 @@ type NewMemberQualification struct {
 	Image               UTF8String `db:"image" gorm:"column:image;size:255;not null;default:''" json:"image"`                              // 图片地址
 	CardNo              UTF8String `db:"card_no" gorm:"column:card_no;size:255;not null;default:''" json:"card_no"`
 	CustomForm          UTF8String `db:"custom_form" gorm:"column:custom_form;size:255;not null;default:''" json:"custom_form"`
+	BusinessScope       UTF8String `db:"business_scope" gorm:"column:business_scope" json:"business_scope"`
 }

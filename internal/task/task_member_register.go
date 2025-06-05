@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"log/slog"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -86,7 +87,7 @@ func (o MemberRegister) Run(t *Task) error {
 			newMember.Address = erp_entity.UTF8String(member.MemberAddress[0].Address)
 		}
 
-		// 查询经营范围
+		// 查询客户经营范围
 		businessScopeList, err := shop_query.MemberBusinessScope.
 			Where(shop_query.MemberBusinessScope.MemberID.Eq(member.MemberID)).
 			Find()
@@ -129,6 +130,25 @@ func (o MemberRegister) Run(t *Task) error {
 				}
 				if v.ExpirationEndDate != nil {
 					mq.ExpirationEndDate = v.ExpirationEndDate.Format("2006-01-02")
+				}
+
+				// 查询资质经营范围
+				if v.BusinessScope != "" {
+					var busIds []int32
+					for _, v := range strings.Split(v.BusinessScope, ",") {
+						id, _ := strconv.Atoi(v)
+						busIds = append(busIds, int32(id))
+					}
+					businessScopeList, err := shop_query.MemberBusinessScopeRow.
+						Where(shop_query.MemberBusinessScopeRow.ID.In(busIds...)).
+						Find()
+					if err == nil && len(businessScopeList) > 0 {
+						businessScopeNames := make([]string, 0)
+						for _, v := range businessScopeList {
+							businessScopeNames = append(businessScopeNames, v.Name)
+						}
+						newMember.BusinessScope = erp_entity.UTF8String(strings.Join(businessScopeNames, ","))
+					}
 				}
 
 				// 写入ERP
