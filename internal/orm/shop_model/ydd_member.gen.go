@@ -29,7 +29,7 @@ type Member struct {
 	MemberLabel            int32                 `gorm:"column:member_label;not null;comment:用户标签" json:"member_label"`                                                   // 用户标签
 	MemberLabelName        string                `gorm:"column:member_label_name;not null;comment:会员标签名称" json:"member_label_name"`                                       // 会员标签名称
 	Qq                     string                `gorm:"column:qq;not null;comment:qq号" json:"qq"`                                                                        // qq号
-	QqOpenid               string                `gorm:"column:qq_openid;not null;comment:qq互联id" json:"qq_openid"`                                                       // qq互联id
+	QqOpenid               string                `gorm:"column:qq_openid;not null;comment:qq互联id (已改为客服系统回话token)" json:"qq_openid"`                                      // qq互联id (已改为客服系统回话token)
 	WxOpenid               string                `gorm:"column:wx_openid;not null;comment:微信用户openid" json:"wx_openid"`                                                   // 微信用户openid
 	WeappOpenid            string                `gorm:"column:weapp_openid;not null;comment:微信小程序openid" json:"weapp_openid"`                                            // 微信小程序openid
 	WxUnionid              string                `gorm:"column:wx_unionid;not null;comment:微信unionid" json:"wx_unionid"`                                                  // 微信unionid
@@ -74,32 +74,33 @@ type Member struct {
 	CityID                 int32                 `gorm:"column:city_id;comment:市id（增）" json:"city_id"`                                                                    // 市id（增）
 	DistrictID             int32                 `gorm:"column:district_id;comment:区id（增）" json:"district_id"`                                                            // 区id（增）
 	FullAddress            string                `gorm:"column:full_address;comment:全地址（增）" json:"full_address"`                                                          // 全地址（增）
+	Address                string                `gorm:"column:address;not null;comment:详情地址（增）" json:"address"`                                                          // 详情地址（增）
 	ErpUID                 string                `gorm:"column:erp_uid;not null;comment:erpid（增）" json:"erp_uid"`                                                         // erpid（增）
 	ErpCode                string                `gorm:"column:erp_code;comment:erpcode（增）" json:"erp_code"`                                                              // erpcode（增）
 	ErpName                string                `gorm:"column:erp_name;comment:客户店名（增）" json:"erp_name"`                                                                 // 客户店名（增）
-	Gid                    int32                 `gorm:"column:gid" json:"gid"`
-	QualificationsImages   string                `gorm:"column:qualifications_images" json:"qualifications_images"`
-	Inputmanid             int32                 `gorm:"column:inputmanid;not null;comment:维护人ID" json:"inputmanid"`                                  // 维护人ID
-	Deptid                 int32                 `gorm:"column:deptid;not null;comment:维护人部门ID" json:"deptid"`                                        // 维护人部门ID
-	Employeename           string                `gorm:"column:employeename;not null;comment:维护人姓名" json:"employeename"`                              // 维护人姓名
-	ErpAgentid             int32                 `gorm:"column:erp_agentid;not null;comment:代理人ID" json:"erp_agentid"`                                // 代理人ID
-	Customopcode           string                `gorm:"column:customopcode;not null;comment:客户名称首字母" json:"customopcode"`                            // 客户名称首字母
-	SyncTime               int32                 `gorm:"column:sync_time;not null;comment:同步到erp的时间戳 0=未同步" json:"sync_time"`                         // 同步到erp的时间戳 0=未同步
-	MemberRemark           string                `gorm:"column:member_remark;not null;comment:后台显示备注（增）" json:"member_remark"`                        // 后台显示备注（增）
-	Employeeid             string                `gorm:"column:employeeid;not null;comment:代理人ID（增）" json:"employeeid"`                               // 代理人ID（增）
-	InviterID              int32                 `gorm:"column:inviter_id;not null;comment:推荐人id（增）" json:"inviter_id"`                               // 推荐人id（增）
-	InviteCode             string                `gorm:"column:invite_code;not null;comment:用户邀请码（增）" json:"invite_code"`                             // 用户邀请码（增）
-	QrInviteCode           string                `gorm:"column:qr_invite_code;not null;comment:邀请二维码地址（增）" json:"qr_invite_code"`                     // 邀请二维码地址（增）
-	IsNatureofbusiness     int32                 `gorm:"column:is_natureofbusiness;not null;default:1;comment:是否管控 0否 1是" json:"is_natureofbusiness"` // 是否管控 0否 1是
-	SalesmanID             int32                 `gorm:"column:salesman_id;not null;comment:业务员id" json:"salesman_id"`                                // 业务员id
-	StaffType              int32                 `gorm:"column:staff_type;not null;comment:员工类型（增）1业务员" json:"staff_type"`                            // 员工类型（增）1业务员
-	FristLoginTime         int32                 `gorm:"column:frist_login_time;not null;comment:首次登录时间" json:"frist_login_time"`                     // 首次登录时间
-	RegMobile              string                `gorm:"column:reg_mobile;comment:老客户注册时保存（未登录过）" json:"reg_mobile"`                                  // 老客户注册时保存（未登录过）
-	RegPassword            string                `gorm:"column:reg_password;comment:老客户注册时保存（未登录过）" json:"reg_password"`                              // 老客户注册时保存（未登录过）
-	AppointmenSalesmanID   int32                 `gorm:"column:appointmen_salesman_id;not null;comment:公海预约业务员id" json:"appointmen_salesman_id"`      // 公海预约业务员id
-	CreditBalance          float64               `gorm:"column:credit_balance;not null;default:0.00;comment:资信余额" json:"credit_balance"`              // 资信余额
-	CreditLimit            float64               `gorm:"column:credit_limit;not null;default:0.00;comment:资信额度" json:"credit_limit"`                  // 资信额度
-	SessionKey             string                `gorm:"column:session_key;comment:微信session_key" json:"session_key"`                                 // 微信session_key
+	Gid                    int32                 `gorm:"column:gid;comment:关联账号member_id" json:"gid"`                                                                     // 关联账号member_id
+	QualificationsImages   string                `gorm:"column:qualifications_images;comment:资质图片（已废弃）" json:"qualifications_images"`                                     // 资质图片（已废弃）
+	Inputmanid             int32                 `gorm:"column:inputmanid;not null;comment:维护人ID" json:"inputmanid"`                                                      // 维护人ID
+	Deptid                 int32                 `gorm:"column:deptid;not null;comment:维护人部门ID" json:"deptid"`                                                            // 维护人部门ID
+	Employeename           string                `gorm:"column:employeename;not null;comment:维护人姓名" json:"employeename"`                                                  // 维护人姓名
+	ErpAgentid             int32                 `gorm:"column:erp_agentid;not null;comment:代理人ID" json:"erp_agentid"`                                                    // 代理人ID
+	Customopcode           string                `gorm:"column:customopcode;not null;comment:客户名称首字母" json:"customopcode"`                                                // 客户名称首字母
+	SyncTime               int32                 `gorm:"column:sync_time;not null;comment:同步到erp的时间戳 0=未同步" json:"sync_time"`                                             // 同步到erp的时间戳 0=未同步
+	MemberRemark           string                `gorm:"column:member_remark;not null;comment:后台显示备注（增）" json:"member_remark"`                                            // 后台显示备注（增）
+	Employeeid             string                `gorm:"column:employeeid;not null;comment:代理人ID（增）" json:"employeeid"`                                                   // 代理人ID（增）
+	InviterID              int32                 `gorm:"column:inviter_id;not null;comment:推荐人id（增）" json:"inviter_id"`                                                   // 推荐人id（增）
+	InviteCode             string                `gorm:"column:invite_code;not null;comment:用户邀请码（增）" json:"invite_code"`                                                 // 用户邀请码（增）
+	QrInviteCode           string                `gorm:"column:qr_invite_code;not null;comment:邀请二维码地址（增）" json:"qr_invite_code"`                                         // 邀请二维码地址（增）
+	IsNatureofbusiness     int32                 `gorm:"column:is_natureofbusiness;not null;default:1;comment:是否管控 0否 1是" json:"is_natureofbusiness"`                     // 是否管控 0否 1是
+	SalesmanID             int32                 `gorm:"column:salesman_id;not null;comment:业务员id" json:"salesman_id"`                                                    // 业务员id
+	StaffType              int32                 `gorm:"column:staff_type;not null;comment:员工类型（增）1业务员" json:"staff_type"`                                                // 员工类型（增）1业务员
+	FristLoginTime         int32                 `gorm:"column:frist_login_time;not null;comment:首次登录时间" json:"frist_login_time"`                                         // 首次登录时间
+	RegMobile              string                `gorm:"column:reg_mobile;comment:老客户注册时保存（未登录过）" json:"reg_mobile"`                                                      // 老客户注册时保存（未登录过）
+	RegPassword            string                `gorm:"column:reg_password;comment:老客户注册时保存（未登录过）" json:"reg_password"`                                                  // 老客户注册时保存（未登录过）
+	AppointmenSalesmanID   int32                 `gorm:"column:appointmen_salesman_id;not null;comment:公海预约业务员id" json:"appointmen_salesman_id"`                          // 公海预约业务员id
+	CreditBalance          float64               `gorm:"column:credit_balance;not null;default:0.00;comment:资信余额" json:"credit_balance"`                                  // 资信余额
+	CreditLimit            float64               `gorm:"column:credit_limit;not null;default:0.00;comment:资信额度" json:"credit_limit"`                                      // 资信额度
+	SessionKey             string                `gorm:"column:session_key;comment:微信session_key" json:"session_key"`                                                     // 微信session_key
 	MemberQualification    []MemberQualification `gorm:"foreignKey:member_id;references:member_id" json:"member_qualification"`
 	MemberAddress          []MemberAddress       `gorm:"foreignKey:member_id;references:member_id" json:"member_address"`
 }

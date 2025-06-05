@@ -12,7 +12,7 @@ const TableNameArea = "ydd_area"
 
 // Area 地址表
 type Area struct {
-	ID        int32  `gorm:"column:id;primaryKey" json:"id"`
+	ID        int32  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
 	Pid       int32  `gorm:"column:pid;not null;comment:父级" json:"pid"`                    // 父级
 	Name      string `gorm:"column:name;not null;comment:名称" json:"name"`                  // 名称
 	Shortname string `gorm:"column:shortname;not null;comment:简称" json:"shortname"`        // 简称
@@ -20,8 +20,7 @@ type Area struct {
 	Latitude  string `gorm:"column:latitude;not null;comment:纬度" json:"latitude"`          // 纬度
 	Level     int32  `gorm:"column:level;not null;comment:级别" json:"level"`                // 级别
 	Sort      int32  `gorm:"column:sort;not null;comment:排序" json:"sort"`                  // 排序
-	Status    bool   `gorm:"column:status;not null;default:1;comment:状态1有效" json:"status"` // 状态1有效
-	IsBlack   int32  `gorm:"column:is_black;not null;comment:是否黑名单" json:"is_black"`       // 是否黑名单
+	Status    int32  `gorm:"column:status;not null;default:1;comment:状态1有效" json:"status"` // 状态1有效
 }
 
 // MarshalBinary 支持json序列化

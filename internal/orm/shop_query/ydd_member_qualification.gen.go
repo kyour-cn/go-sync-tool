@@ -41,6 +41,7 @@ func newMemberQualification(db *gorm.DB, opts ...gen.DOOption) memberQualificati
 	_memberQualification.RefuseReason = field.NewString(tableName, "refuse_reason")
 	_memberQualification.Custom = field.NewString(tableName, "custom")
 	_memberQualification.VerifyData = field.NewString(tableName, "verify_data")
+	_memberQualification.BusinessScope = field.NewString(tableName, "business_scope")
 
 	_memberQualification.fillFieldMap()
 
@@ -65,6 +66,7 @@ type memberQualification struct {
 	RefuseReason        field.String // 拒绝原因
 	Custom              field.String // 自定义表单
 	VerifyData          field.String // 核实图片（审核时上传）
+	BusinessScope       field.String // 经营范围ID列表
 
 	fieldMap map[string]field.Expr
 }
@@ -94,6 +96,7 @@ func (m *memberQualification) updateTableName(table string) *memberQualification
 	m.RefuseReason = field.NewString(table, "refuse_reason")
 	m.Custom = field.NewString(table, "custom")
 	m.VerifyData = field.NewString(table, "verify_data")
+	m.BusinessScope = field.NewString(table, "business_scope")
 
 	m.fillFieldMap()
 
@@ -110,7 +113,7 @@ func (m *memberQualification) GetFieldByName(fieldName string) (field.OrderExpr,
 }
 
 func (m *memberQualification) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 13)
+	m.fieldMap = make(map[string]field.Expr, 14)
 	m.fieldMap["id"] = m.ID
 	m.fieldMap["member_id"] = m.MemberID
 	m.fieldMap["name"] = m.Name
@@ -124,6 +127,7 @@ func (m *memberQualification) fillFieldMap() {
 	m.fieldMap["refuse_reason"] = m.RefuseReason
 	m.fieldMap["custom"] = m.Custom
 	m.fieldMap["verify_data"] = m.VerifyData
+	m.fieldMap["business_scope"] = m.BusinessScope
 }
 
 func (m memberQualification) clone(db *gorm.DB) memberQualification {

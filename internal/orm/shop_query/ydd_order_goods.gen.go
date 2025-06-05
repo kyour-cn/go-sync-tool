@@ -98,6 +98,7 @@ func newOrderGoods(db *gorm.DB, opts ...gen.DOOption) orderGoods {
 	_orderGoods.OldOrderGoodsID = field.NewInt32(tableName, "old_order_goods_id")
 	_orderGoods.PromotionLabel = field.NewString(tableName, "promotion_label")
 	_orderGoods.RefundNum = field.NewInt32(tableName, "refund_num")
+	_orderGoods.RefundSyncTime = field.NewInt32(tableName, "refund_sync_time")
 	_orderGoods.Goods = orderGoodsHasOneGoods{
 		db: db.Session(&gorm.Session{}),
 
@@ -184,6 +185,7 @@ type orderGoods struct {
 	OldOrderGoodsID      field.Int32   // 部分退款旧order_goods_id
 	PromotionLabel       field.String  // 活动标识
 	RefundNum            field.Int32   // 退款数量
+	RefundSyncTime       field.Int32   // 退款同步时间
 	Goods                orderGoodsHasOneGoods
 
 	fieldMap map[string]field.Expr
@@ -271,6 +273,7 @@ func (o *orderGoods) updateTableName(table string) *orderGoods {
 	o.OldOrderGoodsID = field.NewInt32(table, "old_order_goods_id")
 	o.PromotionLabel = field.NewString(table, "promotion_label")
 	o.RefundNum = field.NewInt32(table, "refund_num")
+	o.RefundSyncTime = field.NewInt32(table, "refund_sync_time")
 
 	o.fillFieldMap()
 
@@ -287,7 +290,7 @@ func (o *orderGoods) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *orderGoods) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 71)
+	o.fieldMap = make(map[string]field.Expr, 72)
 	o.fieldMap["order_goods_id"] = o.OrderGoodsID
 	o.fieldMap["order_id"] = o.OrderID
 	o.fieldMap["order_no"] = o.OrderNo
@@ -358,6 +361,7 @@ func (o *orderGoods) fillFieldMap() {
 	o.fieldMap["old_order_goods_id"] = o.OldOrderGoodsID
 	o.fieldMap["promotion_label"] = o.PromotionLabel
 	o.fieldMap["refund_num"] = o.RefundNum
+	o.fieldMap["refund_sync_time"] = o.RefundSyncTime
 
 }
 

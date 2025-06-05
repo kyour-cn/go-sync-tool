@@ -90,6 +90,7 @@ func newMember(db *gorm.DB, opts ...gen.DOOption) member {
 	_member.CityID = field.NewInt32(tableName, "city_id")
 	_member.DistrictID = field.NewInt32(tableName, "district_id")
 	_member.FullAddress = field.NewString(tableName, "full_address")
+	_member.Address = field.NewString(tableName, "address")
 	_member.ErpUID = field.NewString(tableName, "erp_uid")
 	_member.ErpCode = field.NewString(tableName, "erp_code")
 	_member.ErpName = field.NewString(tableName, "erp_name")
@@ -155,7 +156,7 @@ type member struct {
 	MemberLabel            field.Int32   // 用户标签
 	MemberLabelName        field.String  // 会员标签名称
 	Qq                     field.String  // qq号
-	QqOpenid               field.String  // qq互联id
+	QqOpenid               field.String  // qq互联id (已改为客服系统回话token)
 	WxOpenid               field.String  // 微信用户openid
 	WeappOpenid            field.String  // 微信小程序openid
 	WxUnionid              field.String  // 微信unionid
@@ -200,11 +201,12 @@ type member struct {
 	CityID                 field.Int32   // 市id（增）
 	DistrictID             field.Int32   // 区id（增）
 	FullAddress            field.String  // 全地址（增）
+	Address                field.String  // 详情地址（增）
 	ErpUID                 field.String  // erpid（增）
 	ErpCode                field.String  // erpcode（增）
 	ErpName                field.String  // 客户店名（增）
-	Gid                    field.Int32
-	QualificationsImages   field.String
+	Gid                    field.Int32   // 关联账号member_id
+	QualificationsImages   field.String  // 资质图片（已废弃）
 	Inputmanid             field.Int32   // 维护人ID
 	Deptid                 field.Int32   // 维护人部门ID
 	Employeename           field.String  // 维护人姓名
@@ -307,6 +309,7 @@ func (m *member) updateTableName(table string) *member {
 	m.CityID = field.NewInt32(table, "city_id")
 	m.DistrictID = field.NewInt32(table, "district_id")
 	m.FullAddress = field.NewString(table, "full_address")
+	m.Address = field.NewString(table, "address")
 	m.ErpUID = field.NewString(table, "erp_uid")
 	m.ErpCode = field.NewString(table, "erp_code")
 	m.ErpName = field.NewString(table, "erp_name")
@@ -349,7 +352,7 @@ func (m *member) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (m *member) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 90)
+	m.fieldMap = make(map[string]field.Expr, 91)
 	m.fieldMap["member_id"] = m.MemberID
 	m.fieldMap["site_id"] = m.SiteID
 	m.fieldMap["source_member"] = m.SourceMember
@@ -412,6 +415,7 @@ func (m *member) fillFieldMap() {
 	m.fieldMap["city_id"] = m.CityID
 	m.fieldMap["district_id"] = m.DistrictID
 	m.fieldMap["full_address"] = m.FullAddress
+	m.fieldMap["address"] = m.Address
 	m.fieldMap["erp_uid"] = m.ErpUID
 	m.fieldMap["erp_code"] = m.ErpCode
 	m.fieldMap["erp_name"] = m.ErpName

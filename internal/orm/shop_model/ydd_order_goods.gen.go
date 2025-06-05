@@ -82,6 +82,7 @@ type OrderGoods struct {
 	OldOrderGoodsID      int32   `gorm:"column:old_order_goods_id;not null;comment:部分退款旧order_goods_id" json:"old_order_goods_id"`        // 部分退款旧order_goods_id
 	PromotionLabel       string  `gorm:"column:promotion_label;comment:活动标识" json:"promotion_label"`                                      // 活动标识
 	RefundNum            int32   `gorm:"column:refund_num;not null;comment:退款数量" json:"refund_num"`                                       // 退款数量
+	RefundSyncTime       int32   `gorm:"column:refund_sync_time;not null;comment:退款同步时间" json:"refund_sync_time"`                         // 退款同步时间
 	Goods                Goods   `gorm:"foreignKey:goods_id;references:goods_id" json:"goods"`
 }
 

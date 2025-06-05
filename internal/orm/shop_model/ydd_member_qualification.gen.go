@@ -26,6 +26,7 @@ type MemberQualification struct {
 	RefuseReason        string     `gorm:"column:refuse_reason;not null;comment:拒绝原因" json:"refuse_reason"`        // 拒绝原因
 	Custom              string     `gorm:"column:custom;comment:自定义表单" json:"custom"`                              // 自定义表单
 	VerifyData          string     `gorm:"column:verify_data;comment:核实图片（审核时上传）" json:"verify_data"`              // 核实图片（审核时上传）
+	BusinessScope       string     `gorm:"column:business_scope;not null;comment:经营范围ID列表" json:"business_scope"`  // 经营范围ID列表
 }
 
 // MarshalBinary 支持json序列化

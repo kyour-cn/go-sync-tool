@@ -36,8 +36,7 @@ func newArea(db *gorm.DB, opts ...gen.DOOption) area {
 	_area.Latitude = field.NewString(tableName, "latitude")
 	_area.Level = field.NewInt32(tableName, "level")
 	_area.Sort = field.NewInt32(tableName, "sort")
-	_area.Status = field.NewBool(tableName, "status")
-	_area.IsBlack = field.NewInt32(tableName, "is_black")
+	_area.Status = field.NewInt32(tableName, "status")
 
 	_area.fillFieldMap()
 
@@ -57,8 +56,7 @@ type area struct {
 	Latitude  field.String // 纬度
 	Level     field.Int32  // 级别
 	Sort      field.Int32  // 排序
-	Status    field.Bool   // 状态1有效
-	IsBlack   field.Int32  // 是否黑名单
+	Status    field.Int32  // 状态1有效
 
 	fieldMap map[string]field.Expr
 }
@@ -83,8 +81,7 @@ func (a *area) updateTableName(table string) *area {
 	a.Latitude = field.NewString(table, "latitude")
 	a.Level = field.NewInt32(table, "level")
 	a.Sort = field.NewInt32(table, "sort")
-	a.Status = field.NewBool(table, "status")
-	a.IsBlack = field.NewInt32(table, "is_black")
+	a.Status = field.NewInt32(table, "status")
 
 	a.fillFieldMap()
 
@@ -101,7 +98,7 @@ func (a *area) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *area) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 10)
+	a.fieldMap = make(map[string]field.Expr, 9)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["pid"] = a.Pid
 	a.fieldMap["name"] = a.Name
@@ -111,7 +108,6 @@ func (a *area) fillFieldMap() {
 	a.fieldMap["level"] = a.Level
 	a.fieldMap["sort"] = a.Sort
 	a.fieldMap["status"] = a.Status
-	a.fieldMap["is_black"] = a.IsBlack
 }
 
 func (a area) clone(db *gorm.DB) area {
