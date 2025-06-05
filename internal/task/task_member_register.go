@@ -7,10 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"log/slog"
 	"strings"
 	"time"
 )
-import "log/slog"
 
 func NewMemberRegister() *MemberRegister {
 	return &MemberRegister{
@@ -86,6 +86,18 @@ func (o MemberRegister) Run(t *Task) error {
 			newMember.Address = erp_entity.UTF8String(member.MemberAddress[0].Address)
 		}
 
+		// 查询经营范围
+		businessScopeList, err := shop_query.MemberBusinessScope.
+			Where(shop_query.MemberBusinessScope.MemberID.Eq(member.MemberID)).
+			Find()
+		if err == nil && len(businessScopeList) > 0 {
+			businessScopeNames := make([]string, 0)
+			for _, v := range businessScopeList {
+				businessScopeNames = append(businessScopeNames, v.BusinessScope)
+			}
+			newMember.BusinessScope = erp_entity.UTF8String(strings.Join(businessScopeNames, ","))
+		}
+
 		// 获取ERP数据库连接
 		erpDb, ok := global.DbPool.Get("erp")
 		if !ok {
@@ -98,7 +110,7 @@ func (o MemberRegister) Run(t *Task) error {
 				if v.Status != 1 { //不同步未完成审核资质
 					continue
 				}
-				mq := erp_entity.MemberQualification{
+				mq := erp_entity.NewMemberQualification{
 					MemberID: int(v.MemberID),
 					Name:     erp_entity.UTF8String(v.Name),
 					Identify: erp_entity.UTF8String(v.Identify),
