@@ -8,7 +8,9 @@ import (
 	"app/internal/store"
 	"app/internal/tools/safemap"
 	"app/internal/tools/sync_tool"
+	"app/ui/apptheme"
 	"errors"
+	"gioui.org/layout"
 	"gorm.io/gorm"
 	"log/slog"
 )
@@ -263,4 +265,9 @@ func (ma MemberAddress) update(v *erp_entity.MemberAddress, m *shop_model.Member
 func (ma MemberAddress) delete(_ *erp_entity.MemberAddress) error {
 
 	return nil
+}
+
+// ConfigLayout 任务配置UI布局
+func (ma MemberAddress) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+	return layout.Dimensions{}
 }

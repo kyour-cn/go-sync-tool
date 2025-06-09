@@ -4,8 +4,10 @@ import (
 	"app/internal/global"
 	"app/internal/orm/erp_entity"
 	"app/internal/orm/shop_query"
+	"app/ui/apptheme"
 	"errors"
 	"fmt"
+	"gioui.org/layout"
 	"gorm.io/gorm"
 	"log/slog"
 	"strconv"
@@ -26,7 +28,7 @@ type MemberRegister struct {
 	newMemberQualificationTable string
 }
 
-func (o MemberRegister) GetName() string {
+func (r MemberRegister) GetName() string {
 	return "MemberRegister"
 }
 
@@ -34,7 +36,7 @@ func (MemberRegister) ClearCache() error {
 	return nil
 }
 
-func (o MemberRegister) Run(t *Task) error {
+func (r MemberRegister) Run(t *Task) error {
 
 	memberList, err := shop_query.Member.
 		Preload(shop_query.Member.MemberQualification).
@@ -153,7 +155,7 @@ func (o MemberRegister) Run(t *Task) error {
 
 				// 写入ERP
 				result := erpDb.Exec(erpDb.ToSQL(func(tx *gorm.DB) *gorm.DB {
-					return tx.Table(o.newMemberQualificationTable).Create(&mq)
+					return tx.Table(r.newMemberQualificationTable).Create(&mq)
 				}))
 				if result.Error != nil {
 					slog.Error(fmt.Sprintf("ERP CreateOrder err:%s,args:%+v", result.Error, mq))
@@ -164,7 +166,7 @@ func (o MemberRegister) Run(t *Task) error {
 
 		// 写入ERP
 		result := erpDb.Exec(erpDb.ToSQL(func(tx *gorm.DB) *gorm.DB {
-			return tx.Table(o.newMemberTable).Create(&newMember)
+			return tx.Table(r.newMemberTable).Create(&newMember)
 		}))
 		if result.Error != nil {
 			slog.Error(fmt.Sprintf("ERP CreateMewMember err:%s,args:%+v", result.Error, newMember))
@@ -185,4 +187,9 @@ func (o MemberRegister) Run(t *Task) error {
 	}
 
 	return nil
+}
+
+// ConfigLayout 任务配置UI布局
+func (r MemberRegister) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+	return layout.Dimensions{}
 }

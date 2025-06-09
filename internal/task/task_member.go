@@ -9,7 +9,9 @@ import (
 	"app/internal/tools/cache"
 	"app/internal/tools/safemap"
 	"app/internal/tools/sync_tool"
+	"app/ui/apptheme"
 	"errors"
+	"gioui.org/layout"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"log/slog"
@@ -557,4 +559,9 @@ func getMemberLabel(labelName string) *shop_model.MemberLabel {
 	}
 
 	return label
+}
+
+// ConfigLayout 任务配置UI布局
+func (m Member) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+	return layout.Dimensions{}
 }

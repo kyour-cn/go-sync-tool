@@ -8,7 +8,9 @@ import (
 	"app/internal/store"
 	"app/internal/tools/safemap"
 	"app/internal/tools/sync_tool"
+	"app/ui/apptheme"
 	"errors"
+	"gioui.org/layout"
 	"gorm.io/gorm"
 	"log/slog"
 )
@@ -161,4 +163,9 @@ func (mc MemberCredit) delete(member *erp_entity.MemberCredit) error {
 	member.Limit = 0
 	member.Money = 0
 	return mc.addOrUpdate(member)
+}
+
+// ConfigLayout 任务配置UI布局
+func (mc MemberCredit) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+	return layout.Dimensions{}
 }

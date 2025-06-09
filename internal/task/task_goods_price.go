@@ -8,7 +8,9 @@ import (
 	"app/internal/store"
 	"app/internal/tools/safemap"
 	"app/internal/tools/sync_tool"
+	"app/ui/apptheme"
 	"errors"
+	"gioui.org/layout"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"log/slog"
@@ -192,4 +194,9 @@ func (g GoodsPrice) delete(goods *erp_entity.GoodsPrice) error {
 	goods.CostPrice = 0
 	goods.MarketPrice = 0
 	return g.addOrUpdate(goods)
+}
+
+// ConfigLayout 任务配置UI布局
+func (g GoodsPrice) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+	return layout.Dimensions{}
 }

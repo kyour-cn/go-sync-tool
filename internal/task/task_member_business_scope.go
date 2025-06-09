@@ -8,7 +8,9 @@ import (
 	"app/internal/store"
 	"app/internal/tools/safemap"
 	"app/internal/tools/sync_tool"
+	"app/ui/apptheme"
 	"errors"
+	"gioui.org/layout"
 	"gorm.io/gorm"
 	"log/slog"
 	"strings"
@@ -308,4 +310,9 @@ func (bs MemberBusinessScope) delete(item *erp_entity.MemberBusinessScope) error
 	}
 
 	return err
+}
+
+// ConfigLayout 任务配置UI布局
+func (bs MemberBusinessScope) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+	return layout.Dimensions{}
 }

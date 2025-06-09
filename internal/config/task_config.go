@@ -12,6 +12,7 @@ type TaskConfig struct {
 	Sql          string `toml:"sql" json:"sql" comment:"SQL语句"`
 	IntervalTime int    `toml:"interval_time" json:"interval_time" comment:"间隔时间-秒"`
 	Status       bool   `toml:"status" json:"status" comment:"是否启用"`
+	Setting      string `toml:"setting" json:"setting" comment:"设置内容 json"`
 }
 
 // TaskConfigMap 适用于多个连接的配置

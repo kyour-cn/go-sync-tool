@@ -7,8 +7,10 @@ import (
 	"app/internal/orm/shop_query"
 	"app/internal/store"
 	"app/internal/tools/sync_tool"
+	"app/ui/apptheme"
 	"context"
 	"errors"
+	"gioui.org/layout"
 	"github.com/go-gourd/gourd/event"
 	"log/slog"
 	"sync"
@@ -39,6 +41,8 @@ type Handle interface {
 	Run(*Task) error
 	// ClearCache 清理缓存
 	ClearCache() error
+	// ConfigLayout 任务配置布局
+	ConfigLayout(gtx layout.Context, theme *apptheme.Theme) layout.Dimensions
 }
 
 // List 任务列表

@@ -9,9 +9,11 @@ import (
 	"app/internal/tools"
 	"app/internal/tools/safemap"
 	"app/internal/tools/sync_tool"
+	"app/ui/apptheme"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"gioui.org/layout"
 	"gorm.io/gorm"
 	"log/slog"
 	"strconv"
@@ -570,4 +572,9 @@ func FormatGoodsAttr(goodsAttrFormat string) map[string]string {
 	}
 
 	return returnData
+}
+
+// ConfigLayout 任务配置UI布局
+func (g Goods) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+	return layout.Dimensions{}
 }

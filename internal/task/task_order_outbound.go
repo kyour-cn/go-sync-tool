@@ -8,7 +8,9 @@ import (
 	"app/internal/store"
 	"app/internal/tools/safemap"
 	"app/internal/tools/sync_tool"
+	"app/ui/apptheme"
 	"errors"
+	"gioui.org/layout"
 	"gorm.io/gorm"
 	"log/slog"
 	"time"
@@ -134,4 +136,9 @@ func (o OrderOutbound) add(v *erp_entity.OrderOutBound) error {
 		return err
 	}
 	return nil
+}
+
+// ConfigLayout 任务配置UI布局
+func (o OrderOutbound) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+	return layout.Dimensions{}
 }

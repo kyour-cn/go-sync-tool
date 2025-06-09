@@ -6,8 +6,10 @@ import (
 	"app/internal/orm/shop_model"
 	"app/internal/orm/shop_query"
 	"app/internal/tools/safemap"
+	"app/ui/apptheme"
 	"errors"
 	"fmt"
+	"gioui.org/layout"
 	"gorm.io/gorm"
 	"log/slog"
 	"strconv"
@@ -425,4 +427,9 @@ func (o Order) updateOGStatus(orderNo string, status int32, ogId []int32) error 
 	}
 
 	return nil
+}
+
+// ConfigLayout 任务配置UI布局
+func (o Order) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+	return layout.Dimensions{}
 }
