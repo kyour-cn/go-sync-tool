@@ -59,6 +59,13 @@ func New(theme *apptheme.Theme) *View {
 			}
 		}
 
+		if !node.Config.Status {
+			// 灰色
+			tn.PrefixColor = color.NRGBA{
+				R: 0x8b, G: 0x8b, B: 0x8b, A: 0xff,
+			}
+		}
+
 		leftTreeNode = append(leftTreeNode, tn)
 	}
 
