@@ -313,6 +313,6 @@ func (bs MemberBusinessScope) delete(item *erp_entity.MemberBusinessScope) error
 }
 
 // ConfigLayout 任务配置UI布局
-func (bs MemberBusinessScope) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+func (bs MemberBusinessScope) ConfigLayout(_ layout.Context, _ *apptheme.Theme, _ *Task) layout.Dimensions {
 	return layout.Dimensions{}
 }

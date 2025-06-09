@@ -170,6 +170,6 @@ func (g GoodsStock) delete(goods *erp_entity.GoodsStock) error {
 }
 
 // ConfigLayout 任务配置UI布局
-func (g GoodsStock) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+func (g GoodsStock) ConfigLayout(_ layout.Context, _ *apptheme.Theme, _ *Task) layout.Dimensions {
 	return layout.Dimensions{}
 }

@@ -139,6 +139,6 @@ func (o OrderOutbound) add(v *erp_entity.OrderOutBound) error {
 }
 
 // ConfigLayout 任务配置UI布局
-func (o OrderOutbound) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+func (o OrderOutbound) ConfigLayout(_ layout.Context, _ *apptheme.Theme, _ *Task) layout.Dimensions {
 	return layout.Dimensions{}
 }

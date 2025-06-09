@@ -112,7 +112,7 @@ func New(theme *apptheme.Theme) *View {
 		treeView:   leftTree,
 		nodeStatus: new(widget.Bool),
 		intervalTime: &widgets.LabeledInput{
-			Label:          "同步间隔（秒）",
+			Label:          "任务间隔（秒）",
 			SpaceBetween:   5,
 			MinEditorWidth: unit.Dp(10),
 			MinLabelWidth:  unit.Dp(10),
@@ -288,6 +288,7 @@ func (v *View) Layout(gtx layout.Context, theme *apptheme.Theme) layout.Dimensio
 							}),
 						)
 					}),
+
 					// 描述
 					layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 						text := " "
@@ -295,6 +296,14 @@ func (v *View) Layout(gtx layout.Context, theme *apptheme.Theme) layout.Dimensio
 							text = v.selectedNode.Description
 						}
 						return material.Body1(theme.Material(), text).Layout(gtx)
+					}),
+
+					// 任务自定义UI
+					layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+						if v.selectedNode == nil || v.selectedNode.Handle == nil {
+							return layout.Dimensions{}
+						}
+						return v.selectedNode.Handle.ConfigLayout(gtx, theme, v.selectedNode)
 					}),
 
 					// 代码编辑器

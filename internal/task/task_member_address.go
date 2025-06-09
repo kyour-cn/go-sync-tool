@@ -268,6 +268,6 @@ func (ma MemberAddress) delete(_ *erp_entity.MemberAddress) error {
 }
 
 // ConfigLayout 任务配置UI布局
-func (ma MemberAddress) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+func (ma MemberAddress) ConfigLayout(_ layout.Context, _ *apptheme.Theme, _ *Task) layout.Dimensions {
 	return layout.Dimensions{}
 }

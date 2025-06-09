@@ -14,6 +14,9 @@ import (
 	"errors"
 	"fmt"
 	"gioui.org/layout"
+	"gioui.org/unit"
+	"gioui.org/widget"
+	"gioui.org/widget/material"
 	"gorm.io/gorm"
 	"log/slog"
 	"strconv"
@@ -162,10 +165,10 @@ func (g Goods) delete(goods *erp_entity.Goods) error {
 
 func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Goods) error {
 
-	attrValue := attrGoods(syncGoods)
+	attrValue := g.attrGoods(syncGoods)
 	yddGoodsData := shop_model.Goods{
 		// 更新时不修改名称，因为电商可能会自定义
-		//GoodsName:         syncGoods.GoodsName.String(),
+		GoodsName:         syncGoods.GoodsName.String(),
 		Currencyname:      syncGoods.GoodsNickname.String(), // 通用名
 		GoodsAttrFormat:   attrValue,
 		Unit:              syncGoods.Unit.String(),
@@ -228,7 +231,7 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 		}
 	}
 
-	extensionData := FormatGoodsAttr(attrValue)
+	extensionData := g.FormatGoodsAttr(attrValue)
 	extensionDataStr, err := json.Marshal(extensionData)
 	if err == nil {
 		yddGoodsData.ExtensionData = string(extensionDataStr)
@@ -243,7 +246,7 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 	if _, er := shop_query.Goods.
 		Where(shop_query.Goods.GoodsErpSpid.Eq(yddGoodsData.GoodsErpSpid)).
 		Select(
-			//shop_query.Goods.GoodsName,
+			shop_query.Goods.GoodsName,
 			shop_query.Goods.BusinessScope,
 			shop_query.Goods.BusinessScopeName,
 			shop_query.Goods.Currencyname,
@@ -275,9 +278,9 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 	}
 
 	yddGoodsSkuData := shop_model.GoodsSku{
-		Keywords: yddGoodsData.Keywords,
-		//SkuName:         yddGoodsData.GoodsName,
-		//GoodsName:       yddGoodsData.GoodsName,
+		Keywords:        yddGoodsData.Keywords,
+		SkuName:         yddGoodsData.GoodsName,
+		GoodsName:       yddGoodsData.GoodsName,
 		GoodsClassName:  yddGoodsData.GoodsClassName,
 		GoodsAttrFormat: yddGoodsData.GoodsAttrFormat,
 		Unit:            yddGoodsData.Unit,
@@ -293,8 +296,8 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 		Where(shop_query.GoodsSku.GoodsID.Eq(shopGoodsInfo.GoodsID)).
 		Select(
 			shop_query.GoodsSku.Keywords,
-			//shop_query.GoodsSku.SkuName,
-			//shop_query.GoodsSku.GoodsName,
+			shop_query.GoodsSku.SkuName,
+			shop_query.GoodsSku.GoodsName,
 			shop_query.GoodsSku.GoodsClassName,
 			shop_query.GoodsSku.GoodsAttrFormat,
 			shop_query.GoodsSku.Unit,
@@ -316,7 +319,7 @@ func (g Goods) update(syncGoods *erp_entity.Goods, shopGoodsInfo shop_model.Good
 
 func (g Goods) add(syncGoods *erp_entity.Goods) error {
 
-	attrValue := attrGoods(syncGoods)
+	attrValue := g.attrGoods(syncGoods)
 	yddGoodsData := shop_model.Goods{
 		GoodsName:         syncGoods.GoodsName.String(),
 		GoodsAttrFormat:   attrValue,
@@ -367,7 +370,7 @@ func (g Goods) add(syncGoods *erp_entity.Goods) error {
 		yddGoodsData.MinBuy = 1
 	}
 
-	extensionData := FormatGoodsAttr(attrValue)
+	extensionData := g.FormatGoodsAttr(attrValue)
 	extensionDataStr, err := json.Marshal(extensionData)
 	if err == nil {
 		yddGoodsData.ExtensionData = string(extensionDataStr)
@@ -413,7 +416,7 @@ func (g Goods) add(syncGoods *erp_entity.Goods) error {
 }
 
 // 返回商品json格式属性
-func attrGoods(goods *erp_entity.Goods) string {
+func (g Goods) attrGoods(goods *erp_entity.Goods) string {
 	type Attr struct {
 		AttrName      string `json:"attr_name"`
 		AttrValueName string `json:"attr_value_name"`
@@ -508,13 +511,13 @@ func attrGoods(goods *erp_entity.Goods) string {
 	return string(bytes)
 }
 
-type GoodsAttr struct {
-	AttrName      string `json:"attr_name"`
-	AttrValueName string `json:"attr_value_name"`
-}
-
 // FormatGoodsAttr 格式化商品属性
-func FormatGoodsAttr(goodsAttrFormat string) map[string]string {
+func (g Goods) FormatGoodsAttr(goodsAttrFormat string) map[string]string {
+	type GoodsAttr struct {
+		AttrName      string `json:"attr_name"`
+		AttrValueName string `json:"attr_value_name"`
+	}
+
 	returnData := map[string]string{
 		"attr_specs":           "",
 		"attr_factory":         "无",
@@ -561,7 +564,6 @@ func FormatGoodsAttr(goodsAttrFormat string) map[string]string {
 			returnData["attr_country_code"] = goodsAttr.AttrValueName
 		case "产地":
 			returnData["attr_place"] = goodsAttr.AttrValueName
-
 		case "商品规格":
 			returnData["attr_goods_attr"] = goodsAttr.AttrValueName
 		case "产品批号":
@@ -574,7 +576,57 @@ func FormatGoodsAttr(goodsAttrFormat string) map[string]string {
 	return returnData
 }
 
+type (
+	C = layout.Context
+	D = layout.Dimensions
+)
+
+var (
+	// 虚拟列表，用于创建滚动布局
+	virtualList = &widget.List{List: layout.List{Axis: layout.Vertical}}
+
+	// 商品名称同步开关
+	goodsNameSync = new(widget.Bool)
+)
+
 // ConfigLayout 任务配置UI布局
-func (g Goods) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+func (g Goods) ConfigLayout(gtx layout.Context, theme *apptheme.Theme, t *Task) layout.Dimensions {
+
+	// TODO: 待实现更多配置
 	return layout.Dimensions{}
+
+	subFormInset := layout.Inset{
+		Top:    unit.Dp(10),
+		Bottom: unit.Dp(4),
+		//Left:   unit.Dp(10),
+	}
+
+	return material.List(theme.Material(), virtualList).Layout(gtx, 1, func(gtx layout.Context, _ int) layout.Dimensions {
+		return layout.Inset{
+			Left:  unit.Dp(10),
+			Right: unit.Dp(10),
+		}.Layout(gtx, func(gtx C) D {
+			return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+				layout.Rigid(func(gtx C) D {
+					return subFormInset.Layout(gtx, func(gtx C) D {
+						return layout.Flex{
+							Axis:      layout.Horizontal,
+							Alignment: layout.Middle,
+						}.Layout(gtx,
+							layout.Rigid(func(gtx C) D {
+								return material.Label(theme.Material(), theme.TextSize, "商品名更新").Layout(gtx)
+							}),
+							layout.Rigid(func(gtx C) D {
+								s := material.Switch(theme.Material(), goodsNameSync, "开关")
+								s.Color.Enabled = theme.SwitchBgColor
+								s.Color.Disabled = theme.Palette.Fg
+								return layout.Inset{Left: unit.Dp(10), Right: unit.Dp(10)}.Layout(gtx, s.Layout)
+							}),
+						)
+					})
+				}),
+			)
+		})
+	})
+
 }

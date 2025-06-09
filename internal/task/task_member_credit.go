@@ -166,6 +166,6 @@ func (mc MemberCredit) delete(member *erp_entity.MemberCredit) error {
 }
 
 // ConfigLayout 任务配置UI布局
-func (mc MemberCredit) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+func (mc MemberCredit) ConfigLayout(_ layout.Context, _ *apptheme.Theme, _ *Task) layout.Dimensions {
 	return layout.Dimensions{}
 }

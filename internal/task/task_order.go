@@ -430,6 +430,6 @@ func (o Order) updateOGStatus(orderNo string, status int32, ogId []int32) error 
 }
 
 // ConfigLayout 任务配置UI布局
-func (o Order) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+func (o Order) ConfigLayout(_ layout.Context, _ *apptheme.Theme, _ *Task) layout.Dimensions {
 	return layout.Dimensions{}
 }

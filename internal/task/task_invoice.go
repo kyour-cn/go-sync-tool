@@ -154,6 +154,6 @@ func (o OrderInvoice) add(v *erp_entity.OrderInvoice) error {
 }
 
 // ConfigLayout 任务配置UI布局
-func (o OrderInvoice) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+func (o OrderInvoice) ConfigLayout(_ layout.Context, _ *apptheme.Theme, _ *Task) layout.Dimensions {
 	return layout.Dimensions{}
 }

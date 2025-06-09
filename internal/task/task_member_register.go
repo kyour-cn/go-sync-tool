@@ -190,6 +190,6 @@ func (r MemberRegister) Run(t *Task) error {
 }
 
 // ConfigLayout 任务配置UI布局
-func (r MemberRegister) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+func (r MemberRegister) ConfigLayout(_ layout.Context, _ *apptheme.Theme, _ *Task) layout.Dimensions {
 	return layout.Dimensions{}
 }

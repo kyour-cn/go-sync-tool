@@ -562,6 +562,6 @@ func getMemberLabel(labelName string) *shop_model.MemberLabel {
 }
 
 // ConfigLayout 任务配置UI布局
-func (m Member) ConfigLayout(_ layout.Context, _ *apptheme.Theme) layout.Dimensions {
+func (m Member) ConfigLayout(_ layout.Context, _ *apptheme.Theme, _ *Task) layout.Dimensions {
 	return layout.Dimensions{}
 }

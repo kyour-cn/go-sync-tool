@@ -42,7 +42,7 @@ type Handle interface {
 	// ClearCache 清理缓存
 	ClearCache() error
 	// ConfigLayout 任务配置布局
-	ConfigLayout(gtx layout.Context, theme *apptheme.Theme) layout.Dimensions
+	ConfigLayout(layout.Context, *apptheme.Theme, *Task) layout.Dimensions
 }
 
 // List 任务列表
