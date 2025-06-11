@@ -100,6 +100,11 @@ func ConnDb() error {
 
 	var erpDb *gorm.DB
 	if erpConf.Type == "sqlserver" {
+		erpDb, err = gorm.Open(sqlserver.Open(erpConf.GenerateDsn()), erpConfig)
+		if err != nil {
+			return err
+		}
+	} else if erpConf.Type == "sqlserver-odbc" {
 		// 首先建立ODBC连接
 		var erpOdbc *sql.DB
 		dsn := fmt.Sprintf("DRIVER={SQL Server};SERVER=%s,%d;DATABASE=%s;UID=%s;PWD=%s",
@@ -123,6 +128,9 @@ func ConnDb() error {
 		}
 	} else if erpConf.Type == "mysql" {
 		erpDb, err = gorm.Open(mysql.Open(erpConf.GenerateDsn()), erpConfig)
+		if err != nil {
+			return err
+		}
 	} else {
 		// TODO: 其它数据库类型待实现
 		return errors.New("ODBC暂未支持的数据库类型：" + erpConf.Type)

@@ -19,6 +19,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/tidwall/pretty v1.2.1
 	golang.org/x/exp/shiny v0.0.0-20250531010427-b6e5de432a8b
+	golang.org/x/sys v0.33.0
 	golang.org/x/text v0.25.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/mysql v1.6.0
@@ -84,7 +85,6 @@ require (
 	golang.org/x/net v0.40.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sync v0.14.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
 	golang.org/x/tools v0.33.0 // indirect
 	golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2 // indirect
