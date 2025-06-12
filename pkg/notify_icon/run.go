@@ -1,7 +1,7 @@
-//go:build linux
+//go:build !windows
 
-package app
+package notify_icon
 
-func RunNotifyIcon() {
+func Run() {
 	//walk只支持windows，请看notify_icon_windows.go
 }

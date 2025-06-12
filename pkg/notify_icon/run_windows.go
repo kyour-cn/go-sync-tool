@@ -1,6 +1,6 @@
 //go:build windows
 
-package app
+package notify_icon
 
 import (
 	"app/assets"
@@ -17,7 +17,7 @@ var (
 	ni *walk.NotifyIcon
 )
 
-func RunNotifyIcon() {
+func Run() {
 	w, err := walk.NewMainWindow()
 	if err != nil {
 		log.Fatal(err)
