@@ -224,6 +224,7 @@ func (m Member) add(v *erp_entity.Member) error {
 		memberData.CityID = areaInfo.CityID
 		memberData.DistrictID = areaInfo.DistrictID
 		memberData.FullAddress = areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName
+		memberData.Address = v.FullAddress.String()
 	}
 
 	// 是否管控
