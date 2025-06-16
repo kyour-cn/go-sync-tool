@@ -74,11 +74,6 @@ func ConnDb() error {
 	// 设置数据库的最大打开连接数。
 	shopDbConn.SetMaxOpenConns(100)
 
-	// 设置shop查询默认的数据库连接
-	shop_query.SetDefault(shopDb)
-
-	DbPool.Set("shop", shopDb)
-
 	// 连接erp数据库
 	erpConf, err := config.GetDBConfig("erp")
 	if err != nil {
@@ -136,6 +131,9 @@ func ConnDb() error {
 		return errors.New("ODBC暂未支持的数据库类型：" + erpConf.Type)
 	}
 
+	// 设置数据库连接
+	shop_query.SetDefault(shopDb)
+	DbPool.Set("shop", shopDb)
 	DbPool.Set("erp", erpDb)
 
 	return nil
