@@ -1,8 +1,7 @@
-/dist
 /.idea
+/dist
+/logs/
 /go.sum
-/vendor
 /configs
-*.exe
-/*.log
 /temp
+*.exe
