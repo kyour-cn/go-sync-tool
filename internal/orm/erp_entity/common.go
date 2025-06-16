@@ -2,6 +2,7 @@ package erp_entity
 
 import (
 	"app/internal/global"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"golang.org/x/text/encoding/simplifiedchinese"
@@ -12,6 +13,16 @@ import (
 
 // UTF8String 兼容数据库字符串各种编码
 type UTF8String string
+
+func (us *UTF8String) isActuallyUTF8(raw []byte) bool {
+	if !utf8.Valid(raw) {
+		return false
+	}
+	// 把 raw 当 UTF-8 解码成 runes，再重新编码成 UTF-8
+	reencoded := []byte(string(raw))
+	// 只有真 UTF-8，原样 re-encode 才能完全还原
+	return bytes.Equal(raw, reencoded)
+}
 
 func (us *UTF8String) Scan(value interface{}) error {
 	switch v := value.(type) {
@@ -28,7 +39,7 @@ func (us *UTF8String) Scan(value interface{}) error {
 			*us = UTF8String(v)
 		} else {
 			// 自动识别
-			if utf8.ValidString(string(v)) {
+			if utf8.ValidString(string(v)) && us.isActuallyUTF8(v) {
 				*us = UTF8String(v)
 			} else {
 				str, err := simplifiedchinese.GBK.NewDecoder().Bytes(v)
