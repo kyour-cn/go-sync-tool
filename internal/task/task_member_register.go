@@ -41,8 +41,12 @@ func (r MemberRegister) Run(t *Task) error {
 	memberList, err := shop_query.Member.
 		Preload(shop_query.Member.MemberQualification).
 		Preload(shop_query.Member.MemberAddress).
-		Where(shop_query.Member.Status.Eq(1)).
-		Where(shop_query.Member.SyncTime.Eq(0)).
+		Where(
+			shop_query.Member.Status.Eq(1),
+			shop_query.Member.SyncTime.Eq(0),
+			shop_query.Member.IsDelete.Is(false),
+			shop_query.Member.ErpUID.Eq(""),
+		).
 		Find()
 	if err != nil {
 		slog.Error("查询平台新会员异常", "err", err)

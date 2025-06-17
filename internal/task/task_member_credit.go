@@ -122,7 +122,10 @@ func (mc MemberCredit) Run(t *Task) error {
 func (mc MemberCredit) addOrUpdate(item *erp_entity.MemberCredit) error {
 
 	member, err := shop_query.Member.
-		Where(shop_query.Member.ErpUID.Eq(item.ErpUID)).
+		Where(
+			shop_query.Member.ErpUID.Eq(item.ErpUID),
+			shop_query.Member.IsDelete.Is(false),
+		).
 		Select(
 			shop_query.Member.MemberID,
 			shop_query.Member.ErpUID,

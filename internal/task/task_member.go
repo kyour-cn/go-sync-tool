@@ -140,7 +140,10 @@ func (m Member) addOrUpdate(item *erp_entity.Member) error {
 	// 根据ERPID匹配
 	if memberInfo == nil {
 		memberInfo, err = shop_query.Member.
-			Where(shop_query.Member.ErpUID.Eq(item.ErpUID)).
+			Where(
+				shop_query.Member.ErpUID.Eq(item.ErpUID),
+				shop_query.Member.IsDelete.Is(false),
+			).
 			First()
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			slog.Error("查询ERP返回的ERPID称失败", "err", err)
@@ -151,7 +154,10 @@ func (m Member) addOrUpdate(item *erp_entity.Member) error {
 	// 根据单位名称匹配
 	if memberInfo == nil {
 		memberInfo, err = shop_query.Member.
-			Where(shop_query.Member.Nickname.Eq(item.Nickname.String())).
+			Where(
+				shop_query.Member.Nickname.Eq(item.Nickname.String()),
+				shop_query.Member.IsDelete.Is(false),
+			).
 			First()
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			slog.Error("查询ERP返回的单位名称失败", "err", err)

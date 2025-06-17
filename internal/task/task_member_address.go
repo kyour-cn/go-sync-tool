@@ -121,7 +121,11 @@ func (ma MemberAddress) addOrUpdate(item *erp_entity.MemberAddress) error {
 	//查询是否存在商城表中
 	memberInfo, err := shop_query.Member.
 		Select(shop_query.Member.MemberID).
-		Where(shop_query.Member.ErpUID.Eq(item.ErpUID)).First()
+		Where(
+			shop_query.Member.ErpUID.Eq(item.ErpUID),
+			shop_query.Member.IsDelete.Is(false),
+		).
+		First()
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		slog.Error("查询商城会员信息失败", "err", err.Error())
 		return err

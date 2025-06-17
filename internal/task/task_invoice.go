@@ -140,7 +140,13 @@ func (o OrderInvoice) add(v *erp_entity.OrderInvoice) error {
 		}
 	}
 	if v.ErpUID != "" && invoice.MemberID == 0 {
-		mb, _ := shop_query.Member.Where(shop_query.Member.ErpUID.Eq(v.ErpUID)).Select(shop_query.Member.MemberID).First()
+		mb, _ := shop_query.Member.
+			Where(
+				shop_query.Member.ErpUID.Eq(v.ErpUID),
+				shop_query.Member.IsDelete.Is(false),
+			).
+			Select(shop_query.Member.MemberID).
+			First()
 		if mb != nil {
 			invoice.MemberID = mb.MemberID
 		}

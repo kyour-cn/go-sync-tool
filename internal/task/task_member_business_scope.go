@@ -199,7 +199,10 @@ func (bs MemberBusinessScope) findMember(erpUid string) (*shop_model.Member, err
 		return v, nil
 	}
 	m, err := shop_query.Member.
-		Where(shop_query.Member.ErpUID.Eq(erpUid)).
+		Where(
+			shop_query.Member.ErpUID.Eq(erpUid),
+			shop_query.Member.IsDelete.Is(false),
+		).
 		Select(
 			shop_query.Member.MemberID,
 		).
