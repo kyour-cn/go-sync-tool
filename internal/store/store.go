@@ -24,6 +24,7 @@ var stores = []Loader{
 	OrderOutboundStore,
 	MemberCreditStore,
 	OrderInvoiceStore,
+	SalesmanStore,
 }
 
 // 初始化各个实体存储（注意类型参数声明方式）
@@ -89,6 +90,13 @@ var (
 		Storage:  persistence.NewStorage[[]*erp_entity.OrderInvoice](),
 		KeyFunc:  func(mbs *erp_entity.OrderInvoice) string { return mbs.InvoiceID },
 		FileName: "order_invoice.dat",
+	}
+
+	SalesmanStore = &EntityStore[*erp_entity.Salesman]{
+		Store:    safemap.New[*erp_entity.Salesman](),
+		Storage:  persistence.NewStorage[[]*erp_entity.Salesman](),
+		KeyFunc:  func(m *erp_entity.Salesman) string { return m.SaleID },
+		FileName: "salesman.dat",
 	}
 )
 

@@ -94,9 +94,11 @@ var List = []Task{
 		VerifyStruct: erp_entity.MemberBusinessScope{},
 	},
 	{
-		Name:        "salesman",
-		Label:       "*业务员",
-		Description: "需同步到电商平台的客户地址",
+		Name:         "salesman",
+		Label:        "业务员",
+		Description:  "需同步到电商平台的客户地址",
+		Handle:       NewSalesman(),
+		VerifyStruct: erp_entity.Salesman{},
 	},
 	{
 		Name:         "order_outbound",
