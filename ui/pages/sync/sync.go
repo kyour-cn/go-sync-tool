@@ -31,46 +31,81 @@ type View struct {
 	intervalTime *widgets.LabeledInput
 }
 
+var leftTree *widgets.TreeView
+
 func New(theme *apptheme.Theme) *View {
 
 	// 左侧列表
 	var leftTreeNode []*widgets.TreeNode
 
-	for _, node := range task.List {
-		tn := &widgets.TreeNode{
-			Text:       node.Label,
-			Identifier: node.Name,
-			MenuOptions: []string{
-				"校验SQL",
-				"清除缓存",
-			},
-		}
-		if node.Type == 1 {
-			tn.Prefix = "W"
-			// 红色
-			tn.PrefixColor = color.NRGBA{
-				R: 0xff, G: 0x73, B: 0x73, A: 0xff,
+	leftTree = widgets.NewTreeView(leftTreeNode)
+
+	updateNode := func() {
+
+		var newTreeNode []*widgets.TreeNode
+
+		for _, node := range task.List {
+			tn := &widgets.TreeNode{
+				Text:       node.Label,
+				Identifier: node.Name,
+				MenuOptions: []string{
+					"校验SQL",
+					"清除缓存",
+				},
 			}
-		} else {
-			tn.Prefix = "Q"
-			// 绿色
-			tn.PrefixColor = color.NRGBA{
-				R: 0x8b, G: 0xc3, B: 0x4a, A: 0xff,
+			if node.Type == 1 {
+				tn.Prefix = "W"
+				// 红色
+				tn.PrefixColor = color.NRGBA{
+					R: 0xff, G: 0x73, B: 0x73, A: 0xff,
+				}
+			} else {
+				tn.Prefix = "Q"
+				// 绿色
+				tn.PrefixColor = color.NRGBA{
+					R: 0x8b, G: 0xc3, B: 0x4a, A: 0xff,
+				}
 			}
+
+			if !node.Config.Status {
+				// 灰色
+				tn.PrefixColor = color.NRGBA{
+					R: 0x8b, G: 0x8b, B: 0x8b, A: 0xff,
+				}
+			}
+
+			newTreeNode = append(newTreeNode, tn)
 		}
 
-		if !node.Config.Status {
-			// 灰色
-			tn.PrefixColor = color.NRGBA{
-				R: 0x8b, G: 0x8b, B: 0x8b, A: 0xff,
-			}
-		}
+		leftTree.SetNodes(newTreeNode)
 
-		leftTreeNode = append(leftTreeNode, tn)
 	}
 
-	leftTree := widgets.NewTreeView(leftTreeNode)
+	updateNode()
+	event.Listen("task.config", func(ctx context.Context) {
+		updateNode()
+	})
 
+	c := &View{
+		split: widgets.SplitView{
+			// Ratio:       -0.64,
+			Resize: giox.Resize{
+				Ratio: 0.19,
+			},
+			BarWidth: unit.Dp(2),
+		},
+		treeView:   leftTree,
+		nodeStatus: new(widget.Bool),
+		intervalTime: &widgets.LabeledInput{
+			Label:          "任务间隔（秒）",
+			SpaceBetween:   5,
+			MinEditorWidth: unit.Dp(10),
+			MinLabelWidth:  unit.Dp(10),
+			Editor:         widgets.NewPatternEditor(),
+		},
+	}
+
+	// 点击菜单子项
 	leftTree.SetOnMenuItemClick(func(node *widgets.TreeNode, item string) {
 		switch item {
 		case "校验SQL":
@@ -100,25 +135,6 @@ func New(theme *apptheme.Theme) *View {
 			slog.Warn("操作不支持：" + item)
 		}
 	})
-
-	c := &View{
-		split: widgets.SplitView{
-			// Ratio:       -0.64,
-			Resize: giox.Resize{
-				Ratio: 0.19,
-			},
-			BarWidth: unit.Dp(2),
-		},
-		treeView:   leftTree,
-		nodeStatus: new(widget.Bool),
-		intervalTime: &widgets.LabeledInput{
-			Label:          "任务间隔（秒）",
-			SpaceBetween:   5,
-			MinEditorWidth: unit.Dp(10),
-			MinLabelWidth:  unit.Dp(10),
-			Editor:         widgets.NewPatternEditor(),
-		},
-	}
 
 	// 设置点击事件
 	leftTree.OnNodeClick(func(node *widgets.TreeNode) {
