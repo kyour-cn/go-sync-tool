@@ -148,7 +148,18 @@ func (ma MemberAddress) addOrUpdate(item *erp_entity.MemberAddress) error {
 
 	// 匹配不上，不更新商城端
 	if areaInfo == nil {
-		return nil
+		if memberAddress == nil {
+			areaInfo = &AreaInfo{
+				ProvinceID:   0,
+				ProvinceName: "",
+				CityID:       0,
+				CityName:     "",
+				DistrictID:   0,
+				DistrictName: "",
+			}
+		} else {
+			return nil
+		}
 	}
 
 	//if areaInfo != nil {
