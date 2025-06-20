@@ -127,12 +127,12 @@ func (m Salesman) addOrUpdate(item *erp_entity.Salesman) error {
 
 	if salesmanInfo != nil {
 		if er := m.update(item, salesmanInfo); er != nil {
-			slog.Error("salesmanSync updateMember", "err", err)
+			slog.Error("salesmanSync updateMember", "err", er)
 			return er
 		}
 	} else {
 		if er := m.add(item); er != nil {
-			slog.Error("memberSync addMember", "err", err)
+			slog.Error("salesmanSync addMember", "err", er)
 			return er
 		}
 	}

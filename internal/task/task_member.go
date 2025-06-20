@@ -167,12 +167,12 @@ func (m Member) addOrUpdate(item *erp_entity.Member) error {
 
 	if memberInfo != nil {
 		if er := m.update(item, memberInfo); er != nil {
-			slog.Error("memberSync updateMember", "err", err)
+			slog.Error("memberSync updateMember", "err", er)
 			return er
 		}
 	} else {
 		if er := m.add(item); er != nil {
-			slog.Error("memberSync addMember", "err", err)
+			slog.Error("memberSync addMember", "err", er)
 			return er
 		}
 	}
@@ -192,14 +192,10 @@ func (m Member) add(v *erp_entity.Member) error {
 
 	//查询销售员
 	var salesmanId int32 = 0
-
 	if v.SaleerID != "" {
-		salesman, err := shop_query.StaffSalesman.
+		salesman, _ := shop_query.StaffSalesman.
 			Where(shop_query.StaffSalesman.ErpSaleerID.Eq(v.SaleerID)).
 			First()
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
-		}
 		if salesman != nil {
 			salesmanId = salesman.SalesmanID
 		}
@@ -264,12 +260,9 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 	//查询销售员
 	var salesmanId int32 = 0
 	if v.SaleerID != "" {
-		salesman, err := shop_query.StaffSalesman.
+		salesman, _ := shop_query.StaffSalesman.
 			Where(shop_query.StaffSalesman.ErpSaleerID.Eq(v.SaleerID)).
 			First()
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
-		}
 		if salesman != nil {
 			salesmanId = salesman.SalesmanID
 			updateColumns = append(updateColumns, shop_query.Member.SalesmanID)
