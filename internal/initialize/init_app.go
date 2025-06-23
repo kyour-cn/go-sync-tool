@@ -4,6 +4,8 @@ import (
 	"app/internal/config"
 	"app/internal/global"
 	"app/internal/task"
+	"context"
+	"github.com/go-gourd/gourd/event"
 	"log/slog"
 )
 
@@ -32,4 +34,9 @@ func InitApp() {
 	global.State.Status = 1
 
 	slog.Info("应用启动，初始化完成。")
+
+	// 判断是否自启动
+	if appConf.AutoStart {
+		event.Trigger("task.start", context.Background())
+	}
 }

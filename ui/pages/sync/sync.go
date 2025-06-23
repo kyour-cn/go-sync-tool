@@ -286,7 +286,11 @@ func (v *View) Layout(gtx layout.Context, theme *apptheme.Theme) layout.Dimensio
 										s := material.Switch(theme.Material(), v.nodeStatus, "开关")
 										s.Color.Enabled = theme.SwitchBgColor
 										s.Color.Disabled = theme.Palette.Fg
-										return layout.Inset{Left: unit.Dp(10), Right: unit.Dp(10)}.Layout(gtx,
+										return layout.Inset{
+											Left:  unit.Dp(10),
+											Right: unit.Dp(10),
+											Top:   unit.Dp(5),
+										}.Layout(gtx,
 											s.Layout,
 										)
 									}),

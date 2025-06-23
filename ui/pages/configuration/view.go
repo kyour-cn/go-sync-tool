@@ -55,6 +55,7 @@ type ConfForm struct {
 
 	// ERP编码
 	erpDbCode *widgets.DropDown
+	autoStart *widget.Bool
 }
 
 func New(theme *apptheme.Theme) *View {
@@ -159,6 +160,7 @@ func New(theme *apptheme.Theme) *View {
 				widgets.NewDropDownOption("UTF8").WithValue("1"),
 				widgets.NewDropDownOption("智能识别").WithValue("2"),
 			),
+			autoStart: new(widget.Bool),
 		},
 	}
 
@@ -194,51 +196,62 @@ func New(theme *apptheme.Theme) *View {
 
 	c.confForm.projectName.SetText(appconf.ProjectName)
 	c.confForm.erpDbCode.SetSelectedByValue(strconv.Itoa(appconf.ErpEncoding))
+	c.confForm.autoStart.Value = appconf.AutoStart
 
 	return c
 }
 
 func (v *View) Save() {
 
-	// 保存配置
-	shopDbPort, _ := strconv.Atoi(v.confForm.shopDbPort.Text())
-	shopDbConf := &config.DbConfig{
-		Type:     v.confForm.shopDbType.GetSelected().Value,
-		Host:     v.confForm.shopDbHost.Text(),
-		Port:     shopDbPort,
-		Database: v.confForm.shopDbName.Text(),
-		User:     v.confForm.shopDbUser.Text(),
-		Pass:     v.confForm.shopDbPass.Text(),
+	shopDbConf, err := config.GetDBConfig("shop")
+	if err != nil {
+		shopDbConf = &config.DbConfig{}
 	}
-	err := config.SetDBConfig("shop", shopDbConf)
+
+	// 更新配置
+	shopDbPort, _ := strconv.Atoi(v.confForm.shopDbPort.Text())
+	shopDbConf.Type = v.confForm.shopDbType.GetSelected().Value
+	shopDbConf.Host = v.confForm.shopDbHost.Text()
+	shopDbConf.Port = shopDbPort
+	shopDbConf.Database = v.confForm.shopDbName.Text()
+	shopDbConf.User = v.confForm.shopDbUser.Text()
+	shopDbConf.Pass = v.confForm.shopDbPass.Text()
+
+	err = config.SetDBConfig("shop", shopDbConf)
 	if err != nil {
 		slog.Error("Set shop db config error: " + err.Error())
 	}
 
-	erpDbPort, _ := strconv.Atoi(v.confForm.erpDbPort.Text())
-	erpDbConf := &config.DbConfig{
-		Type:     v.confForm.erpDbType.GetSelected().Value,
-		Host:     v.confForm.erpDbHost.Text(),
-		Port:     erpDbPort,
-		Database: v.confForm.erpDbName.Text(),
-		User:     v.confForm.erpDbUser.Text(),
-		Pass:     v.confForm.erpDbPass.Text(),
+	erpDbConf, err := config.GetDBConfig("erp")
+	if err != nil {
+		erpDbConf = &config.DbConfig{}
 	}
+
+	erpDbPort, _ := strconv.Atoi(v.confForm.erpDbPort.Text())
+	erpDbConf.Type = v.confForm.erpDbType.GetSelected().Value
+	erpDbConf.Host = v.confForm.erpDbHost.Text()
+	erpDbConf.Port = erpDbPort
+	erpDbConf.Database = v.confForm.erpDbName.Text()
+	erpDbConf.User = v.confForm.erpDbUser.Text()
+	erpDbConf.Pass = v.confForm.erpDbPass.Text()
+
 	err = config.SetDBConfig("erp", erpDbConf)
 	if err != nil {
 		slog.Error("Set erp db config error: " + err.Error())
 	}
 
-	appconf, err := config.GetAppConfig()
+	appConf, err := config.GetAppConfig()
 	if err != nil {
-		appconf = &config.AppConfig{}
+		appConf = &config.AppConfig{}
 		slog.Error("Get app config error: " + err.Error())
 	}
 
-	appconf.ProjectName = v.confForm.projectName.Text()
-	appconf.ErpEncoding, _ = strconv.Atoi(v.confForm.erpDbCode.GetSelected().Value)
-	global.State.ErpEncoding = appconf.ErpEncoding
-	err = config.SetAppConfig(appconf)
+	appConf.ProjectName = v.confForm.projectName.Text()
+	appConf.ErpEncoding, _ = strconv.Atoi(v.confForm.erpDbCode.GetSelected().Value)
+	appConf.AutoStart = v.confForm.autoStart.Value
+
+	global.State.ErpEncoding = appConf.ErpEncoding
+	err = config.SetAppConfig(appConf)
 	if err != nil {
 		slog.Error("Set app config error: " + err.Error())
 	}
@@ -337,50 +350,6 @@ func (v *View) Layout(gtx layout.Context, theme *apptheme.Theme) layout.Dimensio
 					)
 				}),
 
-				//layout.Rigid(func(gtx C) D {
-				//    return subFormInset.Layout(gtx, func(gtx C) D {
-				//        return layout.Flex{
-				//            Axis:      layout.Horizontal,
-				//            Alignment: layout.Middle,
-				//        }.Layout(gtx,
-				//            layout.Rigid(func(gtx C) D {
-				//                gtx.Constraints.Min.X = gtx.Dp(85)
-				//                return material.Label(theme.Material(), theme.TextSize, "数据库类型").Layout(gtx)
-				//            }),
-				//            layout.Rigid(func(gtx C) D {
-				//                v.confForm.shopDbType.MaxWidth = unit.Dp(162)
-				//                return v.confForm.shopDbType.Layout(gtx, theme)
-				//
-				//            }),
-				//        )
-				//    })
-				//}),
-				//layout.Rigid(func(gtx C) D {
-				//    return subFormInset.Layout(gtx, func(gtx C) D {
-				//        return v.confForm.shopDbHost.Layout(gtx, theme)
-				//    })
-				//}),
-				//layout.Rigid(func(gtx C) D {
-				//    return subFormInset.Layout(gtx, func(gtx C) D {
-				//        return v.confForm.shopDbPort.Layout(gtx, theme)
-				//    })
-				//}),
-				//layout.Rigid(func(gtx C) D {
-				//    return subFormInset.Layout(gtx, func(gtx C) D {
-				//        return v.confForm.shopDbName.Layout(gtx, theme)
-				//    })
-				//}),
-				//layout.Rigid(func(gtx C) D {
-				//    return subFormInset.Layout(gtx, func(gtx C) D {
-				//        return v.confForm.shopDbUser.Layout(gtx, theme)
-				//    })
-				//}),
-				//layout.Rigid(func(gtx C) D {
-				//    return subFormInset.Layout(gtx, func(gtx C) D {
-				//        return v.confForm.shopDbPass.Layout(gtx, theme)
-				//    })
-				//}),
-
 				// ERP 数据库
 				layout.Rigid(func(gtx C) D {
 					return topButtonInset.Layout(gtx, func(gtx C) D {
@@ -453,53 +422,35 @@ func (v *View) Layout(gtx layout.Context, theme *apptheme.Theme) layout.Dimensio
 										return v.confForm.erpDbPass.Layout(gtx, theme)
 									})
 								}),
+
+								layout.Rigid(func(gtx C) D {
+									return subFormInset.Layout(gtx, func(gtx C) D {
+										return layout.Flex{
+											Axis:      layout.Horizontal,
+											Alignment: layout.Middle,
+										}.Layout(gtx,
+											layout.Rigid(func(gtx C) D {
+												return material.Label(theme.Material(), theme.TextSize, "自动启动").Layout(gtx)
+											}),
+											layout.Rigid(func(gtx C) D {
+												s := material.Switch(theme.Material(), v.confForm.autoStart, "开关")
+												s.Color.Enabled = theme.SwitchBgColor
+												s.Color.Disabled = theme.Palette.Fg
+												return layout.Inset{
+													Left:  unit.Dp(30),
+													Right: unit.Dp(10),
+													Top:   unit.Dp(10),
+												}.Layout(gtx,
+													s.Layout,
+												)
+											}),
+										)
+									})
+								}),
 							)
 						}),
 					)
 				}),
-				//layout.Rigid(func(gtx C) D {
-				//    return subFormInset.Layout(gtx, func(gtx C) D {
-				//        return layout.Flex{
-				//            Axis:      layout.Horizontal,
-				//            Alignment: layout.Middle,
-				//        }.Layout(gtx,
-				//            layout.Rigid(func(gtx C) D {
-				//                gtx.Constraints.Min.X = gtx.Dp(85)
-				//                return material.Label(theme.Material(), theme.TextSize, "数据库类型").Layout(gtx)
-				//            }),
-				//            layout.Rigid(func(gtx C) D {
-				//                v.confForm.erpDbType.MaxWidth = unit.Dp(162)
-				//                return v.confForm.erpDbType.Layout(gtx, theme)
-				//
-				//            }),
-				//        )
-				//    })
-				//}),
-				//layout.Rigid(func(gtx C) D {
-				//    return subFormInset.Layout(gtx, func(gtx C) D {
-				//        return v.confForm.erpDbHost.Layout(gtx, theme)
-				//    })
-				//}),
-				//layout.Rigid(func(gtx C) D {
-				//    return subFormInset.Layout(gtx, func(gtx C) D {
-				//        return v.confForm.erpDbPort.Layout(gtx, theme)
-				//    })
-				//}),
-				//layout.Rigid(func(gtx C) D {
-				//    return subFormInset.Layout(gtx, func(gtx C) D {
-				//        return v.confForm.erpDbName.Layout(gtx, theme)
-				//    })
-				//}),
-				//layout.Rigid(func(gtx C) D {
-				//    return subFormInset.Layout(gtx, func(gtx C) D {
-				//        return v.confForm.erpDbUser.Layout(gtx, theme)
-				//    })
-				//}),
-				//layout.Rigid(func(gtx C) D {
-				//    return subFormInset.Layout(gtx, func(gtx C) D {
-				//        return v.confForm.erpDbPass.Layout(gtx, theme)
-				//    })
-				//}),
 
 				// 保存按钮
 				layout.Rigid(func(gtx C) D {
