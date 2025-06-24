@@ -114,7 +114,7 @@ func New(theme *apptheme.Theme) *View {
 				theme,
 				widgets.NewDropDownOption("Mysql").WithValue("mysql"),
 				widgets.NewDropDownOption("SqlServer").WithValue("sqlserver"),
-				widgets.NewDropDownOption("SqlServer(ODBC)").WithValue("sqlserver-odbc"),
+				//widgets.NewDropDownOption("SqlServer(ODBC)").WithValue("sqlserver-odbc"),
 				widgets.NewDropDownOption("Oracle").WithValue("oracle"),
 			),
 			erpDbHost: &widgets.LabeledInput{

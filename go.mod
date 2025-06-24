@@ -8,7 +8,6 @@ require (
 	gioui.org v0.8.0
 	gioui.org/x v0.8.1
 	github.com/alecthomas/chroma/v2 v2.18.0
-	github.com/alexbrainman/odbc v0.0.0-20250601004241-49e6b2bc0cf0
 	github.com/fatedier/frp v0.62.1
 	github.com/go-gourd/gourd v1.3.0
 	github.com/google/uuid v1.6.0
