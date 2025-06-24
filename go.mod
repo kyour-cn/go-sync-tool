@@ -14,7 +14,7 @@ require (
 	github.com/lxn/walk v0.0.0-20210112085537-c389da54e794
 	github.com/mozillazg/go-pinyin v0.20.0
 	github.com/oligo/gioview v0.8.2
-	github.com/oligo/gvcode v0.3.0
+	github.com/oligo/gvcode v0.2.2
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/tidwall/pretty v1.2.1
 	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b
@@ -65,7 +65,6 @@ require (
 	github.com/pires/go-proxyproto v0.8.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/quic-go/quic-go v0.52.0 // indirect
-	github.com/rdleal/intervalst v1.5.0 // indirect
 	github.com/samber/lo v1.51.0 // indirect
 	github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8 // indirect
 	github.com/spf13/cobra v1.9.1 // indirect
