@@ -4,10 +4,9 @@ import (
 	"app/internal/config"
 	"app/internal/orm/shop_query"
 	"app/internal/tools/safemap"
-	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/alexbrainman/odbc"
+	//_ "github.com/alexbrainman/odbc"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
@@ -104,28 +103,28 @@ func ConnDb() error {
 		if err != nil {
 			return err
 		}
-	} else if erpConf.Type == "sqlserver-odbc" {
-		// 首先建立ODBC连接
-		var erpOdbc *sql.DB
-		dsn := fmt.Sprintf("DRIVER={SQL Server};SERVER=%s,%d;DATABASE=%s;UID=%s;PWD=%s",
-			erpConf.Host,
-			erpConf.Port,
-			erpConf.Database,
-			erpConf.User,
-			erpConf.Pass,
-		)
-		// 创建数据库连接
-		erpOdbc, err = sql.Open("odbc", dsn)
-		if err != nil {
-			return err
-		}
-		// 然后将连接传递给GORM
-		erpDb, err = gorm.Open(sqlserver.New(sqlserver.Config{
-			Conn: erpOdbc,
-		}), erpConfig)
-		if err != nil {
-			return err
-		}
+		//} else if erpConf.Type == "sqlserver-odbc" {
+		//	// 首先建立ODBC连接
+		//	var erpOdbc *sql.DB
+		//	dsn := fmt.Sprintf("DRIVER={SQL Server};SERVER=%s,%d;DATABASE=%s;UID=%s;PWD=%s",
+		//		erpConf.Host,
+		//		erpConf.Port,
+		//		erpConf.Database,
+		//		erpConf.User,
+		//		erpConf.Pass,
+		//	)
+		//	// 创建数据库连接
+		//	erpOdbc, err = sql.Open("odbc", dsn)
+		//	if err != nil {
+		//		return err
+		//	}
+		//	// 然后将连接传递给GORM
+		//	erpDb, err = gorm.Open(sqlserver.New(sqlserver.Config{
+		//		Conn: erpOdbc,
+		//	}), erpConfig)
+		//	if err != nil {
+		//		return err
+		//	}
 	} else if erpConf.Type == "mysql" {
 		erpDb, err = gorm.Open(mysql.Open(erpConf.GenerateDsn()), erpConfig)
 		if err != nil {
