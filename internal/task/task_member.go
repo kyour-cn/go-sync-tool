@@ -350,6 +350,7 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 			shop_query.Member.CityID,
 			shop_query.Member.DistrictID,
 			shop_query.Member.FullAddress,
+			shop_query.Member.Address,
 		)
 	}
 
