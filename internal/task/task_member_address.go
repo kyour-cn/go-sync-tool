@@ -6,6 +6,7 @@ import (
 	"app/internal/orm/shop_model"
 	"app/internal/orm/shop_query"
 	"app/internal/store"
+	"app/internal/tools/ai"
 	"app/internal/tools/safemap"
 	"app/internal/tools/sync_tool"
 	"app/ui/apptheme"
@@ -144,7 +145,29 @@ func (ma MemberAddress) addOrUpdate(item *erp_entity.MemberAddress) error {
 		First()
 
 	// 使用ERP地址信息的省市区信息获取商城的省市区信息
-	areaInfo, _ := getAreaFormCache(item.Province.String(), item.City.String(), item.District.String())
+
+	var (
+		province    = item.Province.String()
+		city        = item.City.String()
+		district    = item.District.String()
+		fullAddress = item.Address.String()
+	)
+
+	// 智能识别地区信息
+	if district == "" && fullAddress != "" {
+		aiArea, err := ai.FormatAddress(fullAddress)
+		if err == nil {
+			province = aiArea.Province
+			city = aiArea.City
+			district = aiArea.District
+			fullAddress = aiArea.Detail
+		}
+	}
+
+	areaInfo, _ := getAreaFormCache(province, city, district)
+	if areaInfo == nil {
+		slog.Debug("未查询到地区", "province", province, "city", city, "district", district)
+	}
 
 	// 匹配不上，不更新商城端
 	if areaInfo == nil {

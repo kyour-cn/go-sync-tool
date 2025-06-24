@@ -6,6 +6,7 @@ import (
 	"app/internal/orm/shop_model"
 	"app/internal/orm/shop_query"
 	"app/internal/store"
+	"app/internal/tools/ai"
 	"app/internal/tools/cache"
 	"app/internal/tools/safemap"
 	"app/internal/tools/sync_tool"
@@ -180,7 +181,28 @@ func (m Member) addOrUpdate(item *erp_entity.Member) error {
 }
 
 func (m Member) add(v *erp_entity.Member) error {
-	areaInfo, _ := getAreaFormCache(v.Province.String(), v.City.String(), v.District.String())
+	var (
+		province    = v.Province.String()
+		city        = v.City.String()
+		district    = v.District.String()
+		fullAddress = v.FullAddress.String()
+	)
+
+	// 智能识别地区信息
+	if district == "" && fullAddress != "" {
+		aiArea, err := ai.FormatAddress(fullAddress)
+		if err == nil {
+			province = aiArea.Province
+			city = aiArea.City
+			district = aiArea.District
+			fullAddress = aiArea.Detail
+		}
+	}
+
+	areaInfo, _ := getAreaFormCache(province, city, district)
+	if areaInfo == nil {
+		slog.Debug("未查询到地区", "province", province, "city", city, "district", district)
+	}
 
 	nowTime := int32(time.Now().Unix())
 
@@ -226,7 +248,7 @@ func (m Member) add(v *erp_entity.Member) error {
 		memberData.CityID = areaInfo.CityID
 		memberData.DistrictID = areaInfo.DistrictID
 		memberData.FullAddress = areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName
-		memberData.Address = v.FullAddress.String()
+		memberData.Address = fullAddress
 	}
 
 	// 是否管控
@@ -241,7 +263,28 @@ func (m Member) add(v *erp_entity.Member) error {
 }
 
 func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
-	areaInfo, _ := getAreaFormCache(v.Province.String(), v.City.String(), v.District.String())
+	var (
+		province    = v.Province.String()
+		city        = v.City.String()
+		district    = v.District.String()
+		fullAddress = v.FullAddress.String()
+	)
+
+	// 智能识别地区信息
+	if district == "" && fullAddress != "" {
+		aiArea, err := ai.FormatAddress(fullAddress)
+		if err == nil {
+			province = aiArea.Province
+			city = aiArea.City
+			district = aiArea.District
+			fullAddress = aiArea.Detail
+		}
+	}
+
+	areaInfo, _ := getAreaFormCache(province, city, district)
+	if areaInfo == nil {
+		slog.Debug("未查询到地区", "province", province, "city", city, "district", district)
+	}
 
 	nowTime := int32(time.Now().Unix())
 
@@ -300,6 +343,7 @@ func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
 		memberData.CityID = areaInfo.CityID
 		memberData.DistrictID = areaInfo.DistrictID
 		memberData.FullAddress = areaInfo.ProvinceName + "-" + areaInfo.CityName + "-" + areaInfo.DistrictName
+		memberData.Address = fullAddress
 
 		updateColumns = append(updateColumns,
 			shop_query.Member.ProvinceID,
