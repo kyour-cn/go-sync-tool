@@ -9,15 +9,16 @@ require (
 	gioui.org/x v0.8.1
 	github.com/alecthomas/chroma/v2 v2.18.0
 	github.com/fatedier/frp v0.62.1
-	github.com/go-gourd/gourd v1.3.0
+	github.com/go-gourd/gourd v1.3.1
 	github.com/google/uuid v1.6.0
 	github.com/lxn/walk v0.0.0-20210112085537-c389da54e794
 	github.com/mozillazg/go-pinyin v0.20.0
 	github.com/oligo/gioview v0.8.2
-	github.com/oligo/gvcode v0.2.2
+	github.com/oligo/gvcode v0.3.0
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/tidwall/pretty v1.2.1
-	golang.org/x/exp/shiny v0.0.0-20250606033433-dcc06ee1d476
+	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b
+	golang.org/x/exp/shiny v0.0.0-20250620022241-b7579e27df2b
 	golang.org/x/sys v0.33.0
 	golang.org/x/text v0.26.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
@@ -57,13 +58,14 @@ require (
 	github.com/microsoft/go-mssqldb v1.8.2 // indirect
 	github.com/onsi/ginkgo/v2 v2.23.4 // indirect
 	github.com/pion/dtls/v2 v2.2.12 // indirect
-	github.com/pion/logging v0.2.3 // indirect
+	github.com/pion/logging v0.2.4 // indirect
 	github.com/pion/stun/v2 v2.0.0 // indirect
 	github.com/pion/transport/v2 v2.2.10 // indirect
 	github.com/pion/transport/v3 v3.0.7 // indirect
 	github.com/pires/go-proxyproto v0.8.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/quic-go/quic-go v0.52.0 // indirect
+	github.com/rdleal/intervalst v1.5.0 // indirect
 	github.com/samber/lo v1.51.0 // indirect
 	github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8 // indirect
 	github.com/spf13/cobra v1.9.1 // indirect
@@ -78,7 +80,6 @@ require (
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/mock v0.5.2 // indirect
 	golang.org/x/crypto v0.39.0 // indirect
-	golang.org/x/exp v0.0.0-20250606033433-dcc06ee1d476 // indirect
 	golang.org/x/image v0.28.0 // indirect
 	golang.org/x/mod v0.25.0 // indirect
 	golang.org/x/net v0.41.0 // indirect
@@ -92,7 +93,7 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gorm.io/datatypes v1.2.5 // indirect
 	gorm.io/hints v1.1.2 // indirect
-	k8s.io/apimachinery v0.33.1 // indirect
+	k8s.io/apimachinery v0.33.2 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
