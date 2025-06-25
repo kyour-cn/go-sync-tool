@@ -263,6 +263,21 @@ func (m Member) add(v *erp_entity.Member) error {
 }
 
 func (m Member) update(v *erp_entity.Member, member *shop_model.Member) error {
+
+	// 表示只更新ERP_UID，不更新会员信息
+	if v.Status == -99 {
+		_, err := shop_query.Member.
+			Where(shop_query.Member.MemberID.Eq(member.MemberID)).
+			Select(shop_query.Member.ErpUID).
+			Updates(&shop_model.Member{
+				ErpUID: v.ErpUID,
+			})
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
 	var (
 		province    = v.Province.String()
 		city        = v.City.String()
